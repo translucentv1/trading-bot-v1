@@ -1,46 +1,44 @@
-# Trading-Bot: TradingView-Strategien + Signal-Bot
+# Trading-Bot: MQL5 Expert Advisor für MetaTrader 5
 
-Pine-Script-Strategien für TradingView, die dort gebacktestet und
-paper-getradet werden. Langfristig soll ein Python-Bot die Strategie-Signale
-automatisiert an eine Broker-API weiterleiten – **paper zuerst, live erst
-nach bestandenen Tests**.
+Ein Expert Advisor (EA) – ein Programm, das in MetaTrader 5 selbstständig
+handelt. Er wird zuerst im **Strategy Tester** gebacktestet und läuft danach
+automatisiert auf einem **Demo-Konto** (Spielgeld, kein echtes Geld):
+Forex, Hedged, EUR, 1.000 EUR Startkapital, Hebel 1:30.
 
 ## Projektstruktur
 
 ```
-strategy/   Pine-Script-v6-Strategien (zum Copy-Paste in den Pine-Editor)
-bot/        Python-Bot (Phase 1: nur Risikomanagement-Logik + Tests,
-            Broker-/Webhook-Anbindung folgt in Phase 2)
+experts/    MQL5-Quelldateien (.mq5) – werden im MetaEditor kompiliert
+CLAUDE.md   Projektregeln
 ```
 
-## Einrichtung (einmalig)
+## EA in MetaTrader 5 einrichten
 
-```powershell
-cd C:\Users\phili\trading-bot
-python -m venv venv
-venv\Scripts\activate
-pip install -r requirements.txt
-```
+1. In MT5: **Datei → Dateiordner öffnen** → in den Ordner
+   `MQL5\Experts\` wechseln und die `.mq5`-Datei aus `experts/`
+   dorthin kopieren.
+2. MetaEditor öffnen (Taste **F4** in MT5), die Datei im Navigator unter
+   „Experts" doppelklicken und mit **F7 kompilieren** –
+   unten muss „0 errors" stehen.
+3. Backtest: in MT5 **Strg+R** (Strategy Tester) → EA auswählen →
+   Symbol **EURUSD**, Zeitrahmen **H4**, Einzahlung 1.000 EUR,
+   Hebel 1:30 → Start.
+4. Paper-Trading: EA per Drag & Drop auf einen EURUSD-H4-Chart ziehen,
+   oben den Knopf **„Algo Trading"** aktivieren. Der EA handelt dann
+   selbstständig auf dem Demo-Konto, solange das Terminal offen ist.
 
-## Tests ausführen
+## Aktuelle Strategie
 
-```powershell
-venv\Scripts\activate
-python -m pytest
-```
-
-## Strategie in TradingView benutzen
-
-1. Chart öffnen (z. B. BTCUSD, 4-Stunden-Kerzen).
-2. Unten den **Pine Editor** öffnen, Inhalt einer Datei aus `strategy/`
-   hineinkopieren.
-3. „Zum Chart hinzufügen" klicken und im **Strategy Tester** die
-   Backtest-Ergebnisse ansehen.
+`experts/ema_9_21_crossover_long.mq5` – EMA-9/21-Crossover, nur Long:
+Kauf beim Kreuz der schnellen über die langsame EMA, Ausstieg beim
+Gegenkreuz, bei ±2 %/4 % vom Kontostand (Stop-Loss/Take-Profit) oder wenn
+der Tagesverlust das Limit überschreitet (Standard 5 %, dann Handelspause
+bis zum nächsten Tag). Alle Werte sind als Eingabe-Parameter änderbar.
 
 ## Phasen
 
 | Phase | Inhalt | Status |
 |---|---|---|
-| 1 | Struktur, erste Pine-Strategie (EMA 9/21), Risiko-Modul + Tests | ✅ fertig |
-| 2 | Broker-/Asset-Entscheidung, Webhook, Paper-Trading-Anbindung | offen |
-| 3+ | Live erst nach bestandenen Paper-Tests und ausdrücklicher Freigabe | offen |
+| 1 | Struktur + erster EA mit Tagesverlust-Stopp | ✅ fertig |
+| 2 | Backtests auswerten, Strategie verfeinern, Demo-Betrieb | offen |
+| 3+ | Live frühestens nach bestandenen Tests, Entscheidung liegt beim Nutzer | offen |
