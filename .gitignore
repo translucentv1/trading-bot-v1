@@ -1,13 +1,9 @@
 # Zugangsdaten - NIEMALS committen
 .env
 
-# Python
-__pycache__/
-*.pyc
-*.pyo
-venv/
-.pytest_cache/
-*.egg-info/
+# MetaTrader / MetaEditor
+*.ex5
+*.log
 
 # Betriebssystem
 .DS_Store
@@ -16,9 +12,6 @@ Thumbs.db
 # Editoren
 .vscode/
 .idea/
-
-# Logs und lokale Daten
-*.log
 
 # Lokale Claude-Code-Einstellungen (nur fuer diesen Rechner)
 .claude/settings.local.json

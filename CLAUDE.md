@@ -31,8 +31,17 @@ Demo-Konto → eine Live-Schaltung kommt frühestens nach bestandenen,
 dokumentierten Tests in Frage, ist allein Entscheidung und Handlung des
 Nutzers, und wird von Claude weder ausgeführt noch aktiviert.
 
+## Handoff-Workflow (Claude Code ↔ AI Studio)
+`KONTEXT.md` im Repo-Root ist die gemeinsame Handoff-Datei.
+- **Claude Code** aktualisiert sie am Ende jeder Sitzung und committet sie.
+- **AI Studio**: Nutzer kopiert Inhalt von `KONTEXT.md` + relevante `.mq5`-Datei
+  in AI Studio. AI Studio plant/diskutiert, implementiert aber nicht.
+- **Zustaendigkeit**: Claude Code = Code schreiben, Git, Dateien.
+  AI Studio = Planung, Erklaerungen, Strategie-Ideen (ohne Repo-Zugriff).
+- Jede neue Claude-Code-Sitzung beginnt mit Lesen von `KONTEXT.md`.
+
 ## Phasen
-1. **Phase 1 (heute):** Struktur, erster EA (EMA-9/21-Crossover, long-only,
+1. **Phase 1 (fertig):** Struktur, erster EA (EMA-9/21-Crossover, long-only,
    EURUSD H4, SL/TP in % vom Kapital) inkl. Tagesverlust-Stopp.
 2. **Phase 2:** Backtest-Ergebnisse auswerten, Strategie verfeinern,
    Demo-Betrieb beobachten.
