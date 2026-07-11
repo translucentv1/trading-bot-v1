@@ -1,0 +1,55 @@
+//@version=6
+// =============================================================================
+// EMA-9/21-Crossover, nur Long (fuer BTCUSD, 4-Stunden-Chart gedacht)
+// =============================================================================
+// Idee:
+//   - Kauf ("goldenes Kreuz"): die schnelle EMA (Standard 9) kreuzt die
+//     langsame EMA (Standard 21) von unten nach oben -> Aufwaertsschwung.
+//   - Absicherung: jede Position bekommt sofort einen Stop-Loss (Standard 2 %
+//     unter Einstieg) und einen Take-Profit (Standard 4 % ueber Einstieg).
+//   - Zusaetzlicher Ausstieg: kreuzt die schnelle EMA wieder nach unten,
+//     wird die Position geschlossen, ohne auf SL/TP zu warten.
+//
+// Alle Parameter sind unten als Eingaben definiert - im Pine-Editor ueber
+// das Zahnrad der Strategie ("Einstellungen") jederzeit anpassbar.
+// =============================================================================
+
+strategy("EMA 9/21 Crossover (Long only)",
+     overlay=true,
+     initial_capital=10000,
+     default_qty_type=strategy.percent_of_equity,
+     default_qty_value=100,
+     commission_type=strategy.commission.percent,
+     commission_value=0.1,
+     slippage=2)
+
+// --- Eingaben (im Pine-Editor anpassbar) -------------------------------------
+emaSchnellLaenge = input.int(9,    "Schnelle EMA (Perioden)",  minval=1,   group="Indikatoren", tooltip="Anzahl Kerzen fuer die schnelle EMA. Kleiner = reagiert frueher, aber mehr Fehlsignale.")
+emaLangsamLaenge = input.int(21,   "Langsame EMA (Perioden)",  minval=2,   group="Indikatoren", tooltip="Anzahl Kerzen fuer die langsame EMA. Muss groesser sein als die schnelle EMA.")
+stopLossProzent  = input.float(2.0, "Stop-Loss (%)",           minval=0.1, step=0.1, group="Risiko", tooltip="Verkauf, wenn der Kurs so viele Prozent UNTER den Einstiegspreis faellt.")
+takeProfitProzent= input.float(4.0, "Take-Profit (%)",         minval=0.1, step=0.1, group="Risiko", tooltip="Verkauf, wenn der Kurs so viele Prozent UEBER den Einstiegspreis steigt.")
+
+// --- Indikatoren --------------------------------------------------------------
+emaSchnell = ta.ema(close, emaSchnellLaenge)
+emaLangsam = ta.ema(close, emaLangsamLaenge)
+
+kaufSignal    = ta.crossover(emaSchnell, emaLangsam)   // schnelle EMA kreuzt nach oben
+ausstiegSignal = ta.crossunder(emaSchnell, emaLangsam) // schnelle EMA kreuzt nach unten
+
+// --- Einstieg: nur kaufen, wenn gerade keine Position offen ist ---------------
+if kaufSignal and strategy.position_size == 0
+    strategy.entry("Long", strategy.long)
+
+// --- Absicherung: Stop-Loss und Take-Profit relativ zum Einstiegspreis --------
+if strategy.position_size > 0
+    stopPreis = strategy.position_avg_price * (1 - stopLossProzent / 100)
+    zielPreis = strategy.position_avg_price * (1 + takeProfitProzent / 100)
+    strategy.exit("SL/TP", from_entry="Long", stop=stopPreis, limit=zielPreis)
+
+// --- Zusaetzlicher Ausstieg beim Kreuz nach unten ------------------------------
+if ausstiegSignal and strategy.position_size > 0
+    strategy.close("Long", comment="EMA-Kreuz nach unten")
+
+// --- Anzeige im Chart ----------------------------------------------------------
+plot(emaSchnell, "EMA schnell", color=color.new(color.orange, 0), linewidth=2)
+plot(emaLangsam, "EMA langsam", color=color.new(color.blue, 0),   linewidth=2)

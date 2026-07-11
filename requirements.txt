@@ -1,0 +1,2 @@
+# Phase 1: nur Test-Werkzeug. Broker-/Webhook-Pakete folgen in Phase 2.
+pytest>=8.0
