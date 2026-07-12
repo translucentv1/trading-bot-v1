@@ -27,13 +27,26 @@ CLAUDE.md   Projektregeln
    oben den Knopf **„Algo Trading"** aktivieren. Der EA handelt dann
    selbstständig auf dem Demo-Konto, solange das Terminal offen ist.
 
-## Aktuelle Strategie
+## Aktuelle Strategie (v2.0)
 
-`experts/ema_9_21_crossover_long.mq5` – EMA-9/21-Crossover, nur Long:
-Kauf beim Kreuz der schnellen über die langsame EMA, Ausstieg beim
-Gegenkreuz, bei ±2 %/4 % vom Kontostand (Stop-Loss/Take-Profit) oder wenn
-der Tagesverlust das Limit überschreitet (Standard 5 %, dann Handelspause
-bis zum nächsten Tag). Alle Werte sind als Eingabe-Parameter änderbar.
+`experts/ema_9_21_crossover_long.mq5` – EMA-9/21-Crossover, nur Long, mit
+markt-strukturbasiertem Risikomanagement:
+
+- **Einstieg:** EMA 9 kreuzt EMA 21 nach oben, Trend bestätigt durch
+  EMA 200, und RSI nicht überkauft (< 70).
+- **Stop-Loss (Marktstruktur):** unter das letzte Swing-Tief (Tief der
+  letzten Kerzen) plus ein Volatilitäts-Puffer (ATR). Der Stop richtet
+  sich nach der echten Marktstruktur statt nach einem starren Prozentwert.
+- **Take-Profit (dynamisch):** Risiko × Faktor (Standard 1,8). Zusätzlich
+  zieht ein ATR-Trailing-Stop den Stop bei Gewinn nach.
+- **Positionsgröße:** wird so berechnet, dass ein Stop-Loss-Treffer genau
+  1 % vom Kapital kostet (risikobasiert).
+- **Schutz:** Tagesverlust-Limit (Standard 5 %) schließt alles und
+  pausiert bis zum nächsten Tag.
+
+Alle Werte sind als Eingabe-Parameter änderbar (nach Gruppen sortiert).
+
+**Verwendete Indikatoren:** EMA (9/21/200), ATR (Volatilität), RSI (Filter).
 
 ## Phasen
 
