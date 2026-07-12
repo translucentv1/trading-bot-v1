@@ -21,7 +21,7 @@
 //| Tester laufen im MetaEditor/MT5.                                |
 //+------------------------------------------------------------------+
 #property copyright "Phase 3 - Demo/Paper"
-#property version   "3.10"
+#property version   "3.20"
 #property strict
 #property description "EMA 9/21 + Multi-Timeframe-Bias, Long & Short,"
 #property description "Struktur-Stop, dynamischer TP, ATR-Trailing, RSI-Filter."
@@ -54,8 +54,14 @@ input bool            InpAllowShort     = false;    // Short-Trades erlauben (au
 input group "--- RSI-Filter ---"
 input bool            InpUseRSIFilter   = true;     // RSI-Filter aktivieren
 input int             InpRSIPeriod      = 14;       // Perioden RSI
-input double          InpRSIUpper       = 70.0;     // kein Long wenn RSI darueber
-input double          InpRSILower       = 30.0;     // kein Short wenn RSI darunter
+input double          InpRSIUpper       = 70.0;     // kein Long wenn RSI darueber (nur Modus 0)
+input double          InpRSILower       = 30.0;     // kein Short wenn RSI darunter (nur Modus 0)
+
+//--- Eingaben: Einstiegs-Modus --------------------------------------
+input group "--- Einstiegs-Modus ---"
+input int             InpEntryMode      = 0;        // 0 = EMA-Kreuz (Trend), 1 = RSI-Mean-Reversion (Pullback)
+input double          InpRSIBuyLevel    = 40.0;     // MR Long: RSI kreuzt von unten hier durch
+input double          InpRSISellLevel   = 60.0;     // MR Short: RSI kreuzt von oben hier durch
 
 //--- Eingaben: Marktstruktur (Stop-Loss) ----------------------------
 input group "--- Marktstruktur / Stop-Loss ---"
@@ -140,14 +146,12 @@ int OnInit()
       return(INIT_FAILED);
      }
 
-   if(InpUseRSIFilter)
+   // RSI fuer Filter UND Mean-Reversion-Modus -> immer anlegen
+   h_rsi = iRSI(_Symbol, _Period, InpRSIPeriod, PRICE_CLOSE);
+   if(h_rsi == INVALID_HANDLE)
      {
-      h_rsi = iRSI(_Symbol, _Period, InpRSIPeriod, PRICE_CLOSE);
-      if(h_rsi == INVALID_HANDLE)
-        {
-         Print("Fehler beim Erstellen des RSI Handles!");
-         return(INIT_FAILED);
-        }
+      Print("Fehler beim Erstellen des RSI Handles!");
+      return(INIT_FAILED);
      }
 
    m_last_bar_time     = 0;
@@ -250,12 +254,11 @@ void OnTick()
    datetime barTime = (datetime)SeriesInfoInteger(_Symbol, _Period, SERIES_LASTBAR_DATE);
    if(barTime == m_last_bar_time) return;
 
-   double fast[3], slow[3], rsi[2];
+   double fast[3], slow[3], rsi[3];
    if(CopyBuffer(h_fastEMA, 0, 0, 3, fast) < 3 ||
-      CopyBuffer(h_slowEMA, 0, 0, 3, slow) < 3)
+      CopyBuffer(h_slowEMA, 0, 0, 3, slow) < 3 ||
+      CopyBuffer(h_rsi,     0, 0, 3, rsi)  < 3)
       return;
-   if(InpUseRSIFilter)
-      if(CopyBuffer(h_rsi, 0, 0, 2, rsi) < 2) return;
 
    // Bias der hoeheren Zeitebene bestimmen
    double biasEMA[1];
@@ -268,35 +271,50 @@ void OnTick()
    m_last_bar_time = barTime;
    if(atrValue <= 0.0) return;
 
-   bool crossUp   = (fast[1] > slow[1]) && (fast[2] <= slow[2]); // Golden Cross
-   bool crossDown = (fast[1] < slow[1]) && (fast[2] >= slow[2]); // Death Cross
+   // --- Einstiegs-Signale je nach Modus ----------------------------
+   bool longSignal = false, shortSignal = false;
+   bool longExit   = false, shortExit   = false;
 
-   double rsiVal = InpUseRSIFilter ? rsi[1] : 50.0;
-   bool rsiOkLong  = !InpUseRSIFilter || (rsiVal < InpRSIUpper);
-   bool rsiOkShort = !InpUseRSIFilter || (rsiVal > InpRSILower);
+   if(InpEntryMode == 0)
+     {
+      // Modus 0: EMA-Kreuz (Trendfolge)
+      bool crossUp    = (fast[1] > slow[1]) && (fast[2] <= slow[2]);
+      bool crossDown  = (fast[1] < slow[1]) && (fast[2] >= slow[2]);
+      bool rsiOkLong  = !InpUseRSIFilter || (rsi[1] < InpRSIUpper);
+      bool rsiOkShort = !InpUseRSIFilter || (rsi[1] > InpRSILower);
+      longSignal  = crossUp   && biasUp   && rsiOkLong;
+      shortSignal = crossDown && biasDown && rsiOkShort;
+      longExit    = crossDown;   // Gegenkreuz schliesst Long
+      shortExit   = crossUp;     // Gegenkreuz schliesst Short
+     }
+   else
+     {
+      // Modus 1: RSI-Mean-Reversion (Ruecksetzer im Trend kaufen)
+      // Long: RSI dreht von unten durch InpRSIBuyLevel nach oben, im Aufwaerts-Bias
+      bool rsiTurnUp   = (rsi[2] <= InpRSIBuyLevel)  && (rsi[1] > InpRSIBuyLevel);
+      // Short: RSI dreht von oben durch InpRSISellLevel nach unten, im Abwaerts-Bias
+      bool rsiTurnDown = (rsi[2] >= InpRSISellLevel) && (rsi[1] < InpRSISellLevel);
+      longSignal  = rsiTurnUp   && biasUp;
+      shortSignal = rsiTurnDown && biasDown;
+      // Ausstieg im MR-Modus ueber TP / Break-Even / Trailing (kein Signal-Exit)
+     }
 
-   // 6. Offene Position verwalten: Ausstieg beim Gegenkreuz
+   // 6. Offene Position: ggf. Signal-Ausstieg
    if(hasPos)
      {
-      if(posType == POSITION_TYPE_BUY && crossDown)
-        {
-         Print("Long-Ausstieg: Death Cross. #", ticket);
-         trade.PositionClose(ticket);
-        }
-      else if(posType == POSITION_TYPE_SELL && crossUp)
-        {
-         Print("Short-Ausstieg: Golden Cross. #", ticket);
-         trade.PositionClose(ticket);
-        }
+      if(posType == POSITION_TYPE_BUY && longExit)
+        { Print("Long-Ausstieg (Signal). #", ticket); trade.PositionClose(ticket); }
+      else if(posType == POSITION_TYPE_SELL && shortExit)
+        { Print("Short-Ausstieg (Signal). #", ticket); trade.PositionClose(ticket); }
       return;
      }
 
    // 7. Einstieg (nur wenn keine Position und kein Tagesstopp)
    if(m_loss_limit_active) return;
 
-   if(InpAllowLong && crossUp && biasUp && rsiOkLong)
+   if(InpAllowLong && longSignal)
       OpenTrade(true, atrValue);
-   else if(InpAllowShort && crossDown && biasDown && rsiOkShort)
+   else if(InpAllowShort && shortSignal)
       OpenTrade(false, atrValue);
   }
 
