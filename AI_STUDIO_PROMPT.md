@@ -38,14 +38,27 @@ verstaendliche Erklaerungen auf Deutsch, ohne unnoetigen Fachjargon.
    (Profitfaktor ~1,1). "10% pro Monat" ist Marketing, kein Ziel.
 
 ## Was wir gelernt haben (nicht wiederholen)
+- **KEINE bisher getestete Konfiguration hat einen OOS-robusten Edge
+  gezeigt.** Die scheinbar beste (H4+D1+Sicherung, 2022-2026 gesamt +385,
+  PF 1,12) VERLIERT im Out-of-Sample-Fenster 2024-2026 (-245, PF 0,88) -
+  der Gewinn stammte allein aus 2022-2023. NICHT als "Bester Stand"
+  behandeln.
+- **Die Kante generalisiert nicht ueber Instrumente:** dieselbe H1-Konfig
+  verliert auf GBPUSD (PF 0,95/0,95) und Gold (PF 0,51/0,83). Der
+  EURUSD-Gewinn war hoechstwahrscheinlich Overfitting an EURUSD.
+  (XAUUSD-Zahlen zusaetzlich durch einen Sizing-Bug verzerrt, aber PF<1
+  bleibt.)
 - M15/M30 haben auf EURUSD keinen tragfaehigen Vorteil (Trend UND Mean
   Reversion verloren, Spread frisst kleine Bewegungen).
 - Shorts schaden auf EURUSD (starker Aufwaertstrend) -> aktuell long-only.
-- Gewinnsicherung (Break-Even + Teil-TP) hilft auf H4, schadet auf H1
-  (kappt die grossen Gewinner).
-- Bester Stand: **H4-Chart + D1-Bias, Trendfolge (EMA 9/21-Kreuz) +
-  Gewinnsicherung, long-only** (2022-2026: +385, PF 1,12, DD 7,2%,
-  Trefferquote 68%).
+- Gewinnsicherung (Break-Even + Teil-TP) hilft auf H4, schadet auf H1.
+- **Konsequenz:** kein Feintuning/Optimieren bekannter Konfigs, kein
+  Live-Einsatz mit Gewinnerwartung. Gebraucht wird eine grundlegend andere
+  Signal-Idee oder ein Regime-/Volatilitaetsfilter, danach STRENG per
+  Out-of-Sample (2 Fenster) UND ueber >=1 unabhaengiges Instrument pruefen.
+- Metrik: Nicht die Trefferquote zaehlt, sondern Erwartung UND ob der
+  z-Wert (in backtests.csv) klar > ~1,5-2 liegt. Die meisten bisherigen
+  Laeufe sind statistisch nicht von Null verschieden (Rauschen).
 
 ## Arbeits-Workflow (immer so)
 1. Lies KONTEXT.md + backtests.csv.

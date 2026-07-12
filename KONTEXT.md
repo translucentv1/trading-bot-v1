@@ -8,31 +8,27 @@ Demo-Ziel: Forex Hedged EUR, 1.000 EUR Startkapital, Hebel 1:30.
 Repo (privat): https://github.com/translucentv1/trading-bot-v1
 
 ## Aktueller Stand
-Phase 3. **ENTSCHEIDEND: Die Kante generalisiert NICHT ueber Instrumente.**
-- H1+H4-Konfig (auf EURUSD die "robustere") getestet auf GBPUSD (hoch
-  korreliert): **BEIDE Fenster negativ, PF 0,95 / 0,95.** Auf XAUUSD
-  (Gold): **katastrophal, PF 0,51 / 0,83, DD bis 65 %.**
-- Heisst: Der EURUSD-Gewinn war **im Wesentlichen an EURUSD (2022-2023)
-  ueberangepasst** - kein echter, uebertragbarer Markt-Vorteil. Selbst das
-  eng verwandte GBPUSD verliert.
-- **Konsequenz: Parameteroptimierung bleibt zurueckgestellt; die
-  EMA-Kreuz+MTF-Bias-Strategie hat (so) keinen generalisierbaren Edge.**
-  Kein Live-Einsatz mit Gewinnerwartung. Naechster Schritt = anderer
-  Ansatz oder Volatilitaets-/Regime-Filter, nicht Feintuning.
-- Diagnose Fenster B: ~20 % geringere Volatilitaet (ATR-D1 0,0072 vs
-  0,0090), Trendstaerke aehnlich -> kleinere Bewegungen, Kosten fressen
-  die duenne Kante.
+Phase 3. **VIELVERSPRECHENDE SPUR: Volatilitaetsfilter (v3.4).** Nur
+handeln wenn ATR-D1 >= rollierendem Median (100 Tage) verbessert EURUSD
+H1/H4 in ALLEN Fenstern konsistent (PF 1,12->1,37 gesamt; Fenster B von
+PF 1,02/z 0,12 auf PF 1,23/z 0,76; DD ~halbiert). Erstes Experiment ohne
+Cherry-Picking-Verdacht. ABER: z_B=0,76 noch < 2 = noch KEIN bewiesener
+Edge, nur ein guter Kandidat. Filter default AUS.
+- Vorher (bleibt gueltig): ROH-Strategie ohne Filter generalisiert NICHT
+  (GBPUSD PF 0,95/0,95, Gold PF 0,51/0,83). Der EURUSD-Gewinn war
+  Overfitting; XAUUSD zusaetzlich durch Sizing-Bug verzerrt (s. Backtest 9).
+- **Naechster, entscheidender Schritt: Volatilitaetsfilter auf GBPUSD
+  gegentesten (Generalisierung). Erst wenn er dort auch haelt, ist es ein
+  echter Fund.** Kein Feintuning der Schwelle an EURUSD (Overfitting).
 
 ## Letzte Aktion
-Multi-Instrument-Robustheitssitzung (Auftrag AI Studio). Aufgabe 0:
-Remote `translucentv1/trading-bot` bestaetigt PRIVAT, Commit ffc6f8e drin
-(Remote-Wechsel von -v1 nicht in git geloggt, beide privat = ok; Token
-liegt im Klartext in .git/config -> Nutzer sollte ihn rotieren + auf
-Credential-Manager/SSH wechseln). Aufgabe 1: Diagnose (Fenster B
-volaarm). Aufgabe 2: Lot/Risiko fuer GBPUSD (1,95 EUR/min-Lot) und XAUUSD
-(2,17 EUR) auf 1.000 EUR sauber testbar, EA rechnet generisch. Aufgabe
-3/4: GBPUSD + XAUUSD getestet -> beide negativ (Details Backtest 9).
-backtests.csv um Spalte `symbol` erweitert.
+Review-/Volatilitaetsfilter-Sitzung (Auftrag AI Studio). Aufgabe 1:
+XAUUSD-Sizing-Bug entdeckt (Position ~3,8x zu gross wegen tick_value-
+Inkonsistenz; PF<1 bleibt trotzdem). Aufgabe 2: AI_STUDIO_PROMPT.md
+entschaerft ("kein bester Stand", Overfitting-Warnung). Aufgabe 3:
+backtests.csv um risk_realized_pct + z_score erweitert (nur id29 |z|=2,2,
+Rest Rauschen). Aufgabe 4: **Volatilitaetsfilter gebaut + getestet ->
+erstes konsistent besseres Ergebnis** (Backtest 10). EA jetzt v3.40.
 
 ## (frueher) Letzte Aktion
 EA v3.0 gebaut (Long & Short, Multi-Timeframe) und M15/M30/H1 automatisch
@@ -167,6 +163,58 @@ H1-Einstieg/H4-Bias, ohne Sicherung, long-only, Fenster A/B, 10.000 EUR.
   1,5xATR-Stop; Ziel 10 EUR) - der Fehlschlag liegt an der Strategie,
   nicht an der Testbarkeit.
 
+### Nachtrag Aufgabe 1 (13.07.2026) – XAUUSD-Sizing-BUG entdeckt
+Die XAUUSD-Zahlen (id 29/30) sind durch einen **Positionsgroessen-Bug
+verzerrt** und NICHT bare Muenze zu nehmen:
+- avg_loss XAUUSD = 3,73 %/3,77 % statt 1 % (Faktor ~3,75; GBPUSD sauber
+  bei 0,93-0,95 %).
+- Ursache: `SYMBOL_TRADE_TICK_VALUE` (nutzt CalcRiskLots) ist bei XAUUSD
+  auf diesem Broker inkonsistent zur real verrechneten P&L (EA rechnet mit
+  ~0,23 EUR/Tick, Tester realisiert ~0,87 EUR/Tick) -> Position ~3,8x zu
+  gross. Log-Beweis: LONG Entry 2036,64/SL 2027,87/0,49 Lot -> realer
+  SL-Verlust ~373 EUR.
+- Zusatzeffekt: mehrere XAUUSD-Trades scheiterten mit "not enough money"
+  (uebergrosse Position > Margin) -> weitere Verzerrung.
+- KEINE Slippage/Gaps (Exits nah an erwarteten Levels), Modellierung
+  "Jeder Tick" (aus M1 generiert).
+- **Wichtig fuer die Schlussfolgerung:** PF und Trefferquote sind
+  groessenunabhaengig -> Gold verliert weiterhin (PF 0,51/0,83), aber der
+  "katastrophale" DD (65 %/47 %) war ein Sizing-Artefakt; bei korrekter
+  1-%-Groesse waere DD ~17 %/13 %. GBPUSD unberuehrt, dortiges Fazit
+  ("keine Kante", PF 0,95) bleibt voll bestehen.
+- **TODO vor jedem kuenftigen Nicht-Forex-Test:** Lotberechnung fixen
+  (z.B. OrderCalcProfit statt tick_value, oder tick_value gegen reale P&L
+  verifizieren). Fuer EURUSD/GBPUSD ist die Berechnung korrekt.
+
+### Statistik-Check (Aufgabe 3, z-Werte fuer id 23-30)
+Neue Spalten in backtests.csv: risk_realized_pct und z_score. Von den 8
+Out-of-Sample-/Instrument-Laeufen ist **nur XAUUSD Fenster A (id 29,
+z=-2,20) statistisch von Null verschieden** - und der haengt am Sizing-Bug
+(Aufgabe 1), ist also kein echtes Signal. Alle anderen liegen bei |z| 0,1
+bis 1,5 = **vom Rauschen nicht zu unterscheiden.** Heisst: weder die
+"guten" (id 25 z=1,16) noch die "schlechten" EURUSD/GBPUSD-Ergebnisse sind
+statistisch belastbar - die Stichproben sind zu klein / die Kante zu duenn.
+Kuenftig risk_realized_pct + z_score bei jedem Lauf mitfuehren; Ziel fuer
+ein echtes Signal: |z| deutlich > 2 bei sauberem 1%-Risiko.
+
+### Backtest 10 – Volatilitaetsfilter (Aufgabe 4) – ERSTES VIELVERSPRECHENDES
+Neuer Input InpUseVolFilter (default aus): Einstieg nur wenn ATR-D1 >=
+rollierendem Median der letzten InpVolLookback=100 Tage. EURUSD H1/H4
+long-only ohne Sicherung, mit vs ohne Filter:
+| Zeitraum | OHNE (PF/Sharpe/DD/Trades/z) | MIT (PF/Sharpe/DD/Trades/z) |
+|---|---|---|
+| Gesamt | 1,12 / 1,87 / 14,7% / 240 / 0,86 | 1,37 / 5,13 / 7,5% / 120 / 1,69 |
+| A 22-23 | 1,25 / 3,49 / 13,5% / 113 / 1,16 | 1,52 / 6,65 / 4,9% / 62 / 1,61 |
+| B 24-26 | 1,02 / 0,35 / 13,8% / 127 / 0,12 | 1,23 / 3,34 / 6,3% / 58 / 0,76 |
+- **Erstes Experiment, das ALLE Fenster konsistent verbessert** (kein
+  Cherry-Picking): PF/Sharpe hoch, DD ~halbiert, z ueberall gestiegen.
+- Wichtig: **Fenster B** (die OOS-Schwachstelle) klar besser - PF 1,02->
+  1,23, z 0,12->0,76, 58 Trades (>50). Erfuellt die Erfolgskriterien.
+- ABER ehrlich: z_B=0,76 ist immer noch < 2 -> **vielversprechend, aber
+  noch KEIN statistisch bewiesener Edge.** Kein Abbruch-Kriterium erfuellt
+  (A nicht schlechter, Trades nicht kollabiert, z gestiegen).
+- Filter bleibt vorerst default AUS (nicht cross-instrument bestaetigt).
+
 ## EA v2.0 – Was ist neu
 1. **Marktstruktur-Stop:** SL unter das letzte Swing-Tief (Tief der
    letzten InpSwingLookback Kerzen) minus ATR-Puffer. Stop richtet sich
@@ -179,21 +227,23 @@ H1-Einstieg/H4-Bias, ohne Sicherung, long-only, Fenster A/B, 10.000 EUR.
    genau InpRiskPerTradePct % (1 %) kostet – egal wie eng/weit der Stop.
 6. Trendfilter (EMA 200) und Tagesverlust-Stopp bleiben erhalten.
 
-## Naechste Schritte (nach Multi-Instrument-Test)
-Klarer Stand: **Die EMA-Kreuz+MTF-Bias-Strategie hat keinen
-generalisierbaren Vorteil** (faellt auf GBPUSD und Gold durch). Deshalb:
-1. KEINE Optimierung, KEIN Live-Einsatz mit Gewinnerwartung dieser
-   Strategie - das waere Overfitting bzw. Selbsttaeuschung.
-2. Grundlegend anderer Ansatz noetig. Optionen (mit AI Studio planen):
-   - Volatilitaets-/Regime-Filter (nur handeln wenn ATR/Trend stark genug).
-   - Ganz andere Signal-Idee (z.B. echte Ausbruchs-/Struktur-Logik mit
-     Bestaetigung), sauber nach der Erwartungs-Logik (nicht Winrate).
-3. Realistisch bleiben: Ein robuster, uebertragbarer Edge ist schwer;
-   viele einfache Retail-Ideen haben schlicht keinen. Das ehrlich zu
-   wissen ist wertvoller als eine schoen aussehende, ueberangepasste Kurve.
-4. Der EA bleibt als solides, generisches Test-Geruest erhalten (Risiko,
-   Sicherung, MTF, OnTester-Logging) - nur die Signal-Logik braucht Ersatz.
-Jeder Lauf -> Zeile in `backtests.csv`.
+## Naechste Schritte (nach Volatilitaetsfilter-Fund)
+Der Volatilitaetsfilter (v3.4) ist der erste vielversprechende Kandidat.
+Disziplinierter Weg weiter:
+1. **GENERALISIERUNGS-CHECK GBPUSD:** genau dieselbe H1/H4-Konfig MIT
+   Volatilitaetsfilter (InpUseVolFilter=true, Lookback 100) auf GBPUSD,
+   Fenster A + B. Nur wenn es dort AUCH haelt (PF > 1, z steigt), ist es
+   ein echter Fund statt EURUSD-Zufall. (Erst NACH diesem Schritt ggf.
+   ein unkorreliertes Instrument mit korrigierter Nicht-Forex-Lotgroesse.)
+2. KEIN Feintuning des Lookback/der Schwelle an EURUSD - das waere
+   Overfitting an genau diese Fenster.
+3. Wenn GBPUSD haelt: laengerer Zeitraum / mehr Instrumente fuer groessere
+   Stichprobe (Ziel |z| > 2). Erst dann Demo/Live-Ueberlegung.
+4. Wenn GBPUSD NICHT haelt: Filter war auch nur EURUSD-Artefakt -> zurueck
+   an AI Studio fuer eine grundlegend andere Signal-Idee.
+Der EA ist ein solides generisches Test-Geruest; nur die Signal-Kante ist
+noch offen. TODO: Nicht-Forex-Lotberechnung fixen vor Gold/Index-Tests.
+Jeder Lauf -> Zeile in `backtests.csv` (inkl. risk_realized_pct + z_score).
 
 ## Kernregeln (Kurzfassung)
 - Keine Kontodaten/Passwoerter/API-Keys in Code, Chat oder Commits

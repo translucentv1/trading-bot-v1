@@ -21,7 +21,7 @@
 //| Tester laufen im MetaEditor/MT5.                                |
 //+------------------------------------------------------------------+
 #property copyright "Phase 3 - Demo/Paper"
-#property version   "3.31"
+#property version   "3.40"
 #property strict
 #property description "EMA 9/21 + Multi-Timeframe-Bias, Long & Short,"
 #property description "Struktur-Stop, dynamischer TP, ATR-Trailing, RSI-Filter."
@@ -76,6 +76,11 @@ input double          InpRewardRatio    = 1.8;      // TP = Risiko x diesem Fakt
 input bool            InpUseTrailing    = true;     // ATR-Trailing-Stop aktivieren
 input double          InpTrailATRMult   = 2.5;      // Trailing-Abstand in ATR
 
+//--- Eingaben: Volatilitaets-Filter ---------------------------------
+input group "--- Volatilitaets-Filter (rollierend) ---"
+input bool            InpUseVolFilter   = false;    // nur handeln wenn Volatilitaet ueber dem Median
+input int             InpVolLookback    = 100;      // Lookback Handelstage fuer ATR-D1-Median
+
 //--- Eingaben: Gewinn sichern ---------------------------------------
 input group "--- Gewinn sichern (Break-Even / Teil-TP) ---"
 input bool            InpUseBreakEven   = true;     // Stop auf Einstieg ziehen sobald im Plus
@@ -103,6 +108,7 @@ int      h_slowEMA  = INVALID_HANDLE;
 int      h_atr      = INVALID_HANDLE;
 int      h_rsi      = INVALID_HANDLE;
 int      h_biasEMA  = INVALID_HANDLE;
+int      h_atrD1    = INVALID_HANDLE;   // ATR auf D1 fuer Volatilitaets-Filter
 
 datetime m_last_bar_time;
 bool     m_loss_limit_active;
@@ -147,6 +153,16 @@ int OnInit()
       return(INIT_FAILED);
      }
 
+   if(InpUseVolFilter)
+     {
+      h_atrD1 = iATR(_Symbol, PERIOD_D1, InpATRPeriod);
+      if(h_atrD1 == INVALID_HANDLE)
+        {
+         Print("Fehler beim Erstellen des D1-ATR Handles!");
+         return(INIT_FAILED);
+        }
+     }
+
    // RSI fuer Filter UND Mean-Reversion-Modus -> immer anlegen
    h_rsi = iRSI(_Symbol, _Period, InpRSIPeriod, PRICE_CLOSE);
    if(h_rsi == INVALID_HANDLE)
@@ -180,6 +196,7 @@ void OnDeinit(const int reason)
    if(h_atr     != INVALID_HANDLE) IndicatorRelease(h_atr);
    if(h_rsi     != INVALID_HANDLE) IndicatorRelease(h_rsi);
    if(h_biasEMA != INVALID_HANDLE) IndicatorRelease(h_biasEMA);
+   if(h_atrD1   != INVALID_HANDLE) IndicatorRelease(h_atrD1);
   }
 
 //+------------------------------------------------------------------+
@@ -323,10 +340,31 @@ void OnTick()
    // 7. Einstieg (nur wenn keine Position und kein Tagesstopp)
    if(m_loss_limit_active) return;
 
-   if(InpAllowLong && longSignal)
+   bool volOk = (!InpUseVolFilter) || VolatilityOk();
+
+   if(InpAllowLong && longSignal && volOk)
       OpenTrade(true, atrValue);
-   else if(InpAllowShort && shortSignal)
+   else if(InpAllowShort && shortSignal && volOk)
       OpenTrade(false, atrValue);
+  }
+
+//+------------------------------------------------------------------+
+//| Volatilitaets-Filter: aktueller ATR-D1 >= Median der letzten     |
+//| InpVolLookback Tage. Rollierend/relativ, kein fester Schwellwert.|
+//+------------------------------------------------------------------+
+bool VolatilityOk()
+  {
+   if(h_atrD1 == INVALID_HANDLE) return(true);
+   double atrD1[];
+   ArraySetAsSeries(atrD1, true);
+   if(CopyBuffer(h_atrD1, 0, 1, InpVolLookback, atrD1) < InpVolLookback)
+      return(true);   // noch nicht genug Historie -> Filter nicht blockieren
+   double cur = atrD1[0];
+   double tmp[];
+   ArrayCopy(tmp, atrD1);
+   ArraySort(tmp);     // aufsteigend
+   double median = tmp[InpVolLookback / 2];
+   return(cur >= median);
   }
 
 //+------------------------------------------------------------------+
