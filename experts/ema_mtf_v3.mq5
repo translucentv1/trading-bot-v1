@@ -42,7 +42,7 @@ input int             InpBiasEMAPeriod  = 50;       // EMA auf der Bias-Zeiteben
 //--- Eingaben: Handelsrichtung --------------------------------------
 input group "--- Handelsrichtung ---"
 input bool            InpAllowLong      = true;     // Long-Trades erlauben
-input bool            InpAllowShort     = true;     // Short-Trades erlauben
+input bool            InpAllowShort     = false;    // Short-Trades erlauben (auf EURUSD long-only besser, s. Backtests)
 
 //--- Eingaben: RSI-Filter -------------------------------------------
 input group "--- RSI-Filter ---"

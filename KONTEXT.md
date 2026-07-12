@@ -8,17 +8,18 @@ Demo-Ziel: Forex Hedged EUR, 1.000 EUR Startkapital, Hebel 1:30.
 Repo (privat): https://github.com/translucentv1/trading-bot-v1
 
 ## Aktueller Stand
-Phase 2. **EA v2.0 profitabel (+141,17, PF 1,09)** und per automatischer
-Backtest-Schleife bestaetigt (Claude faehrt Tests selbst per CLI, ~10s/Lauf,
-OnTester schreibt Kennzahlen). Naechster Schritt laut Nutzer: **Live-Demo-
-Vorwaertstest** (EA scharf auf Demokonto), danach Optimierung.
+Phase 3. **Neuer Bestand: EA v3.0 auf H1, long-only, mit H4-Bias
+(+519, PF 1,11, Sharpe 1,77, DD 9,5 %)** – deutlich besser als v2.0.
+Datei `experts/ema_mtf_v3.mq5` (Long/Short + Multi-Timeframe, Short
+per Toggle). Alle Backtests laufen ueber die Auto-Schleife (~15s/Lauf).
 
 ## Letzte Aktion
-AI-Studio-Umschreibung des EA getestet und **verworfen**: war unprofitabel
-(-75 bzw. -93). Ursache: ATR-Puffer 1,5 statt 0,5, Lookback 10 statt 12,
-und Trailing bei jedem Tick statt pro Kerze. Bewiesene +141-Version aus
-Git (58e7a7f) wiederhergestellt und per Auto-Backtest exakt bestaetigt.
-Von AI Studio eingefuegte React/Node-Web-App wurde entfernt (Repo schlank).
+EA v3.0 gebaut (Long & Short, Multi-Timeframe) und M15/M30/H1 automatisch
+getestet. Ergebnis: M15/M30 verlieren (zu verrauscht); H1 gewinnt, aber
+nur long-only (Shorts schaden, da EURUSD 2025-26 stark stieg). Wichtig
+gelernt: der Tester cached Eingaben in `MQL5\Profiles\Tester\<ea>.set` –
+Parameteraenderungen greifen nur, wenn diese .set geloescht/ueberschrieben
+wird (sonst werden Compiler-Defaults ignoriert).
 
 ## Backtest-Chronik
 
@@ -50,6 +51,19 @@ Von AI Studio eingefuegte React/Node-Web-App wurde entfernt (Repo schlank).
   machten Verluste kleiner, dynamischer TP liess Gewinner groesser laufen.
 - Hinweis: BT1/BT2 liefen nur ueber 6 Monate (2026), daher nicht 1:1
   vergleichbar; der 18-Monats-Zeitraum ist die neue Referenz.
+
+### Backtest 4 – EA v3.0 Multi-Timeframe (12.07.2026), 18 Mon., 10.000 EUR
+Neuer EA `ema_mtf_v3.mq5` (Long/Short, hoehere Zeitebene = Bias). H4-Bias.
+| Zeitebene | Long+Short | nur Long |
+|---|---|---|
+| M15 | -5.656 (DD 59%) | -5.217 |
+| M30 | -1.511 | -2.571 |
+| H1  | -1.005 | **+519 | PF 1,11 | Sharpe 1,77 | DD 9,5% | 83 Trades** |
+- **Bester Bestand: H1 + H4-Bias + long-only** (schlaegt v2.0 deutlich).
+- M15/M30 zu verrauscht (Spread frisst kleine Bewegungen).
+- Shorts schaden auf EURUSD (starker Aufwaertstrend 2025-26).
+- Short-Faehigkeit bleibt als Toggle (InpAllowShort) fuer andere
+  Instrumente/Regimes erhalten.
 
 ## EA v2.0 – Was ist neu
 1. **Marktstruktur-Stop:** SL unter das letzte Swing-Tief (Tief der
