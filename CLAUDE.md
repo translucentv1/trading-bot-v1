@@ -63,15 +63,28 @@ Nutzers, und wird von Claude weder ausgeführt noch aktiviert.
 - `AI_STUDIO_PROMPT.md` = fertiger Prompt fuer AI Studio (Rollen,
   Regeln, gelernte Lektionen, Workflow). Vor jeder AI-Studio-Sitzung
   aktuell halten.
+- **`JOURNAL.md` = Tagebuch mit Tageseintraegen** (neuester oben). Jede
+  Arbeitssitzung ergaenzt den Eintrag des Tages: gemacht / herausgekommen /
+  entschieden / offen. Zahlen gehoeren in `backtests.csv`, Kontext in
+  `KONTEXT.md` – das Journal ist die Zeitleiste.
+- `tools/validate_backtests.py` prueft `backtests.csv` objektiv (rechnet
+  z_score, risk_realized_pct, PF- und Netto-Konsistenz unabhaengig nach);
+  mit `--write` traegt es die berechneten Werte ein. Nach jedem neuen
+  Eintrag einmal laufen lassen.
 
 ## Phasen
 1. **Phase 1 (fertig):** Struktur, erster EA (EMA-9/21-Crossover, long-only,
    EURUSD H4, SL/TP in % vom Kapital) inkl. Tagesverlust-Stopp.
-2. **Phase 2 (aktiv):** EA v2.0 mit Marktstruktur-SL, dynamischem TP,
+2. **Phase 2 (fertig):** EA v2.0 mit Marktstruktur-SL, dynamischem TP,
    ATR-Trailing und RSI-Filter. Erster profitabler Backtest (PF 1,09).
-   Jetzt: Robustheit pruefen und Parameter optimieren.
-3. **Phase 3 (Idee):** EA v3.0 mit Zwei-Wege-Handel (Long & Short),
-   symmetrische Struktur-Logik.
+3. **Phase 3 (aktiv, Forschungsphase):** EA v3.x (Long & Short, Multi-
+   Timeframe-Bias, Gewinnsicherung, Vol-Filter – alles per Toggle) als
+   generisches Test-Geruest. Stand: KEINE getestete Signal-Idee hat einen
+   instrument-uebergreifend robusten Edge gezeigt (siehe backtests.csv,
+   z-Werte). Gesucht wird eine grundlegend neue Signal-Idee; jede neue
+   Idee wird streng geprueft: Out-of-Sample-Fenster A/B + GBPUSD-Gegentest,
+   Ziel |z| > 2 bei 1 % Risiko. Kein Demo-/Live-Einsatz mit
+   Gewinnerwartung vorher.
 
 _Hinweis: Ein von AI Studio generiertes React/Node-Web-Tool wurde bewusst
 wieder entfernt – das Repo bleibt schlank auf MQL5/MT5 fokussiert._

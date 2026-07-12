@@ -21,7 +21,7 @@
 //| Tester laufen im MetaEditor/MT5.                                |
 //+------------------------------------------------------------------+
 #property copyright "Phase 3 - Demo/Paper"
-#property version   "3.40"
+#property version   "3.41"
 #property strict
 #property description "EMA 9/21 + Multi-Timeframe-Bias, Long & Short,"
 #property description "Struktur-Stop, dynamischer TP, ATR-Trailing, RSI-Filter."
@@ -403,7 +403,7 @@ void OpenTrade(bool isLong, double atrValue)
      }
 
    double lots = InpLotSize;
-   if(InpUseRiskLots) lots = CalcRiskLots(riskDistance);
+   if(InpUseRiskLots) lots = CalcRiskLots(isLong, entry, riskDistance);
    if(lots <= 0.0) { Print("Lotgroesse 0 - Einstieg abgebrochen."); return; }
 
    string txt = isLong ? "EMA MTF Long" : "EMA MTF Short";
@@ -541,16 +541,34 @@ void CloseMyPositions()
 
 //+------------------------------------------------------------------+
 //| Risikobasierte Lotgroesse (SL-Treffer kostet InpRiskPerTradePct%)|
+//| Verlust je 1.0 Lot wird mit OrderCalcProfit bestimmt - das       |
+//| beruecksichtigt Kontraktgroesse und Umrechnung in die            |
+//| Kontowaehrung korrekt (Fix fuer den XAUUSD-Sizing-Bug, bei dem   |
+//| SYMBOL_TRADE_TICK_VALUE ~3,8x zu kleine Werte lieferte).         |
 //+------------------------------------------------------------------+
-double CalcRiskLots(double riskDistance)
+double CalcRiskLots(bool isLong, double entryPrice, double riskDistance)
   {
    double balance   = AccountInfoDouble(ACCOUNT_BALANCE);
    double riskMoney = balance * (InpRiskPerTradePct / 100.0);
-   double tickSize  = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_SIZE);
-   double tickValue = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_VALUE);
-   if(tickSize <= 0.0 || tickValue <= 0.0) return(InpLotSize);
 
-   double lossPerLot = (riskDistance / tickSize) * tickValue;
+   // 1) bevorzugt: OrderCalcProfit fuer den Verlustfall bei 1.0 Lot
+   double lossPerLot = 0.0;
+   double exitPrice  = isLong ? (entryPrice - riskDistance)
+                              : (entryPrice + riskDistance);
+   ENUM_ORDER_TYPE ot = isLong ? ORDER_TYPE_BUY : ORDER_TYPE_SELL;
+   if(OrderCalcProfit(ot, _Symbol, 1.0, entryPrice, exitPrice, lossPerLot))
+      lossPerLot = MathAbs(lossPerLot);
+   else
+      lossPerLot = 0.0;
+
+   // 2) Fallback: alte tick_value-Methode (nur wenn 1) nichts liefert)
+   if(lossPerLot <= 0.0)
+     {
+      double tickSize  = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_SIZE);
+      double tickValue = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_VALUE);
+      if(tickSize <= 0.0 || tickValue <= 0.0) return(InpLotSize);
+      lossPerLot = (riskDistance / tickSize) * tickValue;
+     }
    if(lossPerLot <= 0.0) return(InpLotSize);
 
    double lots    = riskMoney / lossPerLot;

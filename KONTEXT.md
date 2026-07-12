@@ -23,27 +23,36 @@ EURUSD-spezifisch - kein uebertragbarer Edge.
 - Der EA (v3.40) bleibt als solides generisches Test-Geruest bestehen
   (Risiko, MTF, Sicherung, Vol-Filter, OnTester-Logging, alles per Toggle).
 
-## Letzte Aktion
-GBPUSD-Generalisierungssitzung (Auftrag Sonnet 5). Volatilitaetsfilter auf
-GBPUSD gegengetestet -> **haelt nicht** (Fenster B PF 0,92, negativ;
-Backtest 11, id34/35). Fazit: Filter war EURUSD-spezifisch. Ausserdem neue
-staendige Regel umgesetzt: **EA_CODE.md** (kompletter EA-Code als Markdown)
-im Repo-Root, wird bei jeder EA-Aenderung mitgepflegt; Verweise in
-CLAUDE.md, KONTEXT.md (Relevante Dateien korrigiert: aktiv ist
-ema_mtf_v3.mq5) und AI_STUDIO_PROMPT.md ergaenzt.
+## Letzte Aktion (12.07. abends – Selbst-Review-Sitzung)
+Eigenstaendige, objektive Ueberpruefung der gesamten Arbeit:
+- **`tools/validate_backtests.py`** gebaut: rechnet z_score,
+  risk_realized_pct, PF- und Netto-Konsistenz fuer ALLE Zeilen unabhaengig
+  nach. Ergebnis: alle bisherigen manuellen Eintraege korrekt; z-Scores
+  fuer id 1-22 nachgetragen (jetzt lueckenlos).
+- **Zwei eigene Fehler gefunden + korrigiert:** (1) id 31-35 waren
+  faelschlich auf 2026-07-13 datiert (richtig: 12.07.); (2) ein Semikolon
+  im Fazit-Text haette die CSV zerschossen - Skript bricht jetzt vor dem
+  Schreiben ab und schreibt atomar (Temp-Datei).
+- **XAUUSD-Sizing-Bug GEFIXT (v3.41)** und mit Regressions-/
+  Verifikationslauf belegt (id36/37, s. Nachtrag Backtest 9).
+- **JOURNAL.md eingefuehrt** (Tagebuch, Pflicht in CLAUDE.md verankert),
+  README.md komplett auf Forschungsstand aktualisiert, CLAUDE.md-Phasen
+  aktualisiert (Phase 3 = Forschungsphase).
+_Aeltere Sitzungs-Zusammenfassungen: siehe JOURNAL.md (Zeitleiste) und
+Backtest-Chronik unten._
 
-## (frueher) Letzte Aktion
-Review-/Volatilitaetsfilter-Sitzung: XAUUSD-Sizing-Bug entdeckt (Position
-~3,8x zu gross), AI_STUDIO_PROMPT.md entschaerft, risk_realized_pct +
-z_score ergaenzt, Volatilitaetsfilter gebaut (Backtest 10, auf EURUSD stark).
-
-## (frueher) Letzte Aktion
-EA v3.0 gebaut (Long & Short, Multi-Timeframe) und M15/M30/H1 automatisch
-getestet. Ergebnis: M15/M30 verlieren (zu verrauscht); H1 gewinnt, aber
-nur long-only (Shorts schaden, da EURUSD 2025-26 stark stieg). Wichtig
-gelernt: der Tester cached Eingaben in `MQL5\Profiles\Tester\<ea>.set` –
-Parameteraenderungen greifen nur, wenn diese .set geloescht/ueberschrieben
-wird (sonst werden Compiler-Defaults ignoriert).
+## Methodische Notizen (aus dem Selbst-Review, wichtig fuer Bewertungen)
+1. **Nur Verlust-Strategien sind statistisch signifikant.** Nach
+   Vervollstaendigung aller z-Werte: |z|>2 erreichen ausschliesslich
+   M15/M30- und Mean-Reversion-Laeufe mit NEGATIVEM Vorzeichen (z -2,2
+   bis -3,6). Der beste positive Lauf (VolFilter Gesamt, id31) hat z=1,69.
+   Heisst: Was NICHT geht, ist belegt; fuer "geht" gibt es keine Evidenz.
+2. **Multiple Testing:** Nach ~37 Varianten-Tests ist es wahrscheinlich,
+   zufaellig "gute" Fenster zu finden. Einzelne gute Zahlen (z.B. id31/32)
+   duerfen deshalb NICHT als Beweis gelesen werden - genau darum gilt die
+   Regel OOS-Fenster + Zweitinstrument + |z|>2.
+3. **Ueberlappende Zeitraeume:** "Gesamt"-Laeufe (2022-2026) enthalten
+   Fenster A+B; sie sind KEINE unabhaengige Evidenz zusaetzlich zu A/B.
 
 ## Backtest-Chronik
 
@@ -189,9 +198,12 @@ verzerrt** und NICHT bare Muenze zu nehmen:
   "katastrophale" DD (65 %/47 %) war ein Sizing-Artefakt; bei korrekter
   1-%-Groesse waere DD ~17 %/13 %. GBPUSD unberuehrt, dortiges Fazit
   ("keine Kante", PF 0,95) bleibt voll bestehen.
-- **TODO vor jedem kuenftigen Nicht-Forex-Test:** Lotberechnung fixen
-  (z.B. OrderCalcProfit statt tick_value, oder tick_value gegen reale P&L
-  verifizieren). Fuer EURUSD/GBPUSD ist die Berechnung korrekt.
+- **ERLEDIGT (12.07. abends, v3.41):** Lotberechnung nutzt jetzt
+  `OrderCalcProfit` statt `tick_value` (Fallback bleibt). Verifiziert:
+  id36 EURUSD-Regression praktisch identisch zu id26 (+1,13 EUR Rundung);
+  id37 XAUUSD Risiko 0,83 % statt 3,77 %, DD 13 % statt 47 %, keine
+  Margin-Ablehnungen mehr (136 statt 88 Trades). Gold bleibt PF 0,94 < 1
+  - sauber gemessen weiterhin kein Edge.
 
 ### Statistik-Check (Aufgabe 3, z-Werte fuer id 23-30)
 Neue Spalten in backtests.csv: risk_realized_pct und z_score. Von den 8
@@ -260,8 +272,9 @@ ausgereizt - alle Verbesserungen waren EURUSD-spezifisch.
 2. Test-Disziplin fuer jede neue Idee (unveraendert): sofort Out-of-Sample
    (Fenster A/B) UND >=1 unabhaengiges Instrument (GBPUSD), Ziel |z| > 2 bei
    sauberem 1%-Risiko. Kein Feintuning an einem einzelnen Fenster/Symbol.
-3. Offenes TODO (erst wenn Nicht-Forex getestet wird): Lotberechnung fuer
-   Metalle/Indizes fixen (tick_value-Problem, s. Backtest 9).
+3. ~~Lotberechnung fuer Metalle/Indizes fixen~~ ERLEDIGT in v3.41
+   (OrderCalcProfit, verifiziert id36/37) - Nicht-Forex-Tests sind jetzt
+   sauber moeglich.
 4. Ehrliche Grundhaltung: Ein uebertragbarer Edge ist selten; bislang hat
    keine einfache Idee einen gezeigt. Kein Live-Einsatz mit
    Gewinnerwartung, solange kein Cross-Instrument-|z|>2 vorliegt.
@@ -276,10 +289,12 @@ Jeder Lauf -> Zeile in `backtests.csv` (inkl. risk_realized_pct + z_score).
 ## Relevante Dateien
 | Datei | Inhalt |
 |---|---|
-| experts/ema_mtf_v3.mq5 | **AKTIVE EA-Datei** (v3.40: EMA-Kreuz + MTF-Bias, Long/Short, Gewinnsicherung, Mean-Reversion-Modus, Volatilitaetsfilter, OnTester) |
+| experts/ema_mtf_v3.mq5 | **AKTIVE EA-Datei** (v3.41: EMA-Kreuz + MTF-Bias, Long/Short, Gewinnsicherung, Mean-Reversion-Modus, Volatilitaetsfilter, OrderCalcProfit-Sizing, OnTester) |
 | experts/ema_9_21_crossover_long_v2.mq5 | alte v2.0 (nur Historie, nicht mehr aktiv) |
 | EA_CODE.md | kompletter aktueller EA-Code als Markdown (Handoff ohne .mq5-Upload) |
 | backtests.csv | Register aller Backtests (id;...;risk_realized_pct;z_score;fazit) |
+| JOURNAL.md | Tagebuch mit Tageseintraegen (Zeitleiste des Projekts) |
+| tools/validate_backtests.py | objektive Nachrechnung/Validierung von backtests.csv |
 | AI_STUDIO_PROMPT.md | fertiger Prompt fuer AI Studio |
 | CLAUDE.md | Projektregeln + Handoff-Workflow |
-| README.md | Setup-Anleitung fuer MT5 |
+| README.md | Projektueberblick + Setup + Test-Disziplin |

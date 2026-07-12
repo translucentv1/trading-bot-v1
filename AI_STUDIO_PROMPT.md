@@ -48,8 +48,9 @@ verstaendliche Erklaerungen auf Deutsch, ohne unnoetigen Fachjargon.
 - **Die Kante generalisiert nicht ueber Instrumente:** dieselbe H1-Konfig
   verliert auf GBPUSD (PF 0,95/0,95) und Gold (PF 0,51/0,83). Der
   EURUSD-Gewinn war hoechstwahrscheinlich Overfitting an EURUSD.
-  (XAUUSD-Zahlen zusaetzlich durch einen Sizing-Bug verzerrt, aber PF<1
-  bleibt.)
+  (XAUUSD id29/30 zusaetzlich durch einen Sizing-Bug verzerrt; Bug in
+  v3.41 gefixt und verifiziert - saubere Gold-Referenz ist id37: PF 0,94,
+  weiterhin kein Edge.)
 - Auch ein **Volatilitaetsfilter** (nur handeln bei ATR-D1 > Median)
   half auf EURUSD stark (Backtest 10), generalisierte aber NICHT auf
   GBPUSD (Backtest 11, Fenster B PF 0,92). Also ebenfalls EURUSD-Artefakt.

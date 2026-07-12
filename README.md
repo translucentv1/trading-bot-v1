@@ -1,57 +1,64 @@
 # Trading-Bot: MQL5 Expert Advisor für MetaTrader 5
 
 Ein Expert Advisor (EA) – ein Programm, das in MetaTrader 5 selbstständig
-handelt. Er wird zuerst im **Strategy Tester** gebacktestet und läuft danach
-automatisiert auf einem **Demo-Konto** (Spielgeld, kein echtes Geld):
-Forex, Hedged, EUR, 1.000 EUR Startkapital, Hebel 1:30.
+handelt. Er wird im **Strategy Tester** gebacktestet; ein Demo-Einsatz
+(Spielgeld) kommt erst, wenn eine Strategie nachweislich robust ist.
+Zielkonto: Forex, Hedged, EUR, 1.000 EUR Startkapital, Hebel 1:30.
+
+**Ehrlicher Projektstand:** Wir sind in einer *Forschungsphase*. Nach
+35+ dokumentierten Backtests hat noch **keine** getestete Signal-Idee
+einen instrumentübergreifend robusten, statistisch belastbaren Vorteil
+gezeigt (Details: `backtests.csv`, `KONTEXT.md`). Der EA selbst ist ein
+solides, generisches Test-Gerüst – gesucht wird die Signal-Kante.
 
 ## Projektstruktur
 
 ```
-experts/    MQL5-Quelldateien (.mq5) – werden im MetaEditor kompiliert
-CLAUDE.md   Projektregeln
+experts/        MQL5-Quelldateien (.mq5) – aktiv: ema_mtf_v3.mq5 (v3.41)
+tools/          Hilfsskripte (z. B. validate_backtests.py)
+backtests.csv   Register ALLER Backtests (Kennzahlen, z-Score, Fazit)
+KONTEXT.md      Aktueller Stand + Chronik (Handoff Claude Code ↔ AI Studio)
+JOURNAL.md      Tagebuch mit Tageseinträgen
+EA_CODE.md      Kompletter EA-Code als Markdown (für AI-Studio-Handoff)
+CLAUDE.md       Projektregeln
 ```
+
+## Der aktive EA: `experts/ema_mtf_v3.mq5`
+
+Generisches Test-Gerüst mit allem per Eingabe-Parameter schaltbar:
+
+- **Signal (Modus 0):** EMA-9/21-Kreuz auf der Chart-Zeitebene,
+  Trend-Bias von einer höheren Zeitebene (z. B. H4/D1); Long und Short.
+- **Signal (Modus 1):** RSI-Mean-Reversion (getestet, verworfen).
+- **Risiko:** Stop unter/über dem letzten Swing-Punkt + ATR-Puffer;
+  Positionsgröße so, dass ein Stop-Treffer genau 1 % vom Kapital kostet
+  (seit v3.41 via `OrderCalcProfit`, korrekt auch für Nicht-Forex).
+- **Ausstieg:** dynamischer TP (Risiko × Faktor), ATR-Trailing,
+  optional Break-Even + Teil-Gewinnmitnahme.
+- **Filter:** RSI, optional Volatilitätsfilter (ATR-D1 ≥ 100-Tage-Median).
+- **Schutz:** Tagesverlust-Limit; `OnTester()` schreibt alle Kennzahlen
+  für die automatische Auswertung.
 
 ## EA in MetaTrader 5 einrichten
 
-1. In MT5: **Datei → Dateiordner öffnen** → in den Ordner
-   `MQL5\Experts\` wechseln und die `.mq5`-Datei aus `experts/`
-   dorthin kopieren.
-2. MetaEditor öffnen (Taste **F4** in MT5), die Datei im Navigator unter
-   „Experts" doppelklicken und mit **F7 kompilieren** –
-   unten muss „0 errors" stehen.
-3. Backtest: in MT5 **Strg+R** (Strategy Tester) → EA auswählen →
-   Symbol **EURUSD**, Zeitrahmen **H4**, Einzahlung 1.000 EUR,
-   Hebel 1:30 → Start.
-4. Paper-Trading: EA per Drag & Drop auf einen EURUSD-H4-Chart ziehen,
-   oben den Knopf **„Algo Trading"** aktivieren. Der EA handelt dann
-   selbstständig auf dem Demo-Konto, solange das Terminal offen ist.
+1. In MT5: **Datei → Dateiordner öffnen** → `MQL5\Experts\` → die
+   `.mq5` aus `experts/` dorthin kopieren.
+2. MetaEditor (**F4**), Datei öffnen, **F7 kompilieren** → „0 errors".
+3. Backtest: **Strg+R** (Strategy Tester) → EA wählen → Symbol/Zeitebene/
+   Zeitraum einstellen → Start. (Backtests laufen in diesem Projekt
+   normalerweise automatisiert; jeder Lauf wird in `backtests.csv`
+   protokolliert.)
+4. Demo-Paper-Trading (erst nach nachgewiesen robuster Strategie):
+   EA auf den Chart ziehen, „Algo Trading" aktivieren.
 
-## Aktuelle Strategie (v2.0)
+## Test-Disziplin (die wichtigste Regel)
 
-`experts/ema_9_21_crossover_long_v2.mq5` – EMA-9/21-Crossover, nur Long, mit
-markt-strukturbasiertem Risikomanagement:
+Jede neue Strategie-Idee wird geprüft mit:
+1. **Out-of-Sample:** getrennte Fenster (A: 2022–2023, B: 2024–2026) –
+   nicht nur ein durchgehender Zeitraum.
+2. **Generalisierung:** Gegentest auf einem zweiten Instrument (GBPUSD).
+3. **Statistik:** Ziel |z-Score| > 2 bei sauberem 1-%-Risiko –
+   sonst ist ein Ergebnis vom Zufall nicht zu unterscheiden.
 
-- **Einstieg:** EMA 9 kreuzt EMA 21 nach oben, Trend bestätigt durch
-  EMA 200, und RSI nicht überkauft (< 70).
-- **Stop-Loss (Marktstruktur):** unter das letzte Swing-Tief (Tief der
-  letzten Kerzen) plus ein Volatilitäts-Puffer (ATR). Der Stop richtet
-  sich nach der echten Marktstruktur statt nach einem starren Prozentwert.
-- **Take-Profit (dynamisch):** Risiko × Faktor (Standard 1,8). Zusätzlich
-  zieht ein ATR-Trailing-Stop den Stop bei Gewinn nach.
-- **Positionsgröße:** wird so berechnet, dass ein Stop-Loss-Treffer genau
-  1 % vom Kapital kostet (risikobasiert).
-- **Schutz:** Tagesverlust-Limit (Standard 5 %) schließt alles und
-  pausiert bis zum nächsten Tag.
-
-Alle Werte sind als Eingabe-Parameter änderbar (nach Gruppen sortiert).
-
-**Verwendete Indikatoren:** EMA (9/21/200), ATR (Volatilität), RSI (Filter).
-
-## Phasen
-
-| Phase | Inhalt | Status |
-|---|---|---|
-| 1 | Struktur + erster EA mit Tagesverlust-Stopp | ✅ fertig |
-| 2 | Backtests auswerten, Strategie verfeinern, Demo-Betrieb | offen |
-| 3+ | Live frühestens nach bestandenen Tests, Entscheidung liegt beim Nutzer | offen |
+Live-Trading kommt frühestens nach bestandenen, dokumentierten Tests und
+ist allein Entscheidung und Handlung des Nutzers.
