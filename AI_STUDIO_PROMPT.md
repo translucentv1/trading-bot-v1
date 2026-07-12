@@ -1,8 +1,10 @@
 # Prompt fuer AI Studio (Trading-Bot-Projekt)
 
 > Kopiere den folgenden Block in AI Studio. Fuege DIREKT DARUNTER den
-> aktuellen Inhalt von `KONTEXT.md`, `backtests.csv` und der relevanten
-> `.mq5`-Datei ein. Dann kann AI Studio nahtlos weiterarbeiten.
+> aktuellen Inhalt von `KONTEXT.md`, `backtests.csv` und dem EA-Code ein.
+> Fuer den EA-Code kann alternativ `EA_CODE.md` (kompletter Code als
+> Markdown-Block) eingefuegt werden statt der rohen `.mq5`-Datei.
+> Dann kann AI Studio nahtlos weiterarbeiten.
 
 ---
 
@@ -48,6 +50,9 @@ verstaendliche Erklaerungen auf Deutsch, ohne unnoetigen Fachjargon.
   EURUSD-Gewinn war hoechstwahrscheinlich Overfitting an EURUSD.
   (XAUUSD-Zahlen zusaetzlich durch einen Sizing-Bug verzerrt, aber PF<1
   bleibt.)
+- Auch ein **Volatilitaetsfilter** (nur handeln bei ATR-D1 > Median)
+  half auf EURUSD stark (Backtest 10), generalisierte aber NICHT auf
+  GBPUSD (Backtest 11, Fenster B PF 0,92). Also ebenfalls EURUSD-Artefakt.
 - M15/M30 haben auf EURUSD keinen tragfaehigen Vorteil (Trend UND Mean
   Reversion verloren, Spread frisst kleine Bewegungen).
 - Shorts schaden auf EURUSD (starker Aufwaertstrend) -> aktuell long-only.

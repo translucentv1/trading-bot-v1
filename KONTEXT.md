@@ -8,27 +8,34 @@ Demo-Ziel: Forex Hedged EUR, 1.000 EUR Startkapital, Hebel 1:30.
 Repo (privat): https://github.com/translucentv1/trading-bot-v1
 
 ## Aktueller Stand
-Phase 3. **VIELVERSPRECHENDE SPUR: Volatilitaetsfilter (v3.4).** Nur
-handeln wenn ATR-D1 >= rollierendem Median (100 Tage) verbessert EURUSD
-H1/H4 in ALLEN Fenstern konsistent (PF 1,12->1,37 gesamt; Fenster B von
-PF 1,02/z 0,12 auf PF 1,23/z 0,76; DD ~halbiert). Erstes Experiment ohne
-Cherry-Picking-Verdacht. ABER: z_B=0,76 noch < 2 = noch KEIN bewiesener
-Edge, nur ein guter Kandidat. Filter default AUS.
-- Vorher (bleibt gueltig): ROH-Strategie ohne Filter generalisiert NICHT
-  (GBPUSD PF 0,95/0,95, Gold PF 0,51/0,83). Der EURUSD-Gewinn war
-  Overfitting; XAUUSD zusaetzlich durch Sizing-Bug verzerrt (s. Backtest 9).
-- **Naechster, entscheidender Schritt: Volatilitaetsfilter auf GBPUSD
-  gegentesten (Generalisierung). Erst wenn er dort auch haelt, ist es ein
-  echter Fund.** Kein Feintuning der Schwelle an EURUSD (Overfitting).
+Phase 3. **Auch der Volatilitaetsfilter generalisiert NICHT.** Auf EURUSD
+verbesserte er alles (Backtest 10), aber der GBPUSD-Gegentest (Backtest 11)
+scheitert: Fenster B bleibt negativ (PF 0,92, z -0,27), PF steigt nur in
+Fenster A leicht. Damit war auch dieser Filter im Wesentlichen
+EURUSD-spezifisch - kein uebertragbarer Edge.
+- Gesamtbild nach 35 Backtests: **KEINE getestete Idee (EMA-Kreuz, MTF-Bias,
+  Gewinnsicherung, Mean-Reversion, Volatilitaetsfilter) hat einen
+  Cross-Instrument-robusten Vorteil.** Alle "Gewinne" waren
+  EURUSD-Overfitting; keine ist statistisch belastbar (z durchweg < 2).
+- **Konsequenz: KEIN weiteres Feintuning an EURUSD** (Schwellenwerte etc. =
+  Overfitting-Vertiefung). Zurueck an AI Studio fuer eine **grundlegend
+  neue Signal-Idee**, nicht mehr Varianten des gleichen Grundgeruests.
+- Der EA (v3.40) bleibt als solides generisches Test-Geruest bestehen
+  (Risiko, MTF, Sicherung, Vol-Filter, OnTester-Logging, alles per Toggle).
 
 ## Letzte Aktion
-Review-/Volatilitaetsfilter-Sitzung (Auftrag AI Studio). Aufgabe 1:
-XAUUSD-Sizing-Bug entdeckt (Position ~3,8x zu gross wegen tick_value-
-Inkonsistenz; PF<1 bleibt trotzdem). Aufgabe 2: AI_STUDIO_PROMPT.md
-entschaerft ("kein bester Stand", Overfitting-Warnung). Aufgabe 3:
-backtests.csv um risk_realized_pct + z_score erweitert (nur id29 |z|=2,2,
-Rest Rauschen). Aufgabe 4: **Volatilitaetsfilter gebaut + getestet ->
-erstes konsistent besseres Ergebnis** (Backtest 10). EA jetzt v3.40.
+GBPUSD-Generalisierungssitzung (Auftrag Sonnet 5). Volatilitaetsfilter auf
+GBPUSD gegengetestet -> **haelt nicht** (Fenster B PF 0,92, negativ;
+Backtest 11, id34/35). Fazit: Filter war EURUSD-spezifisch. Ausserdem neue
+staendige Regel umgesetzt: **EA_CODE.md** (kompletter EA-Code als Markdown)
+im Repo-Root, wird bei jeder EA-Aenderung mitgepflegt; Verweise in
+CLAUDE.md, KONTEXT.md (Relevante Dateien korrigiert: aktiv ist
+ema_mtf_v3.mq5) und AI_STUDIO_PROMPT.md ergaenzt.
+
+## (frueher) Letzte Aktion
+Review-/Volatilitaetsfilter-Sitzung: XAUUSD-Sizing-Bug entdeckt (Position
+~3,8x zu gross), AI_STUDIO_PROMPT.md entschaerft, risk_realized_pct +
+z_score ergaenzt, Volatilitaetsfilter gebaut (Backtest 10, auf EURUSD stark).
 
 ## (frueher) Letzte Aktion
 EA v3.0 gebaut (Long & Short, Multi-Timeframe) und M15/M30/H1 automatisch
@@ -215,6 +222,22 @@ long-only ohne Sicherung, mit vs ohne Filter:
   (A nicht schlechter, Trades nicht kollabiert, z gestiegen).
 - Filter bleibt vorerst default AUS (nicht cross-instrument bestaetigt).
 
+### Backtest 11 – Volatilitaetsfilter GBPUSD-Generalisierung – HAELT NICHT
+Gleicher Filter (InpUseVolFilter=true, Lookback 100) auf GBPUSD H1/H4,
+long-only, 10.000 EUR. Vergleich zur filterlosen Basis id27/id28:
+| Fenster | Basis ohne Filter (PF/DD/z) | MIT Filter (PF/DD/z) |
+|---|---|---|
+| A 22-23 | id27: 0,95 / 8,62% / -0,24 | 1,08 / 6,09% / +0,23 (41 Tr) |
+| B 24-26 | id28: 0,95 / 17,27% / -0,28 | 0,92 / 8,62% / -0,27 (46 Tr) |
+- **Der Filter generalisiert NICHT.** Erfolgskriterium war "PF steigt in
+  BEIDEN Fenstern + z klar besser". Auf GBPUSD steigt PF nur in A (leicht,
+  1,08) - **Fenster B faellt sogar (0,92) und bleibt negativ**, z praktisch
+  unveraendert (-0,27). Keins der GBPUSD-Fenster zeigt einen echten Edge
+  (z nahe 0).
+- Fazit: **Der Volatilitaetsfilter war ebenfalls im Wesentlichen
+  EURUSD-spezifisch.** Die schoene EURUSD-Verbesserung (Backtest 10)
+  ueberträgt sich nicht.
+
 ## EA v2.0 – Was ist neu
 1. **Marktstruktur-Stop:** SL unter das letzte Swing-Tief (Tief der
    letzten InpSwingLookback Kerzen) minus ATR-Puffer. Stop richtet sich
@@ -227,22 +250,21 @@ long-only ohne Sicherung, mit vs ohne Filter:
    genau InpRiskPerTradePct % (1 %) kostet – egal wie eng/weit der Stop.
 6. Trendfilter (EMA 200) und Tagesverlust-Stopp bleiben erhalten.
 
-## Naechste Schritte (nach Volatilitaetsfilter-Fund)
-Der Volatilitaetsfilter (v3.4) ist der erste vielversprechende Kandidat.
-Disziplinierter Weg weiter:
-1. **GENERALISIERUNGS-CHECK GBPUSD:** genau dieselbe H1/H4-Konfig MIT
-   Volatilitaetsfilter (InpUseVolFilter=true, Lookback 100) auf GBPUSD,
-   Fenster A + B. Nur wenn es dort AUCH haelt (PF > 1, z steigt), ist es
-   ein echter Fund statt EURUSD-Zufall. (Erst NACH diesem Schritt ggf.
-   ein unkorreliertes Instrument mit korrigierter Nicht-Forex-Lotgroesse.)
-2. KEIN Feintuning des Lookback/der Schwelle an EURUSD - das waere
-   Overfitting an genau diese Fenster.
-3. Wenn GBPUSD haelt: laengerer Zeitraum / mehr Instrumente fuer groessere
-   Stichprobe (Ziel |z| > 2). Erst dann Demo/Live-Ueberlegung.
-4. Wenn GBPUSD NICHT haelt: Filter war auch nur EURUSD-Artefakt -> zurueck
-   an AI Studio fuer eine grundlegend andere Signal-Idee.
-Der EA ist ein solides generisches Test-Geruest; nur die Signal-Kante ist
-noch offen. TODO: Nicht-Forex-Lotberechnung fixen vor Gold/Index-Tests.
+## Naechste Schritte (nach gescheiterter Filter-Generalisierung)
+GBPUSD-Gegentest ist durch: der Volatilitaetsfilter haelt NICHT (Backtest
+11). Damit ist das aktuelle Grundgeruest (EMA-Kreuz + MTF-Bias + Varianten)
+ausgereizt - alle Verbesserungen waren EURUSD-spezifisch.
+1. **ZURUECK AN AI STUDIO fuer eine grundlegend NEUE Signal-Idee** (nicht
+   noch eine Variante/Parameter des EMA-Kreuz-Ansatzes). Der Prompt in
+   AI_STUDIO_PROMPT.md ist dafuer vorbereitet (Overfitting-Warnungen drin).
+2. Test-Disziplin fuer jede neue Idee (unveraendert): sofort Out-of-Sample
+   (Fenster A/B) UND >=1 unabhaengiges Instrument (GBPUSD), Ziel |z| > 2 bei
+   sauberem 1%-Risiko. Kein Feintuning an einem einzelnen Fenster/Symbol.
+3. Offenes TODO (erst wenn Nicht-Forex getestet wird): Lotberechnung fuer
+   Metalle/Indizes fixen (tick_value-Problem, s. Backtest 9).
+4. Ehrliche Grundhaltung: Ein uebertragbarer Edge ist selten; bislang hat
+   keine einfache Idee einen gezeigt. Kein Live-Einsatz mit
+   Gewinnerwartung, solange kein Cross-Instrument-|z|>2 vorliegt.
 Jeder Lauf -> Zeile in `backtests.csv` (inkl. risk_realized_pct + z_score).
 
 ## Kernregeln (Kurzfassung)
@@ -254,6 +276,10 @@ Jeder Lauf -> Zeile in `backtests.csv` (inkl. risk_realized_pct + z_score).
 ## Relevante Dateien
 | Datei | Inhalt |
 |---|---|
-| experts/ema_9_21_crossover_long_v2.mq5 | EA v2.0 (Struktur-SL, dyn. TP, ATR, RSI) |
+| experts/ema_mtf_v3.mq5 | **AKTIVE EA-Datei** (v3.40: EMA-Kreuz + MTF-Bias, Long/Short, Gewinnsicherung, Mean-Reversion-Modus, Volatilitaetsfilter, OnTester) |
+| experts/ema_9_21_crossover_long_v2.mq5 | alte v2.0 (nur Historie, nicht mehr aktiv) |
+| EA_CODE.md | kompletter aktueller EA-Code als Markdown (Handoff ohne .mq5-Upload) |
+| backtests.csv | Register aller Backtests (id;...;risk_realized_pct;z_score;fazit) |
+| AI_STUDIO_PROMPT.md | fertiger Prompt fuer AI Studio |
 | CLAUDE.md | Projektregeln + Handoff-Workflow |
 | README.md | Setup-Anleitung fuer MT5 |

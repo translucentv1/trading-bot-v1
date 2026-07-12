@@ -40,6 +40,9 @@ Nutzers, und wird von Claude weder ausgeführt noch aktiviert.
 - **Zustaendigkeit**: Claude Code = Code schreiben, Git, Dateien.
   AI Studio = Planung, Erklaerungen, Strategie-Ideen (ohne Repo-Zugriff).
 - Jede neue Claude-Code-Sitzung beginnt mit Lesen von `KONTEXT.md`.
+- `EA_CODE.md` (Repo-Root) enthaelt den kompletten aktuellen EA-Code als
+  Markdown-Block und wird bei JEDER Aenderung an der aktiven `.mq5` im
+  selben Commit mitgepflegt (Uebergabe an AI Studio ohne separaten Upload).
 
 ### Protokoll-Pflicht (jeder Backtest zaehlt)
 - **Jeder Backtest wird protokolliert** — eine Zeile pro Lauf in

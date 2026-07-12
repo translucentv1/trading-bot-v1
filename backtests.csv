@@ -32,3 +32,5 @@ id;datum;ea_version;zeitraum;symbol;exec_tf;bias_tf;richtung;strategie;net_profi
 31;2026-07-13;v3.4;2022-01_2026-07;EURUSD;H1;H4;long;ema-cross+volfilter;2388.79;1.37;5.13;7.52;120;46.67;158.18;-101.09;5;1.01;1.69;VolFilter Gesamt - PF/Sharpe/DD deutlich besser (Basis ohne=id12)
 32;2026-07-13;v3.4;2022-01_2023-12;EURUSD;H1;H4;long;ema-cross+volfilter;1597.72;1.52;6.65;4.87;62;46.77;160.11;-92.29;5;0.92;1.61;VolFilter Fenster A besser (Basis ohne=id25)
 33;2026-07-13;v3.4;2024-01_2026-07;EURUSD;H1;H4;long;ema-cross+volfilter;664.15;1.23;3.34;6.29;58;46.55;133.58;-94.92;5;0.95;0.76;VolFilter Fenster B: PF 1.02->1.23, z 0.12->0.76, DD halbiert (Basis ohne=id26)
+34;2026-07-13;v3.4;2022-01_2023-12;GBPUSD;H1;H4;long;ema-cross+volfilter;175.03;1.08;1.13;6.09;41;39.02;154.73;-92.03;6;0.92;0.23;GBPUSD-Gen A: PF 0.95->1.08 leicht besser (Basis id27), z nur 0.23
+35;2026-07-13;v3.4;2024-01_2026-07;GBPUSD;H1;H4;long;ema-cross+volfilter;-200.57;0.92;-1.05;8.62;46;39.13;134.17;-93.42;4;0.93;-0.27;GBPUSD-Gen B: PF 0.95->0.92 NICHT besser (Basis id28) - keine Generalisierung
