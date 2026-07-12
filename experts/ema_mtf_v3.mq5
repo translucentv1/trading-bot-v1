@@ -25,6 +25,10 @@
 #property strict
 #property description "EMA 9/21 + Multi-Timeframe-Bias, Long & Short,"
 #property description "Struktur-Stop, dynamischer TP, ATR-Trailing, RSI-Filter."
+#property description "Empfohlen (Position Trading): H4-Chart + D1-Bias, long-only."
+// Backtest EURUSD 2022-2026, long-only:
+//   H4-Chart + D1-Bias: +447, PF 1,12, DD 9,4 %, 67 Trades (Position Trading)
+//   H1-Chart + H4-Bias: +1686, PF 1,12, Sharpe 1,87 (renditestaerker, aktiver)
 
 #include <Trade\Trade.mqh>
 CTrade trade;
@@ -36,7 +40,7 @@ input int             InpSlowEMAPeriod  = 21;       // Perioden langsame EMA
 
 //--- Eingaben: Trend-Bias (hoehere Zeitebene) -----------------------
 input group "--- Trend-Bias (hoehere Zeitebene) ---"
-input ENUM_TIMEFRAMES InpBiasTF         = PERIOD_H4;// Hoehere Zeitebene fuer Richtung
+input ENUM_TIMEFRAMES InpBiasTF         = PERIOD_D1;// Hoehere Zeitebene fuer Richtung (Position Trading: H4-Chart + D1-Bias)
 input int             InpBiasEMAPeriod  = 50;       // EMA auf der Bias-Zeitebene
 
 //--- Eingaben: Handelsrichtung --------------------------------------

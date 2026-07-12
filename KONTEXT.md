@@ -8,10 +8,12 @@ Demo-Ziel: Forex Hedged EUR, 1.000 EUR Startkapital, Hebel 1:30.
 Repo (privat): https://github.com/translucentv1/trading-bot-v1
 
 ## Aktueller Stand
-Phase 3. **Neuer Bestand: EA v3.0 auf H1, long-only, mit H4-Bias
-(+519, PF 1,11, Sharpe 1,77, DD 9,5 %)** – deutlich besser als v2.0.
-Datei `experts/ema_mtf_v3.mq5` (Long/Short + Multi-Timeframe, Short
-per Toggle). Alle Backtests laufen ueber die Auto-Schleife (~15s/Lauf).
+Phase 3. Nutzer will ein **Position-Trading-EA**. Empfohlene Konfig:
+**EA v3.0 auf H4-Chart + D1-Bias, long-only** (Position Trading:
+wenige lange Trades, DD nur 9,4 %). Ueber 2022-2026: +447, PF 1,12.
+Renditestaerkere Alternative: **H1 + H4-Bias** = +1686, PF 1,12,
+Sharpe 1,87 (aktiver, DD 14,7 %). Beide ueber 4,5 Jahre ROBUST.
+Standard-Bias im EA jetzt D1 gesetzt. Naechster Schritt: Optimierung.
 
 ## Letzte Aktion
 EA v3.0 gebaut (Long & Short, Multi-Timeframe) und M15/M30/H1 automatisch
@@ -64,6 +66,18 @@ Neuer EA `ema_mtf_v3.mq5` (Long/Short, hoehere Zeitebene = Bias). H4-Bias.
 - Shorts schaden auf EURUSD (starker Aufwaertstrend 2025-26).
 - Short-Faehigkeit bleibt als Toggle (InpAllowShort) fuer andere
   Instrumente/Regimes erhalten.
+
+### Backtest 5 – v3.0 Robustheit 2022-2026 (4,5 Jahre), long-only
+| Einstieg / Bias | Netto | PF | Sharpe | DD | Trades |
+|---|---|---|---|---|---|
+| H1 / H4 | +1686 | 1,12 | 1,87 | 14,7% | 240 |
+| H4 / D1 | +447  | 1,12 | 0,87 | 9,4%  | 67  |
+| D1 / W1 | -313  | 0,52 | -    | 3,1%  | 9 (zu wenig) |
+- Beide profitablen Varianten haben den Vorteil ueber 4,5 Jahre gehalten
+  (kein Zufall der letzten 18 Monate).
+- **Position-Trading-Wahl: H4 + D1-Bias** (wenige lange Trades, DD 9,4%).
+- H1 + H4-Bias ist renditestaerker, aber aktiver (mehr Trades, hoeherer DD).
+- D1-Einstieg untauglich (zu wenige Signale).
 
 ## EA v2.0 – Was ist neu
 1. **Marktstruktur-Stop:** SL unter das letzte Swing-Tief (Tief der
