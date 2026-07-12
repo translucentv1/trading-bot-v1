@@ -96,6 +96,19 @@ Neuer EA `ema_mtf_v3.mq5` (Long/Short, hoehere Zeitebene = Bias). H4-Bias.
   im Marketing des fremden EA ist nur mit kontosprengendem Risiko
   erreichbar - nicht unser Weg.
 
+### Backtest 7 – v3.2/3.3 Mean Reversion (M30) – LEHRSTUECK
+Nutzer wollte Mean-Reversion-Einstiege auf M30 + hoehere Zeitebene als
+Filter, "raus sobald im Plus" fuer maximale Trefferquote.
+- MR mit Trend-Ausstieg (v3.2): alle negativ, wenige Trades (11-44).
+- MR "raus sobald im Plus" (v3.3): Trefferquote 83-100 %, ABER netto
+  MINUS (-182 / -249). Ø Gewinn +1,53 EUR vs Ø Verlust -99 EUR.
+  Ein Verlust loescht ~65 Gewinne.
+- **Kern-Lehre (mit eigenen Daten belegt): hohe Trefferquote != Profit.
+  Was zaehlt ist die Erwartung (Groesse x Haeufigkeit), nicht die Quote.
+  Genau die Falle hinter '90% Winrate / 10% pro Monat'-Marketing-EAs.**
+- Fazit: zurueck zum bewiesenen H4-Trend + Gewinnsicherung (68% Quote,
+  positive Erwartung). MR-Modi bleiben als Toggle im Code, aber aus.
+
 ## EA v2.0 – Was ist neu
 1. **Marktstruktur-Stop:** SL unter das letzte Swing-Tief (Tief der
    letzten InpSwingLookback Kerzen) minus ATR-Puffer. Stop richtet sich
