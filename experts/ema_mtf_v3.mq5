@@ -21,7 +21,7 @@
 //| Tester laufen im MetaEditor/MT5.                                |
 //+------------------------------------------------------------------+
 #property copyright "Phase 3 - Demo/Paper"
-#property version   "3.00"
+#property version   "3.10"
 #property strict
 #property description "EMA 9/21 + Multi-Timeframe-Bias, Long & Short,"
 #property description "Struktur-Stop, dynamischer TP, ATR-Trailing, RSI-Filter."
@@ -67,6 +67,15 @@ input double          InpRewardRatio    = 1.8;      // TP = Risiko x diesem Fakt
 input bool            InpUseTrailing    = true;     // ATR-Trailing-Stop aktivieren
 input double          InpTrailATRMult   = 2.5;      // Trailing-Abstand in ATR
 
+//--- Eingaben: Gewinn sichern ---------------------------------------
+input group "--- Gewinn sichern (Break-Even / Teil-TP) ---"
+input bool            InpUseBreakEven   = true;     // Stop auf Einstieg ziehen sobald im Plus
+input double          InpBreakEvenAtR   = 1.0;      // ab wieviel R (Risiko-Vielfaches) auf Break-Even
+input int             InpBreakEvenBuffPts = 20;     // Puffer ueber/unter Einstieg (Punkte, deckt Spread)
+input bool            InpUsePartialTP   = true;     // Teil-Gewinnmitnahme aktivieren
+input double          InpPartialAtR     = 1.0;      // ab wieviel R Teil schliessen
+input double          InpPartialPercent = 50.0;     // wieviel % der Position schliessen
+
 //--- Eingaben: Risiko / Position ------------------------------------
 input group "--- Risiko / Position ---"
 input bool            InpUseRiskLots    = true;     // Lot aus Risiko% berechnen
@@ -90,6 +99,14 @@ datetime m_last_bar_time;
 bool     m_loss_limit_active;
 int      m_last_day;
 double   m_day_start_balance;
+
+//--- Merker fuer die aktuell verfolgte Position (Gewinn sichern) ----
+ulong    m_pos_ticket   = 0;      // Ticket der aktuell verfolgten Position
+double   m_pos_entry    = 0.0;    // Einstiegspreis
+double   m_pos_risk     = 0.0;    // urspruenglicher Risiko-Abstand (Preis)
+double   m_pos_volume   = 0.0;    // urspruengliches Volumen
+bool     m_be_done      = false;  // Break-Even schon gesetzt?
+bool     m_partial_done = false;  // Teil-Gewinn schon genommen?
 
 //+------------------------------------------------------------------+
 //| Initialisierung                                                  |
@@ -183,21 +200,22 @@ void OnTick()
       return;
      }
 
-   // 2. Position dieses EA finden (Typ merken)
+   // 2. Position dieses EA finden
    bool  hasPos = false;
    ulong ticket = 0;
    long  posType = -1;
-   double posSL = 0.0, posTP = 0.0;
+   double posSL = 0.0, posEntry = 0.0, posVol = 0.0;
    for(int i = PositionsTotal() - 1; i >= 0; i--)
      {
       if(PositionGetSymbol(i) == _Symbol &&
          PositionGetInteger(POSITION_MAGIC) == (long)InpMagicNumber)
         {
-         hasPos  = true;
-         ticket  = PositionGetInteger(POSITION_TICKET);
-         posType = PositionGetInteger(POSITION_TYPE);
-         posSL   = PositionGetDouble(POSITION_SL);
-         posTP   = PositionGetDouble(POSITION_TP);
+         hasPos   = true;
+         ticket   = PositionGetInteger(POSITION_TICKET);
+         posType  = PositionGetInteger(POSITION_TYPE);
+         posSL    = PositionGetDouble(POSITION_SL);
+         posEntry = PositionGetDouble(POSITION_PRICE_OPEN);
+         posVol   = PositionGetDouble(POSITION_VOLUME);
          break;
         }
      }
@@ -207,9 +225,24 @@ void OnTick()
    if(CopyBuffer(h_atr, 0, 1, 1, atrNow) < 1) return;
    double atrValue = atrNow[0];
 
-   // 4. Trailing-Stop (bei jedem Tick, damit er sauber mitzieht)
-   if(hasPos && InpUseTrailing && atrValue > 0.0)
-      ManageTrailingStop(ticket, posType, posSL, posTP, atrValue);
+   // 4. Offene Position verwalten (bei jedem Tick): Gewinn sichern + Trailing
+   if(hasPos)
+     {
+      if(ticket != m_pos_ticket)   // neue Position -> Merker initialisieren
+        {
+         m_pos_ticket   = ticket;
+         m_pos_entry    = posEntry;
+         m_pos_risk     = MathAbs(posEntry - posSL);
+         m_pos_volume   = posVol;
+         m_be_done      = false;
+         m_partial_done = false;
+        }
+      ManageProfitSecuring(ticket, posType);
+      if(InpUseTrailing && atrValue > 0.0)
+         ManageTrailingStop(ticket, atrValue);
+     }
+   else
+      m_pos_ticket = 0;
 
    // 5. Signale nur einmal je neuer Kerze auswerten
    datetime barTime = (datetime)SeriesInfoInteger(_Symbol, _Period, SERIES_LASTBAR_DATE);
@@ -320,8 +353,12 @@ void OpenTrade(bool isLong, double atrValue)
 //+------------------------------------------------------------------+
 //| Zieht den Stop-Loss per ATR nach (beide Richtungen)              |
 //+------------------------------------------------------------------+
-void ManageTrailingStop(ulong ticket, long type, double curSL, double curTP, double atrValue)
+void ManageTrailingStop(ulong ticket, double atrValue)
   {
+   if(!PositionSelectByTicket(ticket)) return;
+   long   type  = PositionGetInteger(POSITION_TYPE);
+   double curSL = PositionGetDouble(POSITION_SL);
+   double curTP = PositionGetDouble(POSITION_TP);
    double bid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
    double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
    double stopsLevel = (double)SymbolInfoInteger(_Symbol, SYMBOL_TRADE_STOPS_LEVEL) * _Point;
@@ -338,6 +375,71 @@ void ManageTrailingStop(ulong ticket, long type, double curSL, double curTP, dou
       if((curSL <= 0.0 || newSL < curSL) && newSL > ask + stopsLevel)
          trade.PositionModify(ticket, newSL, curTP);
      }
+  }
+
+//+------------------------------------------------------------------+
+//| Sichert Gewinn: Teil-Verkauf bei +InpPartialAtR R und            |
+//| Break-Even-Stop bei +InpBreakEvenAtR R (beide Richtungen).       |
+//| -> Ist der Trade einmal im Plus, kann er nicht mehr ins Minus.   |
+//+------------------------------------------------------------------+
+void ManageProfitSecuring(ulong ticket, long type)
+  {
+   if(m_pos_risk <= 0.0) return;
+   if(!PositionSelectByTicket(ticket)) return;
+   double curSL  = PositionGetDouble(POSITION_SL);
+   double curTP  = PositionGetDouble(POSITION_TP);
+   double curVol = PositionGetDouble(POSITION_VOLUME);
+   double bid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
+   double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
+   double buffer = InpBreakEvenBuffPts * _Point;
+
+   double profitDist = (type == POSITION_TYPE_BUY) ? (bid - m_pos_entry) : (m_pos_entry - ask);
+   if(profitDist <= 0.0) return;
+
+   // --- Teil-Gewinnmitnahme ---------------------------------------
+   if(InpUsePartialTP && !m_partial_done && profitDist >= InpPartialAtR * m_pos_risk)
+     {
+      double closeVol = NormalizeVolumeDown(m_pos_volume * InpPartialPercent / 100.0);
+      double minLot   = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MIN);
+      if(closeVol >= minLot && (curVol - closeVol) >= minLot)
+        {
+         if(trade.PositionClosePartial(ticket, closeVol))
+           {
+            m_partial_done = true;
+            Print("Teil-Gewinn gesichert: ", DoubleToString(closeVol, 2),
+                  " Lot bei +", DoubleToString(InpPartialAtR, 1), "R.");
+           }
+        }
+      else
+         m_partial_done = true; // Volumen zu klein zum Teilen -> nicht erneut versuchen
+     }
+
+   // --- Break-Even-Stop -------------------------------------------
+   if(InpUseBreakEven && !m_be_done && profitDist >= InpBreakEvenAtR * m_pos_risk)
+     {
+      if(type == POSITION_TYPE_BUY)
+        {
+         double beSL = NormalizeDouble(m_pos_entry + buffer, _Digits);
+         if(beSL > curSL) { if(trade.PositionModify(ticket, beSL, curTP)) m_be_done = true; }
+         else m_be_done = true;
+        }
+      else
+        {
+         double beSL = NormalizeDouble(m_pos_entry - buffer, _Digits);
+         if(curSL <= 0.0 || beSL < curSL) { if(trade.PositionModify(ticket, beSL, curTP)) m_be_done = true; }
+         else m_be_done = true;
+        }
+     }
+  }
+
+//+------------------------------------------------------------------+
+//| Rundet Volumen auf den erlaubten Volume-Step ab                  |
+//+------------------------------------------------------------------+
+double NormalizeVolumeDown(double v)
+  {
+   double step = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_STEP);
+   if(step <= 0.0) return(v);
+   return(MathFloor(v / step) * step);
   }
 
 //+------------------------------------------------------------------+
