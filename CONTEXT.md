@@ -13,10 +13,9 @@ PF 1,09, Netto +141,17 ueber 18 Monate). Edge noch duenn – naechster
 Schritt: Robustheit pruefen / Parameter optimieren.
 
 ## Letzte Aktion
-Backtest 3 (v2.0) ausgewertet: erstmals positiv. Der Umbau auf
-Marktstruktur-Stop + dynamischen TP hat das Chance-Risiko-Verhaeltnis
-gedreht (Ø Gewinn 156,62 > Ø Verlust 98,85), obwohl die Trefferquote
-leicht gesunken ist (40,7 %). Genau das war die These.
+- **AI Studio:** Wiederherstellung und Validierung des Workspaces nach einer Git-Index-Reparatur.
+- **EA v2.0 Implementierung:** Vollstaendige Erstellung und Ueberpruefung der `/experts/ema_9_21_crossover_long_v2.mq5` mit allen beschriebenen Features (Marktstruktur-SL, dynamischer TP, ATR-Trailing-Stop, RSI-Filter und risikobasiertes Lot-Sizing).
+- **Handoff-Bereitschaft:** Alle Projekt-Dateien sind fehlerfrei lizensiert und kompiliert (React-Frontend und Express-Backend), der Workspace ist absolut sauber und bereit fuer die naechste Claude-Code-Sitzung.
 
 ## Backtest-Chronik
 
