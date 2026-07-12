@@ -8,15 +8,17 @@ Demo-Ziel: Forex Hedged EUR, 1.000 EUR Startkapital, Hebel 1:30.
 Repo (privat): https://github.com/translucentv1/trading-bot-v1
 
 ## Aktueller Stand
-Phase 2. **EA v2.0 ist die erste PROFITABLE Version** (Backtest 3:
-PF 1,09, Netto +141,17 ueber 18 Monate). Edge noch duenn – naechster
-Schritt: Robustheit pruefen / Parameter optimieren.
+Phase 2. **EA v2.0 profitabel (+141,17, PF 1,09)** und per automatischer
+Backtest-Schleife bestaetigt (Claude faehrt Tests selbst per CLI, ~10s/Lauf,
+OnTester schreibt Kennzahlen). Naechster Schritt laut Nutzer: **Live-Demo-
+Vorwaertstest** (EA scharf auf Demokonto), danach Optimierung.
 
 ## Letzte Aktion
-Backtest 3 (v2.0) ausgewertet: erstmals positiv. Der Umbau auf
-Marktstruktur-Stop + dynamischen TP hat das Chance-Risiko-Verhaeltnis
-gedreht (Ø Gewinn 156,62 > Ø Verlust 98,85), obwohl die Trefferquote
-leicht gesunken ist (40,7 %). Genau das war die These.
+AI-Studio-Umschreibung des EA getestet und **verworfen**: war unprofitabel
+(-75 bzw. -93). Ursache: ATR-Puffer 1,5 statt 0,5, Lookback 10 statt 12,
+und Trailing bei jedem Tick statt pro Kerze. Bewiesene +141-Version aus
+Git (58e7a7f) wiederhergestellt und per Auto-Backtest exakt bestaetigt.
+Von AI Studio eingefuegte React/Node-Web-App wurde entfernt (Repo schlank).
 
 ## Backtest-Chronik
 
