@@ -8,8 +8,12 @@ Demo-Ziel: Forex Hedged EUR, 1.000 EUR Startkapital, Hebel 1:30.
 Repo (privat): https://github.com/translucentv1/trading-bot-v1
 
 ## Aktueller Stand
-Phase 3. **49 Backtests, 5 Strategie-Familien - noch immer kein
-statistisch belegter, instrumentuebergreifender Edge.** NEU seit heute:
+Phase 3. **61 Backtests, 6 Strategie-Familien - noch immer kein
+statistisch belegter, instrumentuebergreifender Edge.** Neuestes: der
+Opening-Range-Breakout (Session-Ausbruch, Backtest 13) verliert sogar
+statistisch SIGNIFIKANT (gepoolt Fenster B z=-2,61, PF 0,91, N=3224) -
+FX-Ausbrueche werden gefadet. Der Struktur-Swing-Ansatz (Backtest 12)
+war reines Rauschen. Frueheres bleibt gueltig:
 - Ein **strukturell anderer EA** (`structure_swing_ea.mq5`, Fractal-Swings
   + MTF-Trend, kein Indikator) gebaut UND mit der neuen **Pooling-Methodik**
   (Korb aus 6 Instrumenten, alle Trades gepoolt) getestet. Ergebnis:
@@ -286,6 +290,26 @@ AUDUSD, USDCAD, XAUUSD), Fenster A/B, alle Trades gepoolt.
   messen und eine Idee statistisch SAUBER verwerfen (statt "zu wenige
   Trades"). Das Test-Rahmenwerk ist jetzt aussagefaehig.
 
+### Backtest 13 – Opening-Range-Breakout (Pooling) (12.07.2026)
+Neuer Einstiegs-Modus 2 in `ema_mtf_v3.mq5` (v3.50): Ausbruch aus der
+Spanne der ruhigen Session (0-8 Uhr EET, Serverzeit verifiziert = GMT+3
+Sommer) + ATR-Puffer 0,2; 1 Versuch/Tag; Stop/TP/Trailing/Risiko
+unveraendert. Isolierte Aenderung. Getestet ueber den 6er-Korb, Fenster A/B
+(id 50-61).
+| Fenster | Trades (N) | PF gepoolt | z gepoolt |
+|---|---|---|---|
+| A 2022-2023 | 2650 | 0,95 | -1,35 |
+| B 2024-2026 | 3224 | **0,91** | **-2,61** |
+- **Abbruch: kein Edge, sondern ein signifikant NEGATIVER.** PF<1 in
+  beiden Fenstern; in B ist |z|=2,61 (>2) -> der ORB VERLIERT statistisch
+  signifikant. Konsistent ueber fast alle Symbole (PF 0,85-1,06), also kein
+  Rauschen: Fehlausbrueche + Spread kosten mehr als die Bewegungen bringen
+  (FX-Opening-Ranges werden oft gefadet).
+- Kontrast zur Swing-Baseline (Backtest 12): dort Streuung (PF 0,15-2,2,
+  z ~0), hier konsistent negativ. Beide: kein verwertbarer Vorteil.
+- Vorab-Check (Traderate): mit ~450-580 Trades/Symbol/Fenster war die
+  Stichprobe mehr als ausreichend - die Aussage ist belastbar.
+
 ## EA v2.0 – Was ist neu
 1. **Marktstruktur-Stop:** SL unter das letzte Swing-Tief (Tief der
    letzten InpSwingLookback Kerzen) minus ATR-Puffer. Stop richtet sich
@@ -298,22 +322,21 @@ AUDUSD, USDCAD, XAUUSD), Fenster A/B, alle Trades gepoolt.
    genau InpRiskPerTradePct % (1 %) kostet – egal wie eng/weit der Stop.
 6. Trendfilter (EMA 200) und Tagesverlust-Stopp bleiben erhalten.
 
-## Naechste Schritte (nach gescheiterter Filter-Generalisierung)
-GBPUSD-Gegentest ist durch: der Volatilitaetsfilter haelt NICHT (Backtest
-11). Damit ist das aktuelle Grundgeruest (EMA-Kreuz + MTF-Bias + Varianten)
-ausgereizt - alle Verbesserungen waren EURUSD-spezifisch.
-1. **ZURUECK AN AI STUDIO fuer eine grundlegend NEUE Signal-Idee** (nicht
-   noch eine Variante/Parameter des EMA-Kreuz-Ansatzes). Der Prompt in
-   AI_STUDIO_PROMPT.md ist dafuer vorbereitet (Overfitting-Warnungen drin).
-2. Test-Disziplin fuer jede neue Idee (unveraendert): sofort Out-of-Sample
-   (Fenster A/B) UND >=1 unabhaengiges Instrument (GBPUSD), Ziel |z| > 2 bei
-   sauberem 1%-Risiko. Kein Feintuning an einem einzelnen Fenster/Symbol.
-3. ~~Lotberechnung fuer Metalle/Indizes fixen~~ ERLEDIGT in v3.41
-   (OrderCalcProfit, verifiziert id36/37) - Nicht-Forex-Tests sind jetzt
-   sauber moeglich.
-4. Ehrliche Grundhaltung: Ein uebertragbarer Edge ist selten; bislang hat
-   keine einfache Idee einen gezeigt. Kein Live-Einsatz mit
-   Gewinnerwartung, solange kein Cross-Instrument-|z|>2 vorliegt.
+## Naechste Schritte (nach ORB-Fehlschlag)
+Drei "andere Informationsquellen" wurden vorgeschlagen; ORB (Session) ist
+durch = signifikant negativ. Verbleibend: **(a) Mean-Reversion zwischen
+korrelierten Paaren** (z.B. EURUSD vs GBPUSD Spread-Rueckkehr) und
+**(b) News-/Kalender-Filter**. Empfehlung: **(a) zuerst** - strukturell am
+weitesten weg von allem bisher (relativer statt absoluter Preis), passt
+zur Pooling-Methodik und braucht keine externen Datenquellen (im Gegensatz
+zum News-Filter, der einen Kalender-Feed braucht = ausserhalb des Testers).
+1. Nach der Strategen-Rolle EINE saubere Hypothese fuer den Paar-Spread
+   festlegen (Konfig a priori, kein Tuning).
+2. Test-Disziplin (unveraendert): OOS-Fenster A/B, gepoolt (soweit sinnvoll)
+   bzw. Zweitinstrument/-paar, Ziel gepoolt |z|>2 und PF>1 in BEIDEN.
+3. Ehrliche Grundhaltung bleibt: bislang kein uebertragbarer Edge; kein
+   Live-Einsatz mit Gewinnerwartung. Die Pooling-Methodik macht Fehlschlaege
+   jetzt wenigstens SCHNELL und BELASTBAR sichtbar.
 Jeder Lauf -> Zeile in `backtests.csv` (inkl. risk_realized_pct + z_score).
 
 ## Kernregeln (Kurzfassung)
@@ -326,11 +349,13 @@ Jeder Lauf -> Zeile in `backtests.csv` (inkl. risk_realized_pct + z_score).
 | Datei | Inhalt |
 |---|---|
 | experts/ema_mtf_v3.mq5 | **AKTIVE EA-Datei** (v3.41: EMA-Kreuz + MTF-Bias, Long/Short, Gewinnsicherung, Mean-Reversion-Modus, Volatilitaetsfilter, OrderCalcProfit-Sizing, OnTester) |
+| experts/structure_swing_ea.mq5 | Kandidat-EA (Fractal-Swings + MTF-Trend, non-repaint); getestet Backtest 12, kein Edge |
 | experts/ema_9_21_crossover_long_v2.mq5 | alte v2.0 (nur Historie, nicht mehr aktiv) |
 | EA_CODE.md | kompletter aktueller EA-Code als Markdown (Handoff ohne .mq5-Upload) |
 | backtests.csv | Register aller Backtests (id;...;risk_realized_pct;z_score;fazit) |
 | JOURNAL.md | Tagebuch mit Tageseintraegen (Zeitleiste des Projekts) |
 | tools/validate_backtests.py | objektive Nachrechnung/Validierung von backtests.csv |
+| tools/pool_backtests.py | poolt Korb-Ergebnisse je Fenster, rechnet gepoolten z-Wert (Aufruf: prefix + verzeichnis) |
 | AI_STUDIO_PROMPT.md | fertiger Prompt fuer AI Studio |
 | CLAUDE.md | Projektregeln + Handoff-Workflow |
 | README.md | Projektueberblick + Setup + Test-Disziplin |

@@ -63,6 +63,17 @@ statistisch belastbaren Vorteil – und hohe Trefferquote ist kein Profit.
   -0,23/-1,08 -> KEIN Edge, Idee sauber verworfen (id 38-49, Backtest 12).
   Wichtig: Die Pooling-Methodik ist der eigentliche Fortschritt – erstmals
   koennen wir Ideen mit echter statistischer Aussagekraft verwerfen.
+- **Opening-Range-Breakout (Session-Ansatz, v3.50):** Als Modus 2 in den
+  Haupt-EA eingebaut (isolierte Einstiegs-Aenderung; Serverzeit vorher als
+  EET/GMT+3 verifiziert). Gepoolt ueber den 6er-Korb (id 50-61): Fenster A
+  z=-1,35/PF 0,95, Fenster B **z=-2,61/PF 0,91 bei N=3224** -> nicht nur
+  kein Edge, sondern statistisch SIGNIFIKANT negativ und konsistent ueber
+  fast alle Symbole (FX-Ausbrueche werden gefadet). Sauberer Abbruch.
+  Damit sind heute 3 strukturell verschiedene Ansaetze (Swing-Struktur,
+  Session-Breakout) zusaetzlich zu den 4 EMA-Familien belastbar verworfen.
+  Housekeeping: tools/pool_backtests.py generalisiert (Prefix-Argument),
+  Relevante-Dateien-Tabelle + Naechste-Schritte aktualisiert. Naechste
+  Idee laut Strategen-Rolle: Mean-Reversion zwischen korrelierten Paaren.
 
 **Entscheidungen:** Kein weiteres Tuning am EMA-Kreuz-Geruest. Kein
 Live/Demo-Einsatz mit Gewinnerwartung. Naechster Schritt: grundlegend

@@ -21,7 +21,7 @@
 //| Tester laufen im MetaEditor/MT5.                                |
 //+------------------------------------------------------------------+
 #property copyright "Phase 3 - Demo/Paper"
-#property version   "3.41"
+#property version   "3.50"
 #property strict
 #property description "EMA 9/21 + Multi-Timeframe-Bias, Long & Short,"
 #property description "Struktur-Stop, dynamischer TP, ATR-Trailing, RSI-Filter."
@@ -59,10 +59,16 @@ input double          InpRSILower       = 30.0;     // kein Short wenn RSI darun
 
 //--- Eingaben: Einstiegs-Modus --------------------------------------
 input group "--- Einstiegs-Modus ---"
-input int             InpEntryMode      = 0;        // 0 = EMA-Kreuz (Trend), 1 = RSI-Mean-Reversion (Pullback)
+input int             InpEntryMode      = 0;        // 0=EMA-Kreuz, 1=RSI-Mean-Reversion, 2=Opening-Range-Breakout
 input double          InpRSIBuyLevel    = 40.0;     // MR Long: RSI kreuzt von unten hier durch
 input double          InpRSISellLevel   = 60.0;     // MR Short: RSI kreuzt von oben hier durch
 input double          InpMRMinProfitMoney = 0.0;    // MR-Ausstieg: raus sobald Gewinn (EUR) >= Wert (0 = jeder Gewinn)
+
+//--- Eingaben: Opening-Range-Breakout (nur Modus 2) -----------------
+input group "--- Opening-Range-Breakout ---"
+input int             InpRangeStartHour   = 0;      // Range-Beginn (Stunde, Serverzeit EET)
+input int             InpRangeEndHour     = 8;      // Range-Ende (Stunde, Serverzeit EET)
+input double          InpBreakoutBufferATR= 0.2;    // ATR-Puffer gegen Fehlausbrueche
 
 //--- Eingaben: Marktstruktur (Stop-Loss) ----------------------------
 input group "--- Marktstruktur / Stop-Loss ---"
@@ -114,6 +120,13 @@ datetime m_last_bar_time;
 bool     m_loss_limit_active;
 int      m_last_day;
 double   m_day_start_balance;
+
+//--- Opening-Range-Breakout (Modus 2) -------------------------------
+int      m_orbDay      = -1;      // laufender Tag (day_of_year)
+double   m_orbHigh     = 0.0;     // Spannen-Hoch
+double   m_orbLow      = 0.0;     // Spannen-Tief
+bool     m_orbHasRange = false;   // Spanne fuer heute vorhanden?
+bool     m_orbDoneToday= false;   // heutiger Einstiegsversuch verbraucht?
 
 //--- Merker fuer die aktuell verfolgte Position (Gewinn sichern) ----
 ulong    m_pos_ticket   = 0;      // Ticket der aktuell verfolgten Position
@@ -315,7 +328,7 @@ void OnTick()
       longExit    = crossDown;   // Gegenkreuz schliesst Long
       shortExit   = crossUp;     // Gegenkreuz schliesst Short
      }
-   else
+   else if(InpEntryMode == 1)
      {
       // Modus 1: RSI-Mean-Reversion (Ruecksetzer im Trend kaufen)
       // Long: RSI dreht von unten durch InpRSIBuyLevel nach oben, im Aufwaerts-Bias
@@ -325,6 +338,35 @@ void OnTick()
       longSignal  = rsiTurnUp   && biasUp;
       shortSignal = rsiTurnDown && biasDown;
       // Ausstieg im MR-Modus ueber TP / Break-Even / Trailing (kein Signal-Exit)
+     }
+   else // InpEntryMode == 2
+     {
+      // Modus 2: Opening-Range-Breakout (Session-Ausbruch)
+      // Spanne der ruhigen Session merken (Stunden in Serverzeit EET),
+      // danach am selben Tag Ausbruch ueber/unter die Spanne + ATR-Puffer.
+      // Ausstieg ueber SL/TP/Trailing (kein Signal-Exit). 1 Versuch/Tag.
+      datetime bt = iTime(_Symbol, _Period, 1);
+      MqlDateTime btm; TimeToStruct(bt, btm);
+      if(btm.day_of_year != m_orbDay)
+        {
+         m_orbDay = btm.day_of_year;
+         m_orbHigh = 0.0; m_orbLow = 0.0;
+         m_orbHasRange = false; m_orbDoneToday = false;
+        }
+      double bh = iHigh(_Symbol, _Period, 1);
+      double bl = iLow(_Symbol, _Period, 1);
+      if(btm.hour >= InpRangeStartHour && btm.hour < InpRangeEndHour)
+        {
+         if(!m_orbHasRange) { m_orbHigh = bh; m_orbLow = bl; m_orbHasRange = true; }
+         else { if(bh > m_orbHigh) m_orbHigh = bh; if(bl < m_orbLow) m_orbLow = bl; }
+        }
+      else if(btm.hour >= InpRangeEndHour && m_orbHasRange && !m_orbDoneToday)
+        {
+         double buf = InpBreakoutBufferATR * atrValue;
+         double cl  = iClose(_Symbol, _Period, 1);
+         if(cl > m_orbHigh + buf)      { longSignal  = true; m_orbDoneToday = true; }
+         else if(cl < m_orbLow - buf)  { shortSignal = true; m_orbDoneToday = true; }
+        }
      }
 
    // 6. Offene Position: ggf. Signal-Ausstieg
