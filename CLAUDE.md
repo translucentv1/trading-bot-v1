@@ -15,9 +15,10 @@ jederzeit wiederhergestellt werden).
   immer selbst.
 - **Tech-Stack:** MQL5 (Expert Advisors) für MetaTrader 5. Die Dateien
   unter `/experts` sind zum Kompilieren im MetaEditor gedacht.
-- **Kompilieren und Strategy-Tester-Läufe passen beim Nutzer im
+- **Kompilieren und Strategy-Tester-Läufe passieren beim Nutzer im
   MT5-Terminal, nicht bei Claude** – Ausnahmen nur mit ausdrücklicher
-  Erlaubnis des Nutzers. Claude schreibt den Code so einfach und
+  Erlaubnis des Nutzers (diese liegt seit 12.07.2026 vor, siehe
+  Backtest-Automatik). Claude schreibt den Code so einfach und
   standardnah wie möglich, damit er auf Anhieb kompiliert.
 - Vor jeder größeren strukturellen Änderung: kurzer Plan im Chat, keine
   Überraschungen.
@@ -32,7 +33,7 @@ dokumentierten Tests in Frage, ist allein Entscheidung und Handlung des
 Nutzers, und wird von Claude weder ausgeführt noch aktiviert.
 
 ## Handoff-Workflow (Claude Code ↔ AI Studio)
-`KONTEXT.md` im Repo-Root is die gemeinsame Handoff-Datei.
+`KONTEXT.md` im Repo-Root ist die gemeinsame Handoff-Datei.
 - **Claude Code** aktualisiert sie am Ende jeder Sitzung und committet sie.
 - **AI Studio**: Nutzer kopiert Inhalt von `KONTEXT.md` + relevante `.mq5`-Datei
   in AI Studio. AI Studio plant/diskutiert, implementiert aber nicht.
@@ -41,7 +42,13 @@ Nutzers, und wird von Claude weder ausgeführt noch aktiviert.
 - Jede neue Claude-Code-Sitzung beginnt mit Lesen von `KONTEXT.md`.
 
 ## Phasen
-1. **Phase 1 (fertig):** Struktur, erster EA (EMA-9/21-Crossover, long-only, EURUSD H4, SL/TP in % vom Kapital) inkl. Tagesverlust-Stopp.
-2. **Phase 2 (aktiv/fertiggestellt):** Erstellung von **EA v2.0** mit Marktstruktur-SL, dynamischem TP, ATR-Trailing und RSI-Filter. Erster profitabler Backtest.
-3. **Phase 3 (nächster Schritt):** Entwicklung von **EA v3.0** (Zwei-Wege-Handel / Long & Short) mit vollständig symmetrischer Struktur-Logik.
-4. **Phase 4 (Frontend-Synchronisation):** Aktualisierung des React-Frontends (App.tsx & data.ts) zur Abbildung aller neuen EA v2.0/v3.0 Parameter, inklusive der MQL5-Code-Generierung für die fortgeschrittene Version.
+1. **Phase 1 (fertig):** Struktur, erster EA (EMA-9/21-Crossover, long-only,
+   EURUSD H4, SL/TP in % vom Kapital) inkl. Tagesverlust-Stopp.
+2. **Phase 2 (aktiv):** EA v2.0 mit Marktstruktur-SL, dynamischem TP,
+   ATR-Trailing und RSI-Filter. Erster profitabler Backtest (PF 1,09).
+   Jetzt: Robustheit pruefen und Parameter optimieren.
+3. **Phase 3 (Idee):** EA v3.0 mit Zwei-Wege-Handel (Long & Short),
+   symmetrische Struktur-Logik.
+
+_Hinweis: Ein von AI Studio generiertes React/Node-Web-Tool wurde bewusst
+wieder entfernt – das Repo bleibt schlank auf MQL5/MT5 fokussiert._
