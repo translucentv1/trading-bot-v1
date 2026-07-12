@@ -41,7 +41,7 @@ Nutzers, und wird von Claude weder ausgeführt noch aktiviert.
 - Jede neue Claude-Code-Sitzung beginnt mit Lesen von `KONTEXT.md`.
 
 ## Phasen
-1. **Phase 1 (fertig):** Struktur, erster EA (EMA-9/21-Crossover, long-only,
-   EURUSD H4, SL/TP in % vom Kapital) inkl. Tagesverlust-Stopp.
-2. **Phase 2:** Backtest-Ergebnisse auswerten, Strategie verfeinern,
-   Demo-Betrieb beobachten.
+1. **Phase 1 (fertig):** Struktur, erster EA (EMA-9/21-Crossover, long-only, EURUSD H4, SL/TP in % vom Kapital) inkl. Tagesverlust-Stopp.
+2. **Phase 2 (aktiv/fertiggestellt):** Erstellung von **EA v2.0** mit Marktstruktur-SL, dynamischem TP, ATR-Trailing und RSI-Filter. Erster profitabler Backtest.
+3. **Phase 3 (nächster Schritt):** Entwicklung von **EA v3.0** (Zwei-Wege-Handel / Long & Short) mit vollständig symmetrischer Struktur-Logik.
+4. **Phase 4 (Frontend-Synchronisation):** Aktualisierung des React-Frontends (App.tsx & data.ts) zur Abbildung aller neuen EA v2.0/v3.0 Parameter, inklusive der MQL5-Code-Generierung für die fortgeschrittene Version.

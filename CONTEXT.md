@@ -60,22 +60,41 @@ Schritt: Robustheit pruefen / Parameter optimieren.
    genau InpRiskPerTradePct % (1 %) kostet – egal wie eng/weit der Stop.
 6. Trendfilter (EMA 200) und Tagesverlust-Stopp bleiben erhalten.
 
-## Naechste Schritte (nach BT3)
-Ziel: die duenne Kante (PF 1,09) robuster und dicker machen.
-1. ROBUSTHEIT: gleichen EA ueber laengeren Zeitraum testen (z.B. 2022–2026),
-   um zu sehen ob der Vorteil ueber verschiedene Marktphasen haelt.
-2. PARAMETER-OPTIMIERUNG im Strategy Tester (Reiter "Optimierung"):
-   v.a. InpRewardRatio (1,4–2,6) und InpTrailATRMult (1,5–3,5).
-   Achtung Overfitting – bevorzugt breite, stabile Bereiche statt Spitzen.
-3. DRAWDOWN: 6 Verlust-Trades in Folge sind der Schwachpunkt; ggf. Filter
-   verfeinern (z.B. Einstieg nur mit etwas Abstand ueber EMA200).
-4. Danach: laengerer Demo-Beobachtungslauf (Paper) vor jeder Live-Idee.
+## Naechste Schritte & Workflow fuer Claude Code (Phase 3 & 4)
 
-## Ideen fuer danach (falls v2.0 besser, aber noch nicht gut genug)
-- Testzeitraum auf 3+ Jahre ausweiten (mehr Trades, statistisch belastbar)
-- Swing-Hoch als alternatives TP-Ziel statt fixem Reward-Faktor
-- Zwei-Wege-Handel (echte Short-Logik) ergaenzen
-- Parameter-Optimierung im Strategy Tester (RewardRatio, ATR-Mults)
+Ziel: Den EA auf Zwei-Wege-Handel (Long & Short) aufzuruesten und das interaktive React-Frontend vollständig an die neuen, volatilitätsbasierten Parameter von v2.0 und v3.0 anzupassen.
+
+### Schritt 1: Backtests & Parameter-Optimierung von EA v2.0 (Aktion im Terminal durch den Nutzer)
+- **Kompilieren:** Die Datei `experts/ema_9_21_crossover_long_v2.mq5` im MetaEditor kompilieren.
+- **Robustheits-Check:** Backtests ueber einen laengeren Zeitraum laufen lassen (z.B. 01.01.2022 bis heute auf EURUSD H4).
+- **Optimierung:** Im Strategy Tester die Parameter `InpRewardRatio` (1.2 bis 2.5) und `InpTrailATRMult` (1.5 bis 3.5) optimieren, um die stabilsten Werte (Plateaus) zu identifizieren.
+
+### Schritt 2: Implementierung von EA v3.0 (Zwei-Wege-Handel - Long & Short)
+Claude Code soll eine neue Datei `/experts/ema_9_21_crossover_v3.mq5` erstellen, welche die vollwertige Short-Logik ergaenzt:
+- **Short-Einstieg (Symmetrisch):**
+  - Schnelle EMA (9) kreuzt langsame EMA (21) nach unten (`isDeathCross`).
+  - **Trendfilter:** Kurs liegt unter der Trend-EMA (200) (`isTrendDown`).
+  - **RSI-Filter:** RSI liegt ueber dem Ueberverkauft-Level (z.B. `InpRSIMinLevel = 30.0`), um nicht in erschoepfte Maerkte zu verkaufen.
+- **Short-Risikomanagement:**
+  - **Struktur-SL:** Stop-Loss ueber dem letzten Swing-Hoch (Maximum der High-Preise der letzten `InpSwingLookback` Kerzen) plus ATR-Puffer (`InpATRMult`).
+  - **Dynamischer TP:** TP-Kurs = Einstiegskurs - (SL-Abstand * `InpRewardRatio`).
+  - **Lot-Sizing:** Risikobasierte Lot-Berechnung identisch zum Long-Handel (1% Risiko vom Kapital bei SL-Treffer).
+  - **Trailing-Stop:** Trailing-SL zieht nach unten nach, wenn der Kurs faellt (Bid + ATR * Trailing-Mult).
+
+### Schritt 3: UI-Synchronisation im React-Frontend (`src/App.tsx` & `src/data.ts`)
+Claude Code soll das Web-Dashboard aktualisieren, damit es mit dem erweiterten Funktionsumfang von v2.0 und v3.0 uebereinstimmt:
+- **Neue Eingaberegler (Sliders/Inputs):**
+  - **Swing Lookback:** Regler fuer Marktstruktur-Tiefe (z.B. 5 bis 20 Kerzen, Standard: 10).
+  - **ATR Multiplikator:** Regler fuer SL-Puffer (z.B. 1.0x bis 3.0x, Standard: 1.5).
+  - **Reward Ratio (CRV):** Regler fuer das Chance-Risiko-Verhaeltnis des TP (z.B. 1.0 bis 3.0, Standard: 1.8).
+  - **Trailing ATR Mult:** Regler fuer den Trailing-Stop-Abstand (z.B. 1.5x bis 4.0x, Standard: 2.5).
+  - **RSI-Filter Pegel:** Regler fuer RSI Max (Long) / RSI Min (Short) (Standard: 70 / 30).
+- **Simulations-Logik (`src/data.ts`):**
+  - Die Backtest-Simulations-Funktion `runSimulatedBacktest` anpassen, sodass sie die verfeinerten Logiken (Struktur-SL, dynamischer TP, RSI-Filter und Trailing-Stop) im Modell approximiert.
+
+### Schritt 4: Aktualisierung des MQL5 Code-Generators im Frontend
+- Das Template fuer den generierten Code im Tab "MQL5 Code" so umbauen, dass standardmaessig der vollstaendige Code von **EA v2.0** oder **v3.0** generiert wird, basierend auf den vom Benutzer eingestellten Reglern.
+- Damit erhaelt der Benutzer direkt den optimierten und profitablen EA-Code zum Export.
 
 ## Kernregeln (Kurzfassung)
 - Keine Kontodaten/Passwoerter/API-Keys in Code, Chat oder Commits
