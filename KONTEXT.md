@@ -11,9 +11,11 @@ Repo (privat): https://github.com/translucentv1/trading-bot-v1
 Phase 2. EA komplett ueberarbeitet auf **v2.0** – bereit fuer Backtest 3.
 
 ## Letzte Aktion
-Backtest 2 ausgewertet (Trendfilter half kaum: PF 0,04). Ursache erkannt:
-starre %-basierte SL/TP ohne Marktbezug. EA neu geschrieben mit
-Marktstruktur-Stop, dynamischem TP, ATR- und RSI-Indikator.
+EA-Datei umbenannt in `ema_9_21_crossover_long_v2.mq5`, damit die neue
+`.ex5` nicht mit der alten verwechselt wird. Hintergrund: Ein Testlauf
+war versehentlich noch mit der alten v1.10-`.ex5` gelaufen (erkennbar an
+alten Eingaben InpStopLossPct/InpTakeProfitPct + Kommentar "EMA Crossover
+Long"). Neue Datei muss frisch mit F7 kompiliert werden.
 
 ## Backtest-Chronik
 
@@ -71,6 +73,6 @@ Marktstruktur-Stop, dynamischem TP, ATR- und RSI-Indikator.
 ## Relevante Dateien
 | Datei | Inhalt |
 |---|---|
-| experts/ema_9_21_crossover_long.mq5 | EA v2.0 (Struktur-SL, dyn. TP, ATR, RSI) |
+| experts/ema_9_21_crossover_long_v2.mq5 | EA v2.0 (Struktur-SL, dyn. TP, ATR, RSI) |
 | CLAUDE.md | Projektregeln + Handoff-Workflow |
 | README.md | Setup-Anleitung fuer MT5 |

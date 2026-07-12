@@ -29,7 +29,7 @@ CLAUDE.md   Projektregeln
 
 ## Aktuelle Strategie (v2.0)
 
-`experts/ema_9_21_crossover_long.mq5` – EMA-9/21-Crossover, nur Long, mit
+`experts/ema_9_21_crossover_long_v2.mq5` – EMA-9/21-Crossover, nur Long, mit
 markt-strukturbasiertem Risikomanagement:
 
 - **Einstieg:** EMA 9 kreuzt EMA 21 nach oben, Trend bestätigt durch
