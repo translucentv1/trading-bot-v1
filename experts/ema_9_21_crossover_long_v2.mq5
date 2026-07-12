@@ -422,4 +422,66 @@ void OpenLongPosition()
       Print("Kauf-Order v2.0 erfolgreich ausgefuehrt. Ticket: ", trade.ResultOrder());
      }
   }
+
+//+------------------------------------------------------------------+
+//| Wird am Ende jedes Strategy-Tester-Laufs aufgerufen. Schreibt    |
+//| die wichtigsten Kennzahlen nach Common\Files\tester_result.txt,  |
+//| damit sie automatisiert ausgelesen werden koennen.               |
+//+------------------------------------------------------------------+
+double OnTester()
+  {
+   double profit      = TesterStatistics(STAT_PROFIT);
+   double grossProfit = TesterStatistics(STAT_GROSS_PROFIT);
+   double grossLoss   = TesterStatistics(STAT_GROSS_LOSS);
+   double profitFac   = TesterStatistics(STAT_PROFIT_FACTOR);
+   double expPayoff   = TesterStatistics(STAT_EXPECTED_PAYOFF);
+   double recovery    = TesterStatistics(STAT_RECOVERY_FACTOR);
+   double sharpe      = TesterStatistics(STAT_SHARPE_RATIO);
+   double balDD       = TesterStatistics(STAT_BALANCE_DD);
+   double balDDpct    = TesterStatistics(STAT_BALANCEDD_PERCENT);
+   double eqDD        = TesterStatistics(STAT_EQUITY_DD);
+   double eqDDpct     = TesterStatistics(STAT_EQUITYDD_PERCENT);
+   double trades      = TesterStatistics(STAT_TRADES);
+   double winTrades   = TesterStatistics(STAT_PROFIT_TRADES);
+   double lossTrades  = TesterStatistics(STAT_LOSS_TRADES);
+   double maxWin      = TesterStatistics(STAT_MAX_PROFITTRADE);
+   double maxLoss     = TesterStatistics(STAT_MAX_LOSSTRADE);
+   double conLossMax  = TesterStatistics(STAT_CONLOSSMAX);
+   double conLossCnt  = TesterStatistics(STAT_CONLOSSMAX_TRADES);
+
+   double winRate = (trades > 0)     ? (winTrades / trades * 100.0) : 0.0;
+   double avgWin  = (winTrades > 0)  ? (grossProfit / winTrades)    : 0.0;
+   double avgLoss = (lossTrades > 0) ? (grossLoss / lossTrades)     : 0.0;
+
+   int h = FileOpen("tester_result.txt", FILE_WRITE|FILE_TXT|FILE_ANSI|FILE_COMMON);
+   if(h != INVALID_HANDLE)
+     {
+      FileWrite(h, "symbol="         + _Symbol);
+      FileWrite(h, "timeframe="      + EnumToString((ENUM_TIMEFRAMES)_Period));
+      FileWrite(h, "net_profit="     + DoubleToString(profit, 2));
+      FileWrite(h, "gross_profit="   + DoubleToString(grossProfit, 2));
+      FileWrite(h, "gross_loss="     + DoubleToString(grossLoss, 2));
+      FileWrite(h, "profit_factor="  + DoubleToString(profitFac, 2));
+      FileWrite(h, "expected_payoff="+ DoubleToString(expPayoff, 2));
+      FileWrite(h, "recovery_factor="+ DoubleToString(recovery, 2));
+      FileWrite(h, "sharpe="         + DoubleToString(sharpe, 2));
+      FileWrite(h, "balance_dd="     + DoubleToString(balDD, 2));
+      FileWrite(h, "balance_dd_pct=" + DoubleToString(balDDpct, 2));
+      FileWrite(h, "equity_dd="      + DoubleToString(eqDD, 2));
+      FileWrite(h, "equity_dd_pct="  + DoubleToString(eqDDpct, 2));
+      FileWrite(h, "trades="         + DoubleToString(trades, 0));
+      FileWrite(h, "win_trades="     + DoubleToString(winTrades, 0));
+      FileWrite(h, "loss_trades="    + DoubleToString(lossTrades, 0));
+      FileWrite(h, "win_rate_pct="   + DoubleToString(winRate, 2));
+      FileWrite(h, "avg_win="        + DoubleToString(avgWin, 2));
+      FileWrite(h, "avg_loss="       + DoubleToString(avgLoss, 2));
+      FileWrite(h, "max_win="        + DoubleToString(maxWin, 2));
+      FileWrite(h, "max_loss="       + DoubleToString(maxLoss, 2));
+      FileWrite(h, "max_conloss_money=" + DoubleToString(conLossMax, 2));
+      FileWrite(h, "max_conloss_count=" + DoubleToString(conLossCnt, 0));
+      FileClose(h);
+     }
+
+   return(profit);
+  }
 //+------------------------------------------------------------------+
