@@ -51,6 +51,18 @@ statistisch belastbaren Vorteil – und hohe Trefferquote ist kein Profit.
   sind NUR Verlust-Strategien (M15/M30, MR-Trend-Exit: z -2,2 bis -3,6).
   Kein einziger positiver Lauf erreicht z>1,7. Wir wissen sicher, was
   nicht geht – fuer "was geht" gibt es bislang keine belastbare Evidenz.
+- **Spaetsitzung – Struktur-EA + Pooling-Durchbruch (Methodik):** Zwei
+  Prompts umgesetzt (Strategen-Diagnose + YouTuber-Swing-EA-Spec).
+  Diagnose: Hauptproblem ist die zu kleine Stichprobe – selbst ein echter
+  kleiner Edge waere in unserem Rahmen (1 Instrument, 20-60 Trades) nie
+  beweisbar. Konsequenz: neues Signal (Marktstruktur/Swings statt
+  Indikator) UND Trades ueber einen Instrumenten-Korb POOLEN. Gebaut:
+  `structure_swing_ea.mq5` (objektive Fractal-Swings, MTF-Trend, non-repaint,
+  Visuals, alle 6 Nachrichten des YouTubers, kompiliert 0 errors). Getestet
+  ueber 6 Instrumente, Fenster A/B, N~500: gepoolt PF 0,97/0,88, z
+  -0,23/-1,08 -> KEIN Edge, Idee sauber verworfen (id 38-49, Backtest 12).
+  Wichtig: Die Pooling-Methodik ist der eigentliche Fortschritt – erstmals
+  koennen wir Ideen mit echter statistischer Aussagekraft verwerfen.
 
 **Entscheidungen:** Kein weiteres Tuning am EMA-Kreuz-Geruest. Kein
 Live/Demo-Einsatz mit Gewinnerwartung. Naechster Schritt: grundlegend

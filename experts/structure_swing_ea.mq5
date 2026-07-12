@@ -87,6 +87,7 @@ int      g_trend       = 0;   // aktueller Filter-Trend: 1 auf, -1 ab, 0 keiner
 int      g_tradesTrend = 0;   // Einstiege im aktuellen Trend
 datetime g_lastEntryBar= 0;   // letzte Signal-Kerze mit Einstieg (Anti-Doppel)
 string   g_prefix      = "SSEA_"; // Praefix fuer Chart-Objekte
+bool     g_draw        = true;    // im headless Tester aus (Effizienz)
 
 //+------------------------------------------------------------------+
 //| Initialisierung                                                  |
@@ -100,6 +101,9 @@ int OnInit()
      }
    trade.SetExpertMagicNumber(InpMagic);
    trade.SetDeviationInPoints(InpSlippage);
+
+   // Im Tester ohne visuellen Modus NICHT zeichnen (spart viel Zeit)
+   g_draw = !(MQLInfoInteger(MQL_TESTER) && !MQLInfoInteger(MQL_VISUAL_MODE));
 
    g_sigLastBar = 0; g_filLastBar = 0;
    g_trend = 0; g_tradesTrend = 0; g_lastEntryBar = 0;
@@ -451,7 +455,7 @@ void CloseAll(ENUM_POSITION_TYPE type)
 //+------------------------------------------------------------------+
 void DrawSwing(Swing &s, bool isSignal, int idx)
   {
-   if(!InpShowSwings) return;
+   if(!g_draw || !InpShowSwings) return;
    string name = g_prefix + (isSignal?"S":"F") + IntegerToString((int)s.time) +
                  (s.isHigh?"H":"L");
    if(ObjectFind(0, name) >= 0) ObjectDelete(0, name);
@@ -472,7 +476,7 @@ void DrawSwing(Swing &s, bool isSignal, int idx)
 //+------------------------------------------------------------------+
 void DrawTrendLines()
   {
-   if(!InpShowTrendLines && !InpShowRects) return;
+   if(!g_draw || (!InpShowTrendLines && !InpShowRects)) return;
    int n = ArraySize(g_fil);
    if(n < 2) return;
    int fromIdx = MathMax(0, n - (2*InpTrendSwingsX));
@@ -508,5 +512,52 @@ void DrawTrendLines()
          ObjectSetInteger(0, rc, OBJPROP_BACK, true);
         }
      }
+  }
+
+//+------------------------------------------------------------------+
+//| Schreibt am Testende die Kennzahlen (inkl. gross fuer Pooling)   |
+//+------------------------------------------------------------------+
+double OnTester()
+  {
+   double profit      = TesterStatistics(STAT_PROFIT);
+   double grossProfit = TesterStatistics(STAT_GROSS_PROFIT);
+   double grossLoss   = TesterStatistics(STAT_GROSS_LOSS);
+   double sharpe      = TesterStatistics(STAT_SHARPE_RATIO);
+   double balDDpct    = TesterStatistics(STAT_BALANCEDD_PERCENT);
+   double trades      = TesterStatistics(STAT_TRADES);
+   double winTrades   = TesterStatistics(STAT_PROFIT_TRADES);
+   double lossTrades  = TesterStatistics(STAT_LOSS_TRADES);
+   double conLossCnt  = TesterStatistics(STAT_CONLOSSMAX_TRADES);
+
+   double winRate = (trades > 0)     ? (winTrades / trades * 100.0) : 0.0;
+   double avgWin  = (winTrades > 0)  ? (grossProfit / winTrades)    : 0.0;
+   double avgLoss = (lossTrades > 0) ? (grossLoss / lossTrades)     : 0.0;
+
+   double absLoss = MathAbs(grossLoss);
+   string pfStr;
+   if(absLoss > 0.0)          pfStr = DoubleToString(grossProfit/absLoss, 2);
+   else if(grossProfit > 0.0) pfStr = "inf";
+   else                       pfStr = "0.00";
+
+   int h = FileOpen("tester_result.txt", FILE_WRITE|FILE_TXT|FILE_ANSI|FILE_COMMON);
+   if(h != INVALID_HANDLE)
+     {
+      FileWrite(h, "symbol="         + _Symbol);
+      FileWrite(h, "net_profit="     + DoubleToString(profit, 2));
+      FileWrite(h, "profit_factor="  + pfStr);
+      FileWrite(h, "sharpe="         + DoubleToString(sharpe, 2));
+      FileWrite(h, "balance_dd_pct=" + DoubleToString(balDDpct, 2));
+      FileWrite(h, "trades="         + DoubleToString(trades, 0));
+      FileWrite(h, "win_trades="     + DoubleToString(winTrades, 0));
+      FileWrite(h, "loss_trades="    + DoubleToString(lossTrades, 0));
+      FileWrite(h, "win_rate_pct="   + DoubleToString(winRate, 2));
+      FileWrite(h, "avg_win="        + DoubleToString(avgWin, 2));
+      FileWrite(h, "avg_loss="       + DoubleToString(avgLoss, 2));
+      FileWrite(h, "gross_profit="   + DoubleToString(grossProfit, 2));
+      FileWrite(h, "gross_loss="     + DoubleToString(grossLoss, 2));
+      FileWrite(h, "max_conloss_count=" + DoubleToString(conLossCnt, 0));
+      FileClose(h);
+     }
+   return(profit);
   }
 //+------------------------------------------------------------------+

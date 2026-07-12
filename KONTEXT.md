@@ -8,22 +8,37 @@ Demo-Ziel: Forex Hedged EUR, 1.000 EUR Startkapital, Hebel 1:30.
 Repo (privat): https://github.com/translucentv1/trading-bot-v1
 
 ## Aktueller Stand
-Phase 3. **Auch der Volatilitaetsfilter generalisiert NICHT.** Auf EURUSD
-verbesserte er alles (Backtest 10), aber der GBPUSD-Gegentest (Backtest 11)
-scheitert: Fenster B bleibt negativ (PF 0,92, z -0,27), PF steigt nur in
-Fenster A leicht. Damit war auch dieser Filter im Wesentlichen
-EURUSD-spezifisch - kein uebertragbarer Edge.
-- Gesamtbild nach 35 Backtests: **KEINE getestete Idee (EMA-Kreuz, MTF-Bias,
-  Gewinnsicherung, Mean-Reversion, Volatilitaetsfilter) hat einen
-  Cross-Instrument-robusten Vorteil.** Alle "Gewinne" waren
-  EURUSD-Overfitting; keine ist statistisch belastbar (z durchweg < 2).
-- **Konsequenz: KEIN weiteres Feintuning an EURUSD** (Schwellenwerte etc. =
-  Overfitting-Vertiefung). Zurueck an AI Studio fuer eine **grundlegend
-  neue Signal-Idee**, nicht mehr Varianten des gleichen Grundgeruests.
-- Der EA (v3.40) bleibt als solides generisches Test-Geruest bestehen
-  (Risiko, MTF, Sicherung, Vol-Filter, OnTester-Logging, alles per Toggle).
+Phase 3. **49 Backtests, 5 Strategie-Familien - noch immer kein
+statistisch belegter, instrumentuebergreifender Edge.** NEU seit heute:
+- Ein **strukturell anderer EA** (`structure_swing_ea.mq5`, Fractal-Swings
+  + MTF-Trend, kein Indikator) gebaut UND mit der neuen **Pooling-Methodik**
+  (Korb aus 6 Instrumenten, alle Trades gepoolt) getestet. Ergebnis:
+  gepoolt PF 0,97 (A) / 0,88 (B), z -0,23 / -1,08 -> **kein Edge**
+  (Backtest 12). Einzel-Symbole reines Rauschen (XAUUSD PF 2,2 vs AUDUSD 0,15).
+- **DER eigentliche Fortschritt:** Die Pooling-Methodik loest das
+  Stichprobenproblem - mit N~500 pro Fenster koennen wir Ideen jetzt
+  statistisch SAUBER verwerfen statt an zu wenigen Trades zu scheitern.
+- Bisher (bleibt gueltig): EMA-Kreuz, MTF-Bias, Gewinnsicherung,
+  Mean-Reversion, Volatilitaetsfilter - alle ohne robusten Edge.
+- **Konsequenz:** KEIN Feintuning bekannter Ideen, kein Live-Einsatz mit
+  Gewinnerwartung. Jede kuenftige Idee wird gepoolt ueber den Korb geprueft
+  (Ziel gepoolt |z|>2, PF>1 in BEIDEN Fenstern). Die EMA9/21- wie die
+  Swing-Struktur-Idee sind damit sauber ausgeschieden.
 
-## Letzte Aktion (12.07. abends – Selbst-Review-Sitzung)
+## Letzte Aktion (12.07. spaet – Struktur-EA + Pooling)
+Zwei Prompts umgesetzt (Strategen-Diagnose + YouTuber-EA-Spec):
+- **Diagnose:** Das Kernproblem ist die zu kleine Stichprobe (z waechst mit
+  sqrt(n); ~400 Trades noetig fuer |z|=2) PLUS wahrscheinlich kein echter
+  EMA-Edge PLUS zu enge Suche (immer dasselbe Signal). -> Loesung: anderes
+  Signal + Trades ueber Instrumente poolen.
+- **Gebaut:** `structure_swing_ea.mq5` (Fractal-Swings + MTF-Trend, kein
+  Indikator; non-repaint; Visuals; alle 6 YouTuber-Nachrichten umgesetzt;
+  OnTester; Effizienz-Guard). Kompiliert 0 errors.
+- **Getestet (Pooling-Methodik):** Korb aus 6 Instrumenten, Fenster A/B,
+  N~500 -> kein Edge (gepoolt PF<1, z negativ; Backtest 12). Idee sauber
+  verworfen. Pooling-Rahmenwerk funktioniert (ist der eigentliche Fortschritt).
+
+## (frueher) Letzte Aktion (12.07. abends – Selbst-Review-Sitzung)
 Eigenstaendige, objektive Ueberpruefung der gesamten Arbeit:
 - **`tools/validate_backtests.py`** gebaut: rechnet z_score,
   risk_realized_pct, PF- und Netto-Konsistenz fuer ALLE Zeilen unabhaengig
@@ -249,6 +264,27 @@ long-only, 10.000 EUR. Vergleich zur filterlosen Basis id27/id28:
 - Fazit: **Der Volatilitaetsfilter war ebenfalls im Wesentlichen
   EURUSD-spezifisch.** Die schoene EURUSD-Verbesserung (Backtest 10)
   ueberträgt sich nicht.
+
+### Backtest 12 – Struktur-Swing-EA + Pooling-Methodik (12.07.2026)
+NEUER, strukturell anderer EA `experts/structure_swing_ea.mq5`
+(objektive Fractal-Swings + MTF-Trend, KEIN Indikator - Antwort auf die
+"grundlegend neue Signalidee"). Getestet mit der neuen **Pooling-Methodik**
+(Antwort auf das Stichprobenproblem): eingefrorene Konfig H1/H4, x3, y2,
+max2, kein TP, ueber einen Korb aus 6 Instrumenten (EURUSD, GBPUSD, USDJPY,
+AUDUSD, USDCAD, XAUUSD), Fenster A/B, alle Trades gepoolt.
+| Fenster | Trades (N) | Netto | PF gepoolt | z gepoolt |
+|---|---|---|---|---|
+| A 2022-2023 | 477 | -1140 | 0,97 | -0,23 |
+| B 2024-2026 | 518 | -4831 | 0,88 | -1,08 |
+- **Ergebnis: kein Edge.** PF < 1 in beiden Fenstern, z nicht signifikant
+  positiv. Einzel-Symbole voellig inkonsistent (XAUUSD PF 2,2 gegen AUDUSD
+  PF 0,15) = Streuung von Rauschen, kein verteilter Vorteil.
+- Auch der Struktur-Ansatz (x=5 -> 1 Trade in 2 Jahren; x=2 -> 350 Trades,
+  -84 % DD; Mitte x3/y2 -> Whipsaw, 20 % Trefferquote) hat keinen Edge.
+- **META-GEWINN (das eigentlich Wichtige):** Die Pooling-Methodik
+  FUNKTIONIERT - mit N~500 konnten wir erstmals einen belastbaren z-Wert
+  messen und eine Idee statistisch SAUBER verwerfen (statt "zu wenige
+  Trades"). Das Test-Rahmenwerk ist jetzt aussagefaehig.
 
 ## EA v2.0 – Was ist neu
 1. **Marktstruktur-Stop:** SL unter das letzte Swing-Tief (Tief der
