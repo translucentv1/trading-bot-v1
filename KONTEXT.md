@@ -8,25 +8,31 @@ Demo-Ziel: Forex Hedged EUR, 1.000 EUR Startkapital, Hebel 1:30.
 Repo (privat): https://github.com/translucentv1/trading-bot-v1
 
 ## Aktueller Stand
-Phase 3. **WICHTIG: Out-of-Sample-Test hat die Empfehlung umgestossen.**
-- **H4+D1+Sicherung (bisher "empfohlen") ist NICHT robust:** Fenster A
-  (2022-2023) PF 1,65, aber Fenster B (2024-2026) PF **0,88 / -245** =
-  Verlust. Der ganze 2022-2026-Gewinn kam aus 2022-2023. Kante
-  trendabhaengig.
-- **H1+H4 ohne Sicherung ist robuster:** Fenster A PF 1,25, Fenster B
-  PF **1,02 / +153** = knapp positiv in beiden. Aber Kante wird duenn
-  (Sharpe 3,49 -> 0,35).
-- **Konsequenz: geplante Parameteroptimierung ZURUECKGESTELLT** (man
-  optimiert keine fragile, trendabhaengige Kante). Erst mehr
-  Robustheit/Marktphasen noetig.
-- Profitfaktor-Logging-Bug gefixt (0 Verluste -> "inf" statt 0.00).
+Phase 3. **ENTSCHEIDEND: Die Kante generalisiert NICHT ueber Instrumente.**
+- H1+H4-Konfig (auf EURUSD die "robustere") getestet auf GBPUSD (hoch
+  korreliert): **BEIDE Fenster negativ, PF 0,95 / 0,95.** Auf XAUUSD
+  (Gold): **katastrophal, PF 0,51 / 0,83, DD bis 65 %.**
+- Heisst: Der EURUSD-Gewinn war **im Wesentlichen an EURUSD (2022-2023)
+  ueberangepasst** - kein echter, uebertragbarer Markt-Vorteil. Selbst das
+  eng verwandte GBPUSD verliert.
+- **Konsequenz: Parameteroptimierung bleibt zurueckgestellt; die
+  EMA-Kreuz+MTF-Bias-Strategie hat (so) keinen generalisierbaren Edge.**
+  Kein Live-Einsatz mit Gewinnerwartung. Naechster Schritt = anderer
+  Ansatz oder Volatilitaets-/Regime-Filter, nicht Feintuning.
+- Diagnose Fenster B: ~20 % geringere Volatilitaet (ATR-D1 0,0072 vs
+  0,0090), Trendstaerke aehnlich -> kleinere Bewegungen, Kosten fressen
+  die duenne Kante.
 
 ## Letzte Aktion
-Robustheits-/Bug-Fix-Sitzung (Auftrag aus AI Studio): Out-of-Sample-Test
-in 2 Fenstern (A 2022-2023 "Training", B 2024-2026 "Validierung") fuer die
-2 besten Konfigs. Ergebnis: empfohlene H4-Konfig faellt in Fenster B durch,
-H1-Konfig haelt knapp. PF-Bug in OnTester gefixt, backtests.csv um Spalte
-max_loss_streak erweitert, Swap geprueft (realistisch aktiv). Details unten.
+Multi-Instrument-Robustheitssitzung (Auftrag AI Studio). Aufgabe 0:
+Remote `translucentv1/trading-bot` bestaetigt PRIVAT, Commit ffc6f8e drin
+(Remote-Wechsel von -v1 nicht in git geloggt, beide privat = ok; Token
+liegt im Klartext in .git/config -> Nutzer sollte ihn rotieren + auf
+Credential-Manager/SSH wechseln). Aufgabe 1: Diagnose (Fenster B
+volaarm). Aufgabe 2: Lot/Risiko fuer GBPUSD (1,95 EUR/min-Lot) und XAUUSD
+(2,17 EUR) auf 1.000 EUR sauber testbar, EA rechnet generisch. Aufgabe
+3/4: GBPUSD + XAUUSD getestet -> beide negativ (Details Backtest 9).
+backtests.csv um Spalte `symbol` erweitert.
 
 ## (frueher) Letzte Aktion
 EA v3.0 gebaut (Long & Short, Multi-Timeframe) und M15/M30/H1 automatisch
@@ -145,6 +151,22 @@ Tester laeuft mit realistischen Swaps: EURUSD MetaQuotes-Demo swap_long
 -0,7 / swap_short -1,0 Punkte/Tag, Mittwoch dreifach. Bei "Jeder Tick"
 werden sie am Rollover automatisch verrechnet (relevant fuer H4/D1-Halten).
 
+### Backtest 9 – Multi-Instrument-Test (12.07.2026) – KANTE GENERALISIERT NICHT
+H1-Einstieg/H4-Bias, ohne Sicherung, long-only, Fenster A/B, 10.000 EUR.
+| Symbol | Fenster A 2022-2023 | Fenster B 2024-2026 | Urteil |
+|---|---|---|---|
+| EURUSD (Referenz) | +1501, PF 1,25 | +153, PF 1,02 | haelt knapp |
+| GBPUSD (korreliert) | -258, PF 0,95 | -386, PF 0,95 | negativ |
+| XAUUSD (Gold) | -5836, PF 0,51, DD 65% | -3985, PF 0,83, DD 47% | katastrophal |
+- **Kern: Der Vorteil ueberträgt sich nicht mal auf das eng korrelierte
+  GBPUSD.** Damit war der EURUSD-Gewinn hoechstwahrscheinlich Overfitting
+  an EURUSD, kein echter Markt-Edge. Gold komplett ungeeignet.
+- GBPUSD-Bestehen waere ohnehin nur ein schwaches Signal gewesen (hohe
+  Korrelation) - es besteht nicht mal das.
+- Lot/Risiko war sauber (GBPUSD 1,95 / XAUUSD 2,17 EUR pro min-Lot bei
+  1,5xATR-Stop; Ziel 10 EUR) - der Fehlschlag liegt an der Strategie,
+  nicht an der Testbarkeit.
+
 ## EA v2.0 – Was ist neu
 1. **Marktstruktur-Stop:** SL unter das letzte Swing-Tief (Tief der
    letzten InpSwingLookback Kerzen) minus ATR-Puffer. Stop richtet sich
@@ -157,17 +179,20 @@ werden sie am Rollover automatisch verrechnet (relevant fuer H4/D1-Halten).
    genau InpRiskPerTradePct % (1 %) kostet – egal wie eng/weit der Stop.
 6. Trendfilter (EMA 200) und Tagesverlust-Stopp bleiben erhalten.
 
-## Naechste Schritte (nach Out-of-Sample-Test)
-**Parameteroptimierung ist ZURUECKGESTELLT** (die Kante ist fragil/
-trendabhaengig – Optimieren wuerde nur Overfitting verstaerken).
-Sinnvoller sind:
-1. ROBUSTHEIT ERHOEHEN statt optimieren: anderes Instrument (z.B. GBPUSD,
-   Gold, ein Index) oder anderes Regime testen – haelt die H1-Kante dort?
-   Ein Vorteil, der nur auf EURUSD 2022-2023 lebt, taugt nicht.
-2. Verstehen, WARUM Fenster B schwaecher ist (weniger klarer Trend?).
-3. Erst wenn eine Kante ueber mehrere Instrumente/Phasen haelt: Optimierung.
-4. Alternativ jetzt schon: H1-Konfig (robuster) klein auf Demo laufen
-   lassen (Phase B) als Realitaets-Check, ohne Erwartungsdruck.
+## Naechste Schritte (nach Multi-Instrument-Test)
+Klarer Stand: **Die EMA-Kreuz+MTF-Bias-Strategie hat keinen
+generalisierbaren Vorteil** (faellt auf GBPUSD und Gold durch). Deshalb:
+1. KEINE Optimierung, KEIN Live-Einsatz mit Gewinnerwartung dieser
+   Strategie - das waere Overfitting bzw. Selbsttaeuschung.
+2. Grundlegend anderer Ansatz noetig. Optionen (mit AI Studio planen):
+   - Volatilitaets-/Regime-Filter (nur handeln wenn ATR/Trend stark genug).
+   - Ganz andere Signal-Idee (z.B. echte Ausbruchs-/Struktur-Logik mit
+     Bestaetigung), sauber nach der Erwartungs-Logik (nicht Winrate).
+3. Realistisch bleiben: Ein robuster, uebertragbarer Edge ist schwer;
+   viele einfache Retail-Ideen haben schlicht keinen. Das ehrlich zu
+   wissen ist wertvoller als eine schoen aussehende, ueberangepasste Kurve.
+4. Der EA bleibt als solides, generisches Test-Geruest erhalten (Risiko,
+   Sicherung, MTF, OnTester-Logging) - nur die Signal-Logik braucht Ersatz.
 Jeder Lauf -> Zeile in `backtests.csv`.
 
 ## Kernregeln (Kurzfassung)

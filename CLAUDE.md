@@ -43,10 +43,10 @@ Nutzers, und wird von Claude weder ausgeführt noch aktiviert.
 
 ### Protokoll-Pflicht (jeder Backtest zaehlt)
 - **Jeder Backtest wird protokolliert** — eine Zeile pro Lauf in
-  `backtests.csv` (id;datum;ea_version;zeitraum;exec_tf;bias_tf;richtung;
-  strategie;net_profit;profit_factor;sharpe;dd_pct;trades;win_rate_pct;
-  avg_win;avg_loss;max_loss_streak;fazit). Profitfaktor bei 0 Verlusten =
-  "inf" (nicht 0). So bleiben die Daten dauerhaft nutzbar und
+  `backtests.csv` (id;datum;ea_version;zeitraum;symbol;exec_tf;bias_tf;
+  richtung;strategie;net_profit;profit_factor;sharpe;dd_pct;trades;
+  win_rate_pct;avg_win;avg_loss;max_loss_streak;fazit). Profitfaktor bei
+  0 Verlusten = "inf" (nicht 0). So bleiben die Daten dauerhaft nutzbar und
   Fehlschlaege werden nicht doppelt getestet.
 - **Jede groessere Aenderung** wird in `KONTEXT.md` festgehalten
   (Aktueller Stand, Letzte Aktion, Backtest-Chronik) und committet.
