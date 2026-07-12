@@ -8,12 +8,14 @@ Demo-Ziel: Forex Hedged EUR, 1.000 EUR Startkapital, Hebel 1:30.
 Repo (privat): https://github.com/translucentv1/trading-bot-v1
 
 ## Aktueller Stand
-Phase 3. Nutzer will ein **Position-Trading-EA**. Empfohlene Konfig:
-**EA v3.0 auf H4-Chart + D1-Bias, long-only** (Position Trading:
-wenige lange Trades, DD nur 9,4 %). Ueber 2022-2026: +447, PF 1,12.
-Renditestaerkere Alternative: **H1 + H4-Bias** = +1686, PF 1,12,
-Sharpe 1,87 (aktiver, DD 14,7 %). Beide ueber 4,5 Jahre ROBUST.
-Standard-Bias im EA jetzt D1 gesetzt. Naechster Schritt: Optimierung.
+Phase 3. **EA v3.1 = Position-Trading-EA mit Gewinnsicherung.**
+Empfohlen: H4-Chart + D1-Bias, long-only, Break-Even + Teil-TP an.
+2022-2026: +385, PF 1,12, Sharpe 0,99, DD 7,2 %, **Trefferquote 68 %**.
+Gewinnsicherung hebt Trefferquote (43->68 %) und senkt DD; kostet etwas
+Gesamtgewinn. KEIN Martingale (bewusst nicht vom referenzierten
+Position-Trader-EA uebernommen). Alternative aktiver/renditestaerker:
+H1 + H4-Bias OHNE Sicherung (+1686). Naechster Schritt: Optimierung
+und/oder Risiko-pro-Trade fuer Renditeziel, ggf. Live-Demo.
 
 ## Letzte Aktion
 EA v3.0 gebaut (Long & Short, Multi-Timeframe) und M15/M30/H1 automatisch
@@ -78,6 +80,21 @@ Neuer EA `ema_mtf_v3.mq5` (Long/Short, hoehere Zeitebene = Bias). H4-Bias.
 - **Position-Trading-Wahl: H4 + D1-Bias** (wenige lange Trades, DD 9,4%).
 - H1 + H4-Bias ist renditestaerker, aber aktiver (mehr Trades, hoeherer DD).
 - D1-Einstieg untauglich (zu wenige Signale).
+
+### Backtest 6 – v3.1 Gewinnsicherung (Break-Even + Teil-TP), 2022-2026
+| Konfig | Netto | PF | Sharpe | DD | Trefferquote | Trades |
+|---|---|---|---|---|---|---|
+| H4+D1 ohne Sicherung | +447 | 1,12 | 0,87 | 9,4% | 43% | 67 |
+| **H4+D1 MIT Sicherung** | +385 | 1,12 | 0,99 | 7,2% | **68%** | 101 |
+| H1+H4 MIT Sicherung | +250 | 1,02 | 0,37 | 17,8% | 65% | 345 |
+- Break-Even (Stop auf Einstieg ab +1R) + Teil-TP (50% bei +1R).
+- Auf H4: Trefferquote 43->68%, DD runter, Sharpe hoch, Gewinn leicht
+  runter -> guter Deal fuer Position Trading (Wunsch des Nutzers).
+- Auf H1 schaedlich (kappt die grossen Gewinner) -> dort Sicherung AUS.
+- Wichtig (Realitaet): Edge (PF 1,12) ist robust, aber die ABSOLUTE
+  Rendite haengt am Risiko/Trade (aktuell konservativ 1%). 10%/Monat wie
+  im Marketing des fremden EA ist nur mit kontosprengendem Risiko
+  erreichbar - nicht unser Weg.
 
 ## EA v2.0 – Was ist neu
 1. **Marktstruktur-Stop:** SL unter das letzte Swing-Tief (Tief der

@@ -26,9 +26,11 @@
 #property description "EMA 9/21 + Multi-Timeframe-Bias, Long & Short,"
 #property description "Struktur-Stop, dynamischer TP, ATR-Trailing, RSI-Filter."
 #property description "Empfohlen (Position Trading): H4-Chart + D1-Bias, long-only."
-// Backtest EURUSD 2022-2026, long-only:
-//   H4-Chart + D1-Bias: +447, PF 1,12, DD 9,4 %, 67 Trades (Position Trading)
-//   H1-Chart + H4-Bias: +1686, PF 1,12, Sharpe 1,87 (renditestaerker, aktiver)
+// Backtest EURUSD 2022-2026, long-only (10.000 EUR, 1% Risiko/Trade):
+//  EMPFOHLEN Position Trading: H4-Chart + D1-Bias + Gewinnsicherung
+//    +385, PF 1,12, Sharpe 0,99, DD 7,2 %, Trefferquote 68 %, 101 Trades
+//  Alternative aktiver: H1-Chart + H4-Bias OHNE Gewinnsicherung
+//    +1686, PF 1,12, Sharpe 1,87 (Gewinnsicherung schadet hier -> aus)
 
 #include <Trade\Trade.mqh>
 CTrade trade;
