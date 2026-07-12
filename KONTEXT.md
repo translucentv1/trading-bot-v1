@@ -8,14 +8,15 @@ Demo-Ziel: Forex Hedged EUR, 1.000 EUR Startkapital, Hebel 1:30.
 Repo (privat): https://github.com/translucentv1/trading-bot-v1
 
 ## Aktueller Stand
-Phase 2. EA komplett ueberarbeitet auf **v2.0** – bereit fuer Backtest 3.
+Phase 2. **EA v2.0 ist die erste PROFITABLE Version** (Backtest 3:
+PF 1,09, Netto +141,17 ueber 18 Monate). Edge noch duenn – naechster
+Schritt: Robustheit pruefen / Parameter optimieren.
 
 ## Letzte Aktion
-EA-Datei umbenannt in `ema_9_21_crossover_long_v2.mq5`, damit die neue
-`.ex5` nicht mit der alten verwechselt wird. Hintergrund: Ein Testlauf
-war versehentlich noch mit der alten v1.10-`.ex5` gelaufen (erkennbar an
-alten Eingaben InpStopLossPct/InpTakeProfitPct + Kommentar "EMA Crossover
-Long"). Neue Datei muss frisch mit F7 kompiliert werden.
+Backtest 3 (v2.0) ausgewertet: erstmals positiv. Der Umbau auf
+Marktstruktur-Stop + dynamischen TP hat das Chance-Risiko-Verhaeltnis
+gedreht (Ø Gewinn 156,62 > Ø Verlust 98,85), obwohl die Trefferquote
+leicht gesunken ist (40,7 %). Genau das war die These.
 
 ## Backtest-Chronik
 
@@ -33,12 +34,20 @@ Long"). Neue Datei muss frisch mit F7 kompiliert werden.
   umgerechnet → kein Bezug zur Volatilitaet. SL viel zu weit, TP (~468
   Pips) nie erreicht. 4 kleine Gegenkreuz-Verluste + 1 grosser SL-Treffer.
 
-### Backtest 3 – EA v2.0 (steht aus)
-- Getestete Aenderungen (siehe unten). Parameter wie Backtest 1/2.
-- Ergebnisse: [ noch einzutragen ]
-  - Netto-PnL: [ ] | Profitfaktor: [ ] (vorher 0,04)
-  - Trefferquote: [ ] | Trades: [ ] | Max. Drawdown: [ ]
-  - Groesster Verlusttrade: [ ] (vorher -202,86)
+### Backtest 3 – EA v2.0 (12.07.2026) – ERSTE PROFITABLE VERSION
+- EURUSD H4, **01.01.2025–11.07.2026 (18 Monate)**, 10.000 EUR, 1:33
+- **Netto-PnL: +141,17 | Profitfaktor: 1,09 | Erwartung: +5,23/Trade**
+- Trefferquote: 40,74 % (11/27) | Trades: 27
+- Ø Gewinntrade: +156,62 | Ø Verlusttrade: -98,85 (CRV 1,58:1)
+- Groesster Gewinn: +184,94 | Groesster Verlust: -107,12
+- Max. Drawdown: 5,99 % (Konto) / 6,88 % (Equity)
+- Sharpe: 0,58 | LR-Korrelation: +0,65 (Kapitalkurve steigt jetzt)
+- Max. Verlusttrades in Folge: 6 (-597,56) – der wunde Punkt
+- **Vergleich v1.10 (gleiche 18 Mon.): Netto -313,59, PF 0,73.**
+  Kernwende: nicht die Trefferquote, sondern das CRV. Struktur-Stops
+  machten Verluste kleiner, dynamischer TP liess Gewinner groesser laufen.
+- Hinweis: BT1/BT2 liefen nur ueber 6 Monate (2026), daher nicht 1:1
+  vergleichbar; der 18-Monats-Zeitraum ist die neue Referenz.
 
 ## EA v2.0 – Was ist neu
 1. **Marktstruktur-Stop:** SL unter das letzte Swing-Tief (Tief der
@@ -52,11 +61,16 @@ Long"). Neue Datei muss frisch mit F7 kompiliert werden.
    genau InpRiskPerTradePct % (1 %) kostet – egal wie eng/weit der Stop.
 6. Trendfilter (EMA 200) und Tagesverlust-Stopp bleiben erhalten.
 
-## Naechste Schritte
-1. NUTZER: Neue .mq5 aus experts/ in MQL5\Experts\ kopieren, F7 kompilieren
-2. NUTZER: Strategy Tester – gleiche Parameter wie Backtest 1/2
-3. NUTZER: Report als HTML speichern und teilen
-4. KI: Auswerten, Parameter feinjustieren oder naechste Idee
+## Naechste Schritte (nach BT3)
+Ziel: die duenne Kante (PF 1,09) robuster und dicker machen.
+1. ROBUSTHEIT: gleichen EA ueber laengeren Zeitraum testen (z.B. 2022–2026),
+   um zu sehen ob der Vorteil ueber verschiedene Marktphasen haelt.
+2. PARAMETER-OPTIMIERUNG im Strategy Tester (Reiter "Optimierung"):
+   v.a. InpRewardRatio (1,4–2,6) und InpTrailATRMult (1,5–3,5).
+   Achtung Overfitting – bevorzugt breite, stabile Bereiche statt Spitzen.
+3. DRAWDOWN: 6 Verlust-Trades in Folge sind der Schwachpunkt; ggf. Filter
+   verfeinern (z.B. Einstieg nur mit etwas Abstand ueber EMA200).
+4. Danach: laengerer Demo-Beobachtungslauf (Paper) vor jeder Live-Idee.
 
 ## Ideen fuer danach (falls v2.0 besser, aber noch nicht gut genug)
 - Testzeitraum auf 3+ Jahre ausweiten (mehr Trades, statistisch belastbar)
