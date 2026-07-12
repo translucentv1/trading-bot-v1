@@ -1,4 +1,4 @@
-# KONTEXT – Handoff zwischen Claude Code und AI Studio
+# CONTEXT – Handoff zwischen Claude Code und AI Studio
 _Letzte Aktualisierung: 12.07.2026_
 
 ## Projekt

@@ -1,0 +1,6 @@
+{
+  "name": "MT5 MQL5 EA Studio",
+  "description": "Interactive companion and backtest simulator for MT5 EMA-9/21 Crossover Expert Advisor, featuring code customization, historical performance simulation, and AI-powered strategy analysis.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

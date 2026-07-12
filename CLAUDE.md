@@ -15,7 +15,7 @@ jederzeit wiederhergestellt werden).
   immer selbst.
 - **Tech-Stack:** MQL5 (Expert Advisors) für MetaTrader 5. Die Dateien
   unter `/experts` sind zum Kompilieren im MetaEditor gedacht.
-- **Kompilieren und Strategy-Tester-Läufe passieren beim Nutzer im
+- **Kompilieren und Strategy-Tester-Läufe passen beim Nutzer im
   MT5-Terminal, nicht bei Claude** – Ausnahmen nur mit ausdrücklicher
   Erlaubnis des Nutzers. Claude schreibt den Code so einfach und
   standardnah wie möglich, damit er auf Anhieb kompiliert.
@@ -32,7 +32,7 @@ dokumentierten Tests in Frage, ist allein Entscheidung und Handlung des
 Nutzers, und wird von Claude weder ausgeführt noch aktiviert.
 
 ## Handoff-Workflow (Claude Code ↔ AI Studio)
-`KONTEXT.md` im Repo-Root ist die gemeinsame Handoff-Datei.
+`KONTEXT.md` im Repo-Root is die gemeinsame Handoff-Datei.
 - **Claude Code** aktualisiert sie am Ende jeder Sitzung und committet sie.
 - **AI Studio**: Nutzer kopiert Inhalt von `KONTEXT.md` + relevante `.mq5`-Datei
   in AI Studio. AI Studio plant/diskutiert, implementiert aber nicht.

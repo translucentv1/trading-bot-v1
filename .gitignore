@@ -1,17 +1,8 @@
-# Zugangsdaten - NIEMALS committen
-.env
-
-# MetaTrader / MetaEditor
-*.ex5
-*.log
-
-# Betriebssystem
+node_modules/
+build/
+dist/
+coverage/
 .DS_Store
-Thumbs.db
-
-# Editoren
-.vscode/
-.idea/
-
-# Lokale Claude-Code-Einstellungen (nur fuer diesen Rechner)
-.claude/settings.local.json
+*.log
+.env*
+!.env.example
