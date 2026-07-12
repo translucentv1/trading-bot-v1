@@ -1,0 +1,27 @@
+id;datum;ea_version;zeitraum;exec_tf;bias_tf;richtung;strategie;net_profit;profit_factor;sharpe;dd_pct;trades;win_rate_pct;avg_win;avg_loss;max_loss_streak;fazit
+1;2026-07-12;v2.0;2025-01_2026-07;H4;-;long;ema-cross;141.17;1.09;0.58;5.99;27;40.74;156.62;-98.85;6;erste profitable Version
+2;2026-07-12;v1.10-aistudio;2025-01_2026-07;H4;-;long;ema-cross;-313.59;0.73;;;;;;;;prozent-SL zu weit vom Markt
+3;2026-07-12;v2-aistudio-rewrite;2025-01_2026-07;H4;-;long;ema-cross;-75.19;0.93;;;;42.31;;;;ATR-Puffer 1.5/lookback 10 schlechter
+4;2026-07-12;v3.0;2025-01_2026-07;M15;H4;long+short;ema-cross;-5656.26;0.74;-5.00;59.25;542;35.79;83.61;-62.87;2;M15 zu verrauscht
+5;2026-07-12;v3.0;2025-01_2026-07;M30;H4;long+short;ema-cross;-1511.35;0.90;-2.04;34.46;302;37.75;125.01;-83.84;14;M30 negativ
+6;2026-07-12;v3.0;2025-01_2026-07;H1;H4;long+short;ema-cross;-1004.84;0.88;-1.99;20.38;148;38.51;124.45;-88.99;7;Shorts schaden
+7;2026-07-12;v3.0;2025-01_2026-07;M15;H4;long;ema-cross;-5216.85;0.67;-5.00;53.86;305;33.77;100.60;-77.12;2;M15 long-only negativ
+8;2026-07-12;v3.0;2025-01_2026-07;M30;H4;long;ema-cross;-2570.50;0.71;-5.00;31.26;167;33.53;110.10;-78.71;11;M30 long-only negativ
+9;2026-07-12;v3.0;2025-01_2026-07;H1;H4;long;ema-cross;519.36;1.11;1.77;9.48;83;40.96;149.56;-93.17;8;H1 long-only stark
+10;2026-07-12;v3.0;2025-01_2026-07;H4;D1;long;ema-cross;85.65;1.06;0.35;5.70;27;40.74;145.71;-94.82;4;H4+D1 profitabel niedriger DD
+11;2026-07-12;v3.0;2025-01_2026-07;D1;W1;long;ema-cross;-117.46;0.59;-0.03;2.80;4;25.00;167.56;-95.01;3;D1 zu wenige Trades
+12;2026-07-12;v3.0;2022-01_2026-07;H1;H4;long;ema-cross;1686.40;1.12;1.87;14.71;240;42.08;154.92;-100.44;11;robust hoechster Ertrag aktiv
+13;2026-07-12;v3.0;2022-01_2026-07;H4;D1;long;ema-cross;447.18;1.12;0.87;9.44;67;43.28;144.93;-98.83;7;Position-Trading robust
+14;2026-07-12;v3.0;2022-01_2026-07;D1;W1;long;ema-cross;-312.77;0.52;-0.35;3.13;9;22.22;170.90;-93.51;3;D1 untauglich
+15;2026-07-12;v3.1;2022-01_2026-07;H4;D1;long;ema-cross+sicherung;384.52;1.12;0.99;7.18;101;68.32;51.31;-98.62;4;EMPFOHLEN hohe Quote niedriger DD
+16;2026-07-12;v3.1;2022-01_2026-07;H1;H4;long;ema-cross+sicherung;250.27;1.02;0.37;17.76;345;64.93;52.92;-95.90;10;Sicherung schadet H1 (kappt Gewinner)
+17;2026-07-12;v3.2;2022-01_2026-07;M30;H1;long;mean-rev+trend-exit;-718.00;0.21;-5.00;7.18;14;28.57;46.61;-90.44;4;MR wenige Trades negativ
+18;2026-07-12;v3.2;2022-01_2026-07;M30;D1;long;mean-rev+trend-exit;-340.46;0.76;-3.72;8.28;44;52.27;45.65;-66.21;8;MR negativ
+19;2026-07-12;v3.2;2022-01_2026-07;H4;D1;long;mean-rev+trend-exit;-55.46;0.84;-0.25;1.98;11;63.64;40.72;-85.13;2;MR negativ
+20;2026-07-12;v3.3;2022-01_2026-07;M30;H1;long;mean-rev+raus-im-plus;-181.73;0.09;-5.00;1.95;12;83.33;1.75;-99.60;1;Winrate-Falle 83pct trotzdem Minus
+21;2026-07-12;v3.3;2022-01_2026-07;M30;D1;long;mean-rev+raus-im-plus;-248.70;0.16;-5.00;2.90;34;91.18;1.53;-98.76;2;Winrate-Falle 91pct trotzdem Minus
+22;2026-07-12;v3.3;2022-01_2026-07;H4;D1;long;mean-rev+raus-im-plus;5.90;inf;0.41;0.63;7;100.00;0.84;0.00;0;PF-Berechnung korrigiert (vorher faelschlich 0.00) Glueck Mini-Stichprobe
+23;2026-07-12;v3.1;2022-01_2023-12;H4;D1;long;ema-cross+sicherung;640.01;1.65;4.54;4.06;40;75.00;54.33;-98.98;4;OOS-Training (A) stark
+24;2026-07-12;v3.1;2024-01_2026-07;H4;D1;long;ema-cross+sicherung;-245.18;0.88;-1.02;5.34;61;63.93;45.81;-92.36;3;OOS-Validierung (B) NEGATIV - Kante nicht robust
+25;2026-07-12;v3.0;2022-01_2023-12;H1;H4;long;ema-cross;1500.96;1.25;3.49;13.45;113;43.36;152.57;-93.36;9;OOS-Training (A) stark
+26;2026-07-12;v3.0;2024-01_2026-07;H1;H4;long;ema-cross;153.08;1.02;0.35;13.82;127;40.94;136.27;-92.44;11;OOS-Validierung (B) knapp positiv - haelt gerade so

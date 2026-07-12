@@ -21,7 +21,7 @@
 //| Tester laufen im MetaEditor/MT5.                                |
 //+------------------------------------------------------------------+
 #property copyright "Phase 3 - Demo/Paper"
-#property version   "3.30"
+#property version   "3.31"
 #property strict
 #property description "EMA 9/21 + Multi-Timeframe-Bias, Long & Short,"
 #property description "Struktur-Stop, dynamischer TP, ATR-Trailing, RSI-Filter."
@@ -533,7 +533,6 @@ double OnTester()
    double profit      = TesterStatistics(STAT_PROFIT);
    double grossProfit = TesterStatistics(STAT_GROSS_PROFIT);
    double grossLoss   = TesterStatistics(STAT_GROSS_LOSS);
-   double profitFac   = TesterStatistics(STAT_PROFIT_FACTOR);
    double expPayoff   = TesterStatistics(STAT_EXPECTED_PAYOFF);
    double sharpe      = TesterStatistics(STAT_SHARPE_RATIO);
    double balDDpct    = TesterStatistics(STAT_BALANCEDD_PERCENT);
@@ -547,13 +546,21 @@ double OnTester()
    double avgWin  = (winTrades > 0)  ? (grossProfit / winTrades)    : 0.0;
    double avgLoss = (lossTrades > 0) ? (grossLoss / lossTrades)     : 0.0;
 
+   // Profitfaktor selbst berechnen: bei 0 Verlusten ist PF unendlich,
+   // nicht 0 (TesterStatistics(STAT_PROFIT_FACTOR) liefert hier faelschlich 0).
+   double absLoss = MathAbs(grossLoss);
+   string pfStr;
+   if(absLoss > 0.0)          pfStr = DoubleToString(grossProfit / absLoss, 2);
+   else if(grossProfit > 0.0) pfStr = "inf";   // Gewinne, keine Verluste
+   else                       pfStr = "0.00";  // gar keine Trades
+
    int h = FileOpen("tester_result.txt", FILE_WRITE|FILE_TXT|FILE_ANSI|FILE_COMMON);
    if(h != INVALID_HANDLE)
      {
       FileWrite(h, "timeframe="      + EnumToString((ENUM_TIMEFRAMES)_Period));
       FileWrite(h, "bias_tf="        + EnumToString(InpBiasTF));
       FileWrite(h, "net_profit="     + DoubleToString(profit, 2));
-      FileWrite(h, "profit_factor="  + DoubleToString(profitFac, 2));
+      FileWrite(h, "profit_factor="  + pfStr);
       FileWrite(h, "expected_payoff="+ DoubleToString(expPayoff, 2));
       FileWrite(h, "sharpe="         + DoubleToString(sharpe, 2));
       FileWrite(h, "balance_dd_pct=" + DoubleToString(balDDpct, 2));

@@ -8,16 +8,27 @@ Demo-Ziel: Forex Hedged EUR, 1.000 EUR Startkapital, Hebel 1:30.
 Repo (privat): https://github.com/translucentv1/trading-bot-v1
 
 ## Aktueller Stand
-Phase 3. **EA v3.1 = Position-Trading-EA mit Gewinnsicherung.**
-Empfohlen: H4-Chart + D1-Bias, long-only, Break-Even + Teil-TP an.
-2022-2026: +385, PF 1,12, Sharpe 0,99, DD 7,2 %, **Trefferquote 68 %**.
-Gewinnsicherung hebt Trefferquote (43->68 %) und senkt DD; kostet etwas
-Gesamtgewinn. KEIN Martingale (bewusst nicht vom referenzierten
-Position-Trader-EA uebernommen). Alternative aktiver/renditestaerker:
-H1 + H4-Bias OHNE Sicherung (+1686). Naechster Schritt: Optimierung
-und/oder Risiko-pro-Trade fuer Renditeziel, ggf. Live-Demo.
+Phase 3. **WICHTIG: Out-of-Sample-Test hat die Empfehlung umgestossen.**
+- **H4+D1+Sicherung (bisher "empfohlen") ist NICHT robust:** Fenster A
+  (2022-2023) PF 1,65, aber Fenster B (2024-2026) PF **0,88 / -245** =
+  Verlust. Der ganze 2022-2026-Gewinn kam aus 2022-2023. Kante
+  trendabhaengig.
+- **H1+H4 ohne Sicherung ist robuster:** Fenster A PF 1,25, Fenster B
+  PF **1,02 / +153** = knapp positiv in beiden. Aber Kante wird duenn
+  (Sharpe 3,49 -> 0,35).
+- **Konsequenz: geplante Parameteroptimierung ZURUECKGESTELLT** (man
+  optimiert keine fragile, trendabhaengige Kante). Erst mehr
+  Robustheit/Marktphasen noetig.
+- Profitfaktor-Logging-Bug gefixt (0 Verluste -> "inf" statt 0.00).
 
 ## Letzte Aktion
+Robustheits-/Bug-Fix-Sitzung (Auftrag aus AI Studio): Out-of-Sample-Test
+in 2 Fenstern (A 2022-2023 "Training", B 2024-2026 "Validierung") fuer die
+2 besten Konfigs. Ergebnis: empfohlene H4-Konfig faellt in Fenster B durch,
+H1-Konfig haelt knapp. PF-Bug in OnTester gefixt, backtests.csv um Spalte
+max_loss_streak erweitert, Swap geprueft (realistisch aktiv). Details unten.
+
+## (frueher) Letzte Aktion
 EA v3.0 gebaut (Long & Short, Multi-Timeframe) und M15/M30/H1 automatisch
 getestet. Ergebnis: M15/M30 verlieren (zu verrauscht); H1 gewinnt, aber
 nur long-only (Shorts schaden, da EURUSD 2025-26 stark stieg). Wichtig
@@ -109,6 +120,31 @@ Filter, "raus sobald im Plus" fuer maximale Trefferquote.
 - Fazit: zurueck zum bewiesenen H4-Trend + Gewinnsicherung (68% Quote,
   positive Erwartung). MR-Modi bleiben als Toggle im Code, aber aus.
 
+### Backtest 8 – Out-of-Sample-Test (12.07.2026) – WENDEPUNKT
+Zwei getrennte Fenster statt durchgehend, um Trendabhaengigkeit zu pruefen.
+| Konfig | Fenster A 2022-2023 | Fenster B 2024-2026 | Urteil |
+|---|---|---|---|
+| H4+D1+Sicherung | +640, PF 1,65, 75% | **-245, PF 0,88, 64%** | NICHT robust |
+| H1+H4 ohne Sich. | +1501, PF 1,25, 43% | **+153, PF 1,02, 41%** | haelt knapp |
+- Die bisher "empfohlene" H4-Konfig verdient nur in 2022-2023 Geld, in
+  2024-2026 Verlust -> die +385 ueber 2022-2026 waren ein Trend-Artefakt.
+- H1-Konfig in beiden Fenstern positiv, aber Kante schrumpft (Sharpe
+  3,49 -> 0,35). Kein starker, stabiler Vorteil.
+- **Optimierung zurueckgestellt** (fragile Kante nicht ueberoptimieren).
+
+### Aufgabe 3 – gleiche Trades? (Doku)
+BT1 (v2.0, H4) und BT10 (v3.0, H4/D1) haben beide exakt 27 Trades und
+40,74% (11 Gewinner). Sehr wahrscheinlich dieselben Einstiege: der
+D1-Bias-Filter hatte 2025-2026 keine zusaetzliche Filterwirkung, weil
+EURUSD durchgehend im Aufwaertstrend lief (beide Filter dauernd "an").
+Der P&L-Unterschied (141 vs 86) stammt aus dem anderen Ausstiegs-Code
+(v2.0 Trailing pro Kerze, v3.0 pro Tick), nicht aus anderen Einstiegen.
+
+### Swap/Rollover (Doku, Aufgabe 5)
+Tester laeuft mit realistischen Swaps: EURUSD MetaQuotes-Demo swap_long
+-0,7 / swap_short -1,0 Punkte/Tag, Mittwoch dreifach. Bei "Jeder Tick"
+werden sie am Rollover automatisch verrechnet (relevant fuer H4/D1-Halten).
+
 ## EA v2.0 – Was ist neu
 1. **Marktstruktur-Stop:** SL unter das letzte Swing-Tief (Tief der
    letzten InpSwingLookback Kerzen) minus ATR-Puffer. Stop richtet sich
@@ -121,22 +157,18 @@ Filter, "raus sobald im Plus" fuer maximale Trefferquote.
    genau InpRiskPerTradePct % (1 %) kostet – egal wie eng/weit der Stop.
 6. Trendfilter (EMA 200) und Tagesverlust-Stopp bleiben erhalten.
 
-## Naechste Schritte (nach BT3)
-Ziel: die duenne Kante (PF 1,09) robuster und dicker machen.
-1. ROBUSTHEIT: gleichen EA ueber laengeren Zeitraum testen (z.B. 2022–2026),
-   um zu sehen ob der Vorteil ueber verschiedene Marktphasen haelt.
-2. PARAMETER-OPTIMIERUNG im Strategy Tester (Reiter "Optimierung"):
-   v.a. InpRewardRatio (1,4–2,6) und InpTrailATRMult (1,5–3,5).
-   Achtung Overfitting – bevorzugt breite, stabile Bereiche statt Spitzen.
-3. DRAWDOWN: 6 Verlust-Trades in Folge sind der Schwachpunkt; ggf. Filter
-   verfeinern (z.B. Einstieg nur mit etwas Abstand ueber EMA200).
-4. Danach: laengerer Demo-Beobachtungslauf (Paper) vor jeder Live-Idee.
-
-## Ideen fuer danach (falls v2.0 besser, aber noch nicht gut genug)
-- Testzeitraum auf 3+ Jahre ausweiten (mehr Trades, statistisch belastbar)
-- Swing-Hoch als alternatives TP-Ziel statt fixem Reward-Faktor
-- Zwei-Wege-Handel (echte Short-Logik) ergaenzen
-- Parameter-Optimierung im Strategy Tester (RewardRatio, ATR-Mults)
+## Naechste Schritte (nach Out-of-Sample-Test)
+**Parameteroptimierung ist ZURUECKGESTELLT** (die Kante ist fragil/
+trendabhaengig – Optimieren wuerde nur Overfitting verstaerken).
+Sinnvoller sind:
+1. ROBUSTHEIT ERHOEHEN statt optimieren: anderes Instrument (z.B. GBPUSD,
+   Gold, ein Index) oder anderes Regime testen – haelt die H1-Kante dort?
+   Ein Vorteil, der nur auf EURUSD 2022-2023 lebt, taugt nicht.
+2. Verstehen, WARUM Fenster B schwaecher ist (weniger klarer Trend?).
+3. Erst wenn eine Kante ueber mehrere Instrumente/Phasen haelt: Optimierung.
+4. Alternativ jetzt schon: H1-Konfig (robuster) klein auf Demo laufen
+   lassen (Phase B) als Realitaets-Check, ohne Erwartungsdruck.
+Jeder Lauf -> Zeile in `backtests.csv`.
 
 ## Kernregeln (Kurzfassung)
 - Keine Kontodaten/Passwoerter/API-Keys in Code, Chat oder Commits

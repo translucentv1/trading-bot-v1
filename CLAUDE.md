@@ -41,6 +41,23 @@ Nutzers, und wird von Claude weder ausgeführt noch aktiviert.
   AI Studio = Planung, Erklaerungen, Strategie-Ideen (ohne Repo-Zugriff).
 - Jede neue Claude-Code-Sitzung beginnt mit Lesen von `KONTEXT.md`.
 
+### Protokoll-Pflicht (jeder Backtest zaehlt)
+- **Jeder Backtest wird protokolliert** — eine Zeile pro Lauf in
+  `backtests.csv` (id;datum;ea_version;zeitraum;exec_tf;bias_tf;richtung;
+  strategie;net_profit;profit_factor;sharpe;dd_pct;trades;win_rate_pct;
+  avg_win;avg_loss;max_loss_streak;fazit). Profitfaktor bei 0 Verlusten =
+  "inf" (nicht 0). So bleiben die Daten dauerhaft nutzbar und
+  Fehlschlaege werden nicht doppelt getestet.
+- **Jede groessere Aenderung** wird in `KONTEXT.md` festgehalten
+  (Aktueller Stand, Letzte Aktion, Backtest-Chronik) und committet.
+- Automatik: Der EA schreibt via `OnTester()` die Kennzahlen nach
+  `Common\Files\tester_result.txt`; Claude liest sie aus und traegt sie
+  in `backtests.csv` ein. Details/Technik in der Claude-Memory
+  (mt5-backtest-workflow).
+- `AI_STUDIO_PROMPT.md` = fertiger Prompt fuer AI Studio (Rollen,
+  Regeln, gelernte Lektionen, Workflow). Vor jeder AI-Studio-Sitzung
+  aktuell halten.
+
 ## Phasen
 1. **Phase 1 (fertig):** Struktur, erster EA (EMA-9/21-Crossover, long-only,
    EURUSD H4, SL/TP in % vom Kapital) inkl. Tagesverlust-Stopp.
