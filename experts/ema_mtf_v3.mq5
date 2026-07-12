@@ -21,7 +21,7 @@
 //| Tester laufen im MetaEditor/MT5.                                |
 //+------------------------------------------------------------------+
 #property copyright "Phase 3 - Demo/Paper"
-#property version   "3.20"
+#property version   "3.30"
 #property strict
 #property description "EMA 9/21 + Multi-Timeframe-Bias, Long & Short,"
 #property description "Struktur-Stop, dynamischer TP, ATR-Trailing, RSI-Filter."
@@ -62,6 +62,7 @@ input group "--- Einstiegs-Modus ---"
 input int             InpEntryMode      = 0;        // 0 = EMA-Kreuz (Trend), 1 = RSI-Mean-Reversion (Pullback)
 input double          InpRSIBuyLevel    = 40.0;     // MR Long: RSI kreuzt von unten hier durch
 input double          InpRSISellLevel   = 60.0;     // MR Short: RSI kreuzt von oben hier durch
+input double          InpMRMinProfitMoney = 0.0;    // MR-Ausstieg: raus sobald Gewinn (EUR) >= Wert (0 = jeder Gewinn)
 
 //--- Eingaben: Marktstruktur (Stop-Loss) ----------------------------
 input group "--- Marktstruktur / Stop-Loss ---"
@@ -210,18 +211,19 @@ void OnTick()
    bool  hasPos = false;
    ulong ticket = 0;
    long  posType = -1;
-   double posSL = 0.0, posEntry = 0.0, posVol = 0.0;
+   double posSL = 0.0, posEntry = 0.0, posVol = 0.0, posProfit = 0.0;
    for(int i = PositionsTotal() - 1; i >= 0; i--)
      {
       if(PositionGetSymbol(i) == _Symbol &&
          PositionGetInteger(POSITION_MAGIC) == (long)InpMagicNumber)
         {
-         hasPos   = true;
-         ticket   = PositionGetInteger(POSITION_TICKET);
-         posType  = PositionGetInteger(POSITION_TYPE);
-         posSL    = PositionGetDouble(POSITION_SL);
-         posEntry = PositionGetDouble(POSITION_PRICE_OPEN);
-         posVol   = PositionGetDouble(POSITION_VOLUME);
+         hasPos    = true;
+         ticket    = PositionGetInteger(POSITION_TICKET);
+         posType   = PositionGetInteger(POSITION_TYPE);
+         posSL     = PositionGetDouble(POSITION_SL);
+         posEntry  = PositionGetDouble(POSITION_PRICE_OPEN);
+         posVol    = PositionGetDouble(POSITION_VOLUME);
+         posProfit = PositionGetDouble(POSITION_PROFIT);
          break;
         }
      }
@@ -243,9 +245,18 @@ void OnTick()
          m_be_done      = false;
          m_partial_done = false;
         }
-      ManageProfitSecuring(ticket, posType);
-      if(InpUseTrailing && atrValue > 0.0)
-         ManageTrailingStop(ticket, atrValue);
+      if(InpEntryMode == 1)
+        {
+         // Mean-Reversion: raus, sobald im Plus (kuerzeste Haltedauer)
+         if(posProfit > 0.0 && posProfit >= InpMRMinProfitMoney)
+            trade.PositionClose(ticket);
+        }
+      else
+        {
+         ManageProfitSecuring(ticket, posType);
+         if(InpUseTrailing && atrValue > 0.0)
+            ManageTrailingStop(ticket, atrValue);
+        }
      }
    else
       m_pos_ticket = 0;
