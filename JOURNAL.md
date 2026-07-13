@@ -23,10 +23,10 @@ Sicherheits-Problem bleibt Nutzer-Aufgabe.
   (Header + OnInit-Print) von "v3.0" auf "v3.50" korrigiert, in `.mq5`
   UND `EA_CODE.md`. README: "35+ Backtests" -> "61 ueber 6 Strategie-
   Familien", aktive Version v3.41 -> v3.50.
-- **P0 Sicherheit (offen, Nutzer-Aufgabe):** Remote-URL enthaelt ein
-  eingebettetes GitHub-Token. ZCode/Claue nehmen keine Zugangsdaten
-  an und rotieren sie nicht -> Nutzer muss Token widerrufen und
-  Remote-URL bereinigen.
+- **P0 Sicherheit ERLEDIGT (Nutzer, 13.07.):** Remote-URL enthielt ein
+  eingebettetes GitHub-Token. Nutzer hat es bereinigt
+  (`https://github.com/translucentv1/trading-bot-v1.git`, kein Token);
+  Authentifizierung laeuft jetzt ueber `credential.helper = manager`.
 - **P2 (kein Handlungsbedarf):** OnTester schreibt risk_realized_pct/
   z_score nicht selbst (entstehen im Python-Skript). Spaetere
   Automatisierung moeglich.

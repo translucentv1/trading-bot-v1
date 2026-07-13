@@ -41,10 +41,11 @@ unterzogen, um von einem sauberen, konsistenten Stand weiterzuarbeiten:
   auf v3.50 gesetzt (inkl. EA_CODE.md).
   (b) README veraltet: "35+ Backtests" -> "61 Backtests ueber 6
   Strategie-Familien"; aktive Version v3.41 -> v3.50.
-- **P0 Sicherheit (Nutzer-Aufgabe, NICHT von ZCode/Claude gemacht):**
-  Die Remote-URL enthaelt ein eingebettetes GitHub-Token
-  (`https://<token>@github.com/...`). Empfehlung: Token widerrufen,
-  Remote-URL ohne Credentials setzen, `credential.helper` nutzen.
+- **P0 Sicherheit ERLEDIGT (Nutzer, 13.07.):** Die Remote-URL enthielt
+  ein eingebettetes GitHub-Token. Vom Nutzer bereinigt auf
+  `https://github.com/translucentv1/trading-bot-v1.git` (kein Token
+  mehr); Authentifizierung laeuft jetzt ueber `credential.helper =
+  manager` (Windows Credential Manager).
 - **P2 Beobachtung (kein Handlungsbedarf):** `OnTester()` schreibt
   risk_realized_pct/z_score nicht selbst; entstehen im Python-Skript
   (dokumentiert, funktioniert). Automatisierung spaeter moeglich.
