@@ -1,7 +1,7 @@
 id;datum;ea_version;zeitraum;symbol;exec_tf;bias_tf;richtung;strategie;net_profit;profit_factor;sharpe;dd_pct;trades;win_rate_pct;avg_win;avg_loss;max_loss_streak;risk_realized_pct;z_score;fazit
 1;2026-07-12;v2.0;2025-01_2026-07;EURUSD;H4;-;long;ema-cross;141.17;1.09;0.58;5.99;27;40.74;156.62;-98.85;6;0.99;0.22;erste profitable Version
-2;2026-07-12;v1.10-aistudio;2025-01_2026-07;EURUSD;H4;-;long;ema-cross;-313.59;0.73;;;;;;;;;;prozent-SL zu weit vom Markt
-3;2026-07-12;v2-aistudio-rewrite;2025-01_2026-07;EURUSD;H4;-;long;ema-cross;-75.19;0.93;;;;42.31;;;;;;ATR-Puffer 1.5/lookback 10 schlechter
+2;2026-07-12;v1.10-aistudio;2025-01_2026-07;EURUSD;H4;-;long;ema-cross;-313.59;0.73;;;;;;;;;;prozent-SL zu weit vom Markt (Fruehphase, keine vollst. Kennzahlenerfassung)
+3;2026-07-12;v2-aistudio-rewrite;2025-01_2026-07;EURUSD;H4;-;long;ema-cross;-75.19;0.93;;;;42.31;;;;;;ATR-Puffer 1.5/lookback 10 schlechter (Fruehphase, keine vollst. Kennzahlenerfassung)
 4;2026-07-12;v3.0;2025-01_2026-07;EURUSD;M15;H4;long+short;ema-cross;-5656.26;0.74;-5.00;59.25;542;35.79;83.61;-62.87;2;0.63;-3.46;M15 zu verrauscht
 5;2026-07-12;v3.0;2025-01_2026-07;EURUSD;M30;H4;long+short;ema-cross;-1511.35;0.90;-2.04;34.46;302;37.75;125.01;-83.84;14;0.84;-0.86;M30 negativ
 6;2026-07-12;v3.0;2025-01_2026-07;EURUSD;H1;H4;long+short;ema-cross;-1004.84;0.88;-1.99;20.38;148;38.51;124.45;-88.99;7;0.89;-0.80;Shorts schaden

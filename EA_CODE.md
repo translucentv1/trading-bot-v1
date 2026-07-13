@@ -1,7 +1,7 @@
 # EA_CODE.md - aktueller EA-Code (Handoff ohne separaten Upload)
 
 **Aktive Datei:** `experts/ema_mtf_v3.mq5`
-**Stand:** 2026-07-12 (Version 3.50, + Einstiegs-Modus 2 Opening-Range-Breakout)
+**Stand:** 2026-07-13 (Version 3.50; EMPFOHLEN-Kommentare entfernt = Test-Geruest)
 
 > Regel: Bei JEDER Aenderung an der aktiven .mq5-Datei wird dieser
 > Block im selben Commit mitaktualisiert.
@@ -32,14 +32,14 @@
 #property copyright "Phase 3 - Demo/Paper"
 #property version   "3.50"
 #property strict
-#property description "EMA 9/21 + Multi-Timeframe-Bias, Long & Short,"
-#property description "Struktur-Stop, dynamischer TP, ATR-Trailing, RSI-Filter."
-#property description "Empfohlen (Position Trading): H4-Chart + D1-Bias, long-only."
-// Backtest EURUSD 2022-2026, long-only (10.000 EUR, 1% Risiko/Trade):
-//  EMPFOHLEN Position Trading: H4-Chart + D1-Bias + Gewinnsicherung
-//    +385, PF 1,12, Sharpe 0,99, DD 7,2 %, Trefferquote 68 %, 101 Trades
-//  Alternative aktiver: H1-Chart + H4-Bias OHNE Gewinnsicherung
-//    +1686, PF 1,12, Sharpe 1,87 (Gewinnsicherung schadet hier -> aus)
+#property description "EMA 9/21 + Multi-Timeframe-Bias, generisches Test-Geruest."
+#property description "KEINE Handels-Empfehlung - Forschungsphase."
+// STAND 13.07.2026: KEINE der getesteten Konfigurationen hat einen
+// robusten, instrument-uebergreifenden Edge gezeigt. Der scheinbar gute
+// EURUSD-Stand (H4+D1+Sicherung, +385) faellt out-of-sample durch
+// (Backtest 8, Fenster B PF 0,88) und generalisiert nicht auf GBPUSD/Gold
+// (Backtest 9). Dieser EA ist ein TEST-GERUEST, keine Handels-Empfehlung.
+// Details/Belege: KONTEXT.md + backtests.csv.
 
 #include <Trade\Trade.mqh>
 CTrade trade;

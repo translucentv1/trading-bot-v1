@@ -15,12 +15,16 @@ gesucht wird die Signal-Kante.
 ## Projektstruktur
 
 ```
-experts/        MQL5-Quelldateien (.mq5) – aktiv: ema_mtf_v3.mq5 (v3.50)
-tools/          Hilfsskripte (z. B. validate_backtests.py)
+experts/        MQL5-EAs (.mq5) – aktiv: ema_mtf_v3.mq5 (v3.50);
+                Kandidat: structure_swing_ea.mq5
+scripts/        Cointegration-Pre-Check (Script + EA-Variante) + Ergebnis
+tools/          validate_backtests.py, pool_backtests.py, checklist_new_strategy.md
 backtests.csv   Register ALLER Backtests (Kennzahlen, z-Score, Fazit)
-KONTEXT.md      Aktueller Stand + Chronik (Handoff Claude Code ↔ AI Studio)
+KONTEXT.md      Aktueller Stand + Chronik + Roadmap (Handoff-Datei)
 JOURNAL.md      Tagebuch mit Tageseinträgen
 EA_CODE.md      Kompletter EA-Code als Markdown (für AI-Studio-Handoff)
+AI_STUDIO_PROMPT.md  Prompt-Vorlage für AI Studio (Strategie-Rolle)
+docs/           REVIEW_VERBESSERUNG.md (AI-Studio-Review/Roadmap)
 CLAUDE.md       Projektregeln
 ```
 

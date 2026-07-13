@@ -36,8 +36,10 @@ Sicherheits-Problem bleibt Nutzer-Aufgabe.
 EA_CODE.md-Sync-Regel). ZCode nutzt fuer den kommenden Pair-Spread-EA
 das Claude-Code-Memory zum MT5-Workflow.
 
-**Offen:** P0 Token-Rotation (Nutzer). Naechstes Vorhaben: Pair-Spread-
-Mean-Reversion (neuer Modus) - ZCode legt zunaechst einen Plan vor.
+**Offen (Stand Vormittag, spaeter ueberholt):** P0 Token-Rotation (Nutzer).
+Naechstes Vorhaben war Pair-Spread-Mean-Reversion - wurde am selben Tag
+durch die Entscheidung ersetzt: ZUERST Cointegration-Pre-Check (Phase 1
+GATE), Pair-Trading erst nach positivem Ergebnis (siehe Nachmittag/Abend).
 
 **Nachmittag (AI-Studio-Review-Integration + Phase 1):**
 - Nutzer hat AI-Studio-Review (`docs/REVIEW_VERBESSERUNG.md`) reingeliefert:
@@ -57,6 +59,24 @@ Mean-Reversion (neuer Modus) - ZCode legt zunaechst einen Plan vor.
 - Strategie-Checkliste (10 Punkte, tools/checklist_new_strategy.md) aus
   AI-Studio-Review Anhang B abgelegt.
 - Compile-Log im Repo aufgeraeumt (kompiliert sauber).
+
+**Abend (Claude Code – Audit-Fixes + Phase-1-Ergebnis):**
+- GLM 5.2 war nicht ganz fertig; Nutzer lieferte einen externen Audit
+  (11 Inkonsistenzen). Abgearbeitet: S1 (2 Cointegration-Dateien = Script
+  vs EA, jetzt dokumentiert), S3 (irrefuehrende "EMPFOHLEN"-Kommentare im
+  EA raus -> "Test-Geruest, keine Empfehlung"), S5/S6 (JOURNAL/EA_CODE-
+  Datum), S2 (Rollen GLM-5=ZCode geklaert), S4 (Backtest<->id-Mapping),
+  S11 (id2/3 als Fruehphase markiert), Relevante-Dateien ergaenzt.
+- **FEHLENDE DATEN GEFUNDEN – Cointegration-Lauf durchgefuehrt** (EA-Variante,
+  1 Tester-Lauf, 15 Kombinationen). Dabei BUG gefixt: der Zaehler zaehlte
+  "NOT_COINTEGRATED" mit (Teilstring "COINTEGRATED"), Header sagte
+  faelschlich "15 cointegriert".
+- **Ergebnis: 2/15 cointegriert (1 %): EURUSD~GBPUSD (ADF -5,43),
+  AUDUSD~USDCAD (-3,70).** Bemerkenswert: Die AI-Studio-Annahme "EURUSD/
+  GBPUSD wahrscheinlich NICHT cointegriert" ist durch die Daten WIDERLEGT.
+- **Entscheidung/Offen:** Phase-1-GATE bestanden -> Phase 2 (Pair-Trading
+  auf den 2 Paaren) freigegeben, aber Claude Code WARTET auf Nutzer-
+  Bestaetigung, bevor `pair_trading_v1.mq5` gebaut wird.
 
 ---
 

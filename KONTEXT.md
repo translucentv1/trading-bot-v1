@@ -5,15 +5,37 @@ _Letzte Aktualisierung: 13.07.2026_
 MQL5 Expert Advisor fuer MetaTrader 5.
 Demo-Ziel: Forex Hedged EUR, 1.000 EUR Startkapital, Hebel 1:30.
 (Backtests bisher mit 10.000 USD / 1:33 gelaufen – Ziel-Setup fuer spaeter angleichen.)
-Repo (privat): https://github.com/translucentv1/trading-bot-v1
+Repo (privat): origin = github.com/translucentv1/trading-bot (nicht mehr -v1).
+
+## Mit-Arbeiter und Rollen (S2-Klaerung, 13.07.)
+- **Claude Code** = schreibt Code, Git, Dateien, faehrt Backtests per CLI
+  (voller Terminal-/Repo-Zugriff).
+- **GLM-5 / "ZCode"** = derselbe zweite Agent (Planung, Audits, Reviews,
+  ebenfalls Terminal-/Repo-Zugriff). "ZCode" ist ein Alt-Name fuer GLM-5.
+- **AI Studio** = reine Strategie-/Diskussions-Rolle, **KEIN** Repo-Zugriff
+  (bekommt Dateien eingefuegt, siehe AI_STUDIO_PROMPT.md).
+
+## Backtest N (Chronik) <-> CSV-id Mapping (S4-Klaerung)
+"Backtest N" in der Chronik ist NICHT die CSV-id! Zuordnung:
+BT1=id1 | BT2=id? (Fruehphase) | BT3=id1(v2.0) | ... | BT8=id23-26 (OOS) |
+BT9=id27-30 (GBPUSD/Gold) | BT10=id31-33 (VolFilter) | BT11=id34-35 (GBPUSD-VF) |
+BT12=id38-49 (Struktur-Swing-Korb) | BT13=id50-61 (ORB-Korb).
+Die frueheren BT4-7 (EURUSD 2025-2026, Zeitebenen) verteilen sich auf
+id4-16. Im Zweifel: Chronik-Text lesen, nicht die id raten.
 
 ## Aktueller Stand
-Phase 3. **61 Backtests, 6 Strategie-Familien - noch immer kein
-statistisch belegter, instrumentuebergreifender Edge.** Neuestes: der
-Opening-Range-Breakout (Session-Ausbruch, Backtest 13) verliert sogar
-statistisch SIGNIFIKANT (gepoolt Fenster B z=-2,61, PF 0,91, N=3224) -
-FX-Ausbrueche werden gefadet. Der Struktur-Swing-Ansatz (Backtest 12)
-war reines Rauschen. Frueheres bleibt gueltig:
+Phase 3 (Forschung). **PHASE-1-GATE BESTANDEN (13.07.):** Der
+Cointegration-Pre-Check ueber alle 15 Korb-Paare fand **2 cointegrierte
+Paare (1 %): EURUSD~GBPUSD (ADF -5,43) und AUDUSD~USDCAD (-3,70)**. Damit
+ist **Phase 2 (Pair-Trading) freigegeben** - es gibt erstmals einen
+statistisch fundierten Ansatzpunkt (Details unten: "Phase 1"). Warte auf
+Nutzer-Bestaetigung, bevor `pair_trading_v1.mq5` gebaut wird.
+Dabei 1 Bug gefixt (Cointegration-Zaehler zaehlte NOT_COINTEGRATED mit)
+und mehrere Audit-Inkonsistenzen bereinigt (S1/S3/S5/S6 u.a.).
+
+**Vorgeschichte (bleibt gueltig): 61 Backtests, 6 Strategie-Familien - kein
+statistisch belegter, instrumentuebergreifender Edge.** ORB verliert sogar
+signifikant (Backtest 13, z=-2,61); Struktur-Swing = Rauschen (Backtest 12);
 - Ein **strukturell anderer EA** (`structure_swing_ea.mq5`, Fractal-Swings
   + MTF-Trend, kein Indikator) gebaut UND mit der neuen **Pooling-Methodik**
   (Korb aus 6 Instrumenten, alle Trades gepoolt) getestet. Ergebnis:
@@ -353,12 +375,30 @@ sind wahrscheinlich NICHT cointegriert (Strukturbrueche Brexit, Gilt-Krise,
 BoE-vs-ECB-Divergenz). MT5 Calendar API wurde uebersehen (News-Filter
 funktioniert IM TESTER ohne externe Daten).
 
-### Phase 1 – Cointegration-Pre-Check (GATE fuer Phase 2!)
-**Script:** `scripts/cointegration_check.mq5` (Engle-Granger OLS + ADF).
-Kompiliert: 0 Errors, 0 Warnings. Look-Ahead-frei (Index ab 1).
-**Test:** Alle 15 Paar-Kombinationen aus dem 6er-Korb, H1, Lookback 2000.
-Abbruch: Kein Paar cointegriert -> Phase 2 UEBERSPRINGEN, direkt Phase 3.
-**Status:** Script fertig, muss im MT5 auf Chart-6er-Korb ausgefuehrt werden.
+### Phase 1 – Cointegration-Pre-Check (GATE fuer Phase 2) – ERGEBNIS DA (13.07.)
+Zwei Umsetzungen (S1 geklaert): `scripts/cointegration_check.mq5` = **Script**
+(manuell, 1 Paar, auf Chart ziehen); `scripts/cointegration_check_ea.mq5` =
+**EA** (laeuft im Tester via OnTester, rechnet ALLE 15 Kombinationen in
+EINEM Lauf, schreibt `cointegration_all.txt`). Beide Engle-Granger OLS+ADF,
+Look-Ahead-frei (Index ab 1). Fuer die Automatik wurde die EA-Variante
+genutzt. Bugfix 13.07.: Zaehler zaehlte "NOT_COINTEGRATED" mit (Teilstring).
+
+**Ergebnis (Symbol=EURUSD-Lauf, H1, Lookback 30000 ~4,3 J., 2022-2026):
+2 von 15 Paaren cointegriert (1 %):**
+| Paar | beta (Hedge) | ADF-t | Verdikt |
+|---|---|---|---|
+| **EURUSD~GBPUSD** | 0,9092 | **-5,43** | COINTEGRATED_1pct |
+| **AUDUSD~USDCAD** | -0,9924 | **-3,70** | COINTEGRATED_1pct |
+| USDJPY~USDCAD | 2,2915 | -2,86 | grenzwertig (nicht <5%) |
+| die restlichen 12 | – | -0,26 bis -2,29 | NOT_COINTEGRATED |
+(Krit. Werte MacKinnon: 1%=-3,43, 5%=-2,86, 10%=-2,57. Rohdaten:
+`scripts/cointegration_result.txt`.)
+
+**GATE-Entscheidung: cointegrierte Paare vorhanden -> Phase 2 ist
+freigegeben** (Pair-Trading auf EURUSD~GBPUSD und AUDUSD~USDCAD). Laut
+stehender Regel WARTET Claude Code aber auf Nutzer-Bestaetigung, bevor
+Phase 2 (pair_trading_v1.mq5) gebaut wird.
+**Status:** Phase 1 ABGESCHLOSSEN mit Ergebnis.
 
 ### Phase 2 – Pair-Trading-EA (nur wenn Phase 1 cointegrierte Paare liefert)
 Neuer EA `experts/pair_trading_v1.mq5` mit Multi-Symbol-Setup,
@@ -393,7 +433,9 @@ Haltedauer, manueller Discretion, oder Projekt als Lernprojekt abschliessen.
 | experts/ema_mtf_v3.mq5 | **AKTIVE EA-Datei** (v3.50: EMA-Kreuz + MTF-Bias, Long/Short, Gewinnsicherung, Mean-Reversion-Modus, Vol-Filter, ORB-Modus 2, OrderCalcProfit-Sizing, OnTester) |
 | experts/structure_swing_ea.mq5 | Kandidat-EA (Fractal-Swings + MTF-Trend, non-repaint); getestet Backtest 12, kein Edge |
 | experts/ema_9_21_crossover_long_v2.mq5 | alte v2.0 (nur Historie, nicht mehr aktiv) |
-| scripts/cointegration_check.mq5 | **Phase 1 GATE:** Engle-Granger OLS + ADF-Test (Look-Ahead-frei), kompiliert 0 errors |
+| scripts/cointegration_check.mq5 | **Phase 1 GATE (Script-Variante):** Engle-Granger OLS + ADF, EIN Paar, manuell auf Chart ziehen |
+| scripts/cointegration_check_ea.mq5 | **Phase 1 GATE (EA-Variante):** rechnet ALLE 15 Kombinationen in EINEM Tester-Lauf via OnTester (fuer die Automatik genutzt) |
+| scripts/cointegration_result.txt | Roh-Ergebnis des Cointegration-Laufs (13.07.): 2/15 Paare cointegriert |
 | EA_CODE.md | kompletter aktueller EA-Code als Markdown (Handoff ohne .mq5-Upload) |
 | docs/REVIEW_VERBESSERUNG.md | AI-Studio-Review: 7 Blindstellen + verbesserter Claude-Code-Prompt + 5 neue Ideen + Workflow mit Quality-Gates |
 | backtests.csv | Register aller Backtests (61 Eintraege, id;...;risk_realized_pct;z_score;fazit) |
