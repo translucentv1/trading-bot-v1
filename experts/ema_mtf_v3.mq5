@@ -1,5 +1,5 @@
 //+------------------------------------------------------------------+
-//| EMA 9/21 + Multi-Timeframe-Bias - v3.0 (Long & Short)           |
+//| EMA 9/21 + Multi-Timeframe-Bias - v3.50 (Long & Short)         |
 //|                                                                  |
 //| Idee (Market-Structure / Top-Down):                             |
 //|  - HOEHERE Zeitebene (Standard H4) gibt die RICHTUNG (Bias):    |
@@ -191,7 +191,7 @@ int OnInit()
    m_last_day          = tm.day_of_year;
    m_day_start_balance = AccountInfoDouble(ACCOUNT_BALANCE);
 
-   Print("EA v3.0 gestartet: EMA ", InpFastEMAPeriod, "/", InpSlowEMAPeriod,
+   Print("EA v3.50 gestartet: EMA ", InpFastEMAPeriod, "/", InpSlowEMAPeriod,
          " auf ", EnumToString(_Period),
          " | Bias-EMA ", InpBiasEMAPeriod, " auf ", EnumToString(InpBiasTF),
          " | Long ", (InpAllowLong ? "an" : "aus"),

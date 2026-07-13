@@ -7,6 +7,40 @@
 
 ---
 
+## 2026-07-13 (Tag 3) – Onboarding ZCode + Repo-Audit + Konsistenz-Fixes
+
+**Kurzfassung:** ZCode ist als dritter Mit-Arbeiter (neben Claude Code
+und AI Studio) eingestiegen. Erste Aktion: objektive Pruefung des
+gesamten Repos auf Probleme und Inkonsistenzen. Ergebnis: Daten und
+Tooling sind sauber, drei kleine Konsistenz-Fixes erledigt; ein
+Sicherheits-Problem bleibt Nutzer-Aufgabe.
+
+- **Audit durchgefuehrt:** `validate_backtests.py` -> "Keine
+  Abweichungen" (alle 61 Eintraege konsistent). `EA_CODE.md` exakt
+  synchron zur aktiven `.mq5` (675 Zeilen, gleicher Commit `a02b81a`).
+  Git-Historie sauber (17 Commits, aussagekraeftige Messages).
+- **P1-Fixes (nur Konsistenz, keine Logik):** EA-Versions-Stempel
+  (Header + OnInit-Print) von "v3.0" auf "v3.50" korrigiert, in `.mq5`
+  UND `EA_CODE.md`. README: "35+ Backtests" -> "61 ueber 6 Strategie-
+  Familien", aktive Version v3.41 -> v3.50.
+- **P0 Sicherheit (offen, Nutzer-Aufgabe):** Remote-URL enthaelt ein
+  eingebettetes GitHub-Token. ZCode/Claue nehmen keine Zugangsdaten
+  an und rotieren sie nicht -> Nutzer muss Token widerrufen und
+  Remote-URL bereinigen.
+- **P2 (kein Handlungsbedarf):** OnTester schreibt risk_realized_pct/
+  z_score nicht selbst (entstehen im Python-Skript). Spaetere
+  Automatisierung moeglich.
+
+**Entscheidungen:** An allen etablierten Workflows festgehalten
+(KONTEXT.md als Handoff, JOURNAL.md als Zeitleiste, Backtest-Pflicht,
+EA_CODE.md-Sync-Regel). ZCode nutzt fuer den kommenden Pair-Spread-EA
+das Claude-Code-Memory zum MT5-Workflow.
+
+**Offen:** P0 Token-Rotation (Nutzer). Naechstes Vorhaben: Pair-Spread-
+Mean-Reversion (neuer Modus) - ZCode legt zunaechst einen Plan vor.
+
+---
+
 ## 2026-07-12 (Tag 2) – Der grosse Test-Tag: von "+141!" zu "kein belegbarer Edge"
 
 **Kurzfassung:** 35 Backtests, 4 EA-Generationen, 2 harte Wahrheiten:

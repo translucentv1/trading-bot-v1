@@ -6,15 +6,16 @@ handelt. Er wird im **Strategy Tester** gebacktestet; ein Demo-Einsatz
 Zielkonto: Forex, Hedged, EUR, 1.000 EUR Startkapital, Hebel 1:30.
 
 **Ehrlicher Projektstand:** Wir sind in einer *Forschungsphase*. Nach
-35+ dokumentierten Backtests hat noch **keine** getestete Signal-Idee
-einen instrumentübergreifend robusten, statistisch belastbaren Vorteil
-gezeigt (Details: `backtests.csv`, `KONTEXT.md`). Der EA selbst ist ein
-solides, generisches Test-Gerüst – gesucht wird die Signal-Kante.
+61 dokumentierten Backtests über 6 Strategie-Familien hat noch **keine**
+getestete Signal-Idee einen instrumentübergreifend robusten,
+statistisch belastbaren Vorteil gezeigt (Details: `backtests.csv`,
+`KONTEXT.md`). Der EA selbst ist ein solides, generisches Test-Gerüst –
+gesucht wird die Signal-Kante.
 
 ## Projektstruktur
 
 ```
-experts/        MQL5-Quelldateien (.mq5) – aktiv: ema_mtf_v3.mq5 (v3.41)
+experts/        MQL5-Quelldateien (.mq5) – aktiv: ema_mtf_v3.mq5 (v3.50)
 tools/          Hilfsskripte (z. B. validate_backtests.py)
 backtests.csv   Register ALLER Backtests (Kennzahlen, z-Score, Fazit)
 KONTEXT.md      Aktueller Stand + Chronik (Handoff Claude Code ↔ AI Studio)

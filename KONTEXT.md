@@ -1,5 +1,5 @@
 # KONTEXT – Handoff zwischen Claude Code und AI Studio
-_Letzte Aktualisierung: 12.07.2026_
+_Letzte Aktualisierung: 13.07.2026_
 
 ## Projekt
 MQL5 Expert Advisor fuer MetaTrader 5.
@@ -28,6 +28,28 @@ war reines Rauschen. Frueheres bleibt gueltig:
   Gewinnerwartung. Jede kuenftige Idee wird gepoolt ueber den Korb geprueft
   (Ziel gepoolt |z|>2, PF>1 in BEIDEN Fenstern). Die EMA9/21- wie die
   Swing-Struktur-Idee sind damit sauber ausgeschieden.
+
+## Letzte Aktion (13.07. – Audit + P1-Konsistenz-Fixes)
+ZCode (dritter Mit-Arbeiter) hat das Repo einer objektiven Pruefung
+unterzogen, um von einem sauberen, konsistenten Stand weiterzuarbeiten:
+- **Validierung:** `tools/validate_backtests.py` -> "Keine Abweichungen"
+  (alle 61 Zeilen intern konsistent). `EA_CODE.md`-Codeblock = exakt
+  die aktive `.mq5` (675 = 675 Zeilen, gleicher Commit).
+- **P1-Fixes umgesetzt** (nur Kosmetik/Konsistenz, keine Logikaenderung):
+  (a) Versions-Stempel im EA korrigiert - Datei-Header und OnInit-Print
+  sagten noch "v3.0", `#property version` steht aber auf 3.50. Beide
+  auf v3.50 gesetzt (inkl. EA_CODE.md).
+  (b) README veraltet: "35+ Backtests" -> "61 Backtests ueber 6
+  Strategie-Familien"; aktive Version v3.41 -> v3.50.
+- **P0 Sicherheit (Nutzer-Aufgabe, NICHT von ZCode/Claude gemacht):**
+  Die Remote-URL enthaelt ein eingebettetes GitHub-Token
+  (`https://<token>@github.com/...`). Empfehlung: Token widerrufen,
+  Remote-URL ohne Credentials setzen, `credential.helper` nutzen.
+- **P2 Beobachtung (kein Handlungsbedarf):** `OnTester()` schreibt
+  risk_realized_pct/z_score nicht selbst; entstehen im Python-Skript
+  (dokumentiert, funktioniert). Automatisierung spaeter moeglich.
+- **Protokollierung-Pflicht erfuellt:** dieser Abschnitt + JOURNAL-
+  Eintrag (13.07.) + Backtest-Register bleibt aktuell.
 
 ## Letzte Aktion (12.07. spaet – Struktur-EA + Pooling)
 Zwei Prompts umgesetzt (Strategen-Diagnose + YouTuber-EA-Spec):
