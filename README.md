@@ -6,17 +6,20 @@ handelt. Er wird im **Strategy Tester** gebacktestet; ein Demo-Einsatz
 Zielkonto: Forex, Hedged, EUR, 1.000 EUR Startkapital, Hebel 1:30.
 
 **Ehrlicher Projektstand:** Wir sind in einer *Forschungsphase*. Nach
-61 dokumentierten Backtests über 6 Strategie-Familien hat noch **keine**
+73 dokumentierten Backtests über 7 Strategie-Familien hat noch **keine**
 getestete Signal-Idee einen instrumentübergreifend robusten,
 statistisch belastbaren Vorteil gezeigt (Details: `backtests.csv`,
-`KONTEXT.md`). Der EA selbst ist ein solides, generisches Test-Gerüst –
-gesucht wird die Signal-Kante.
+`KONTEXT.md`). Zuletzt fiel auch ein Cointegration-Pair-Trading-Ansatz
+out-of-sample durch (Backtest 14): im Sample teils profitabel, aber in
+2024–2026 bei jeder Einstellung negativ. Der EA selbst ist ein solides,
+generisches Test-Gerüst – gesucht wird die Signal-Kante.
 
 ## Projektstruktur
 
 ```
 experts/        MQL5-EAs (.mq5) – aktiv: ema_mtf_v3.mq5 (v3.50);
-                Kandidat: structure_swing_ea.mq5
+                Kandidaten: structure_swing_ea.mq5, pair_trading_v1.mq5
+                (beide getestet, kein robuster Edge)
 scripts/        Cointegration-Pre-Check (Script + EA-Variante) + Ergebnis
 tools/          validate_backtests.py, pool_backtests.py, checklist_new_strategy.md
 backtests.csv   Register ALLER Backtests (Kennzahlen, z-Score, Fazit)

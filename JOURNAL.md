@@ -78,6 +78,29 @@ GATE), Pair-Trading erst nach positivem Ergebnis (siehe Nachmittag/Abend).
   auf den 2 Paaren) freigegeben, aber Claude Code WARTET auf Nutzer-
   Bestaetigung, bevor `pair_trading_v1.mq5` gebaut wird.
 
+**Abend spaet (Claude Code – Phase 2 gebaut und getestet, Nutzer: "fuehre fort"):**
+- **`experts/pair_trading_v1.mq5` gebaut** (0 Errors): Multi-Symbol Log-
+  Spread-Mean-Reversion. Rollierende Hedge-Ratio (500 Bars, Look-Ahead-frei),
+  Spread-z-Score (100 Bars), Einstieg |z|>=ZEntry, Ausstieg z->0 / Hard-Stop
+  |z|>3,5 / Time-Stop 200 Bars. Kosten-Check (Erwartung > 2x Round-Turn),
+  risikoneutrale Lots (0,5 %/Bein via OrderCalcProfit). OnTester schreibt die
+  Basis-Kennzahlen (pool-kompatibel) + Pair-Spalten (hedge_ratio,
+  avg_z_at_entry, avg_hold_bars, round_turn_cost_eur). Deutlich dokumentiert:
+  MT5-Tester degradiert das Sekundaersymbol -> Ergebnisse sind obere Schranke.
+- **12 Backtests (id 62-73):** 2 Paare x Fenster A/B x ZEntry {1,5;2,0;2,5},
+  je Fenster gepoolt. **Ergebnis: durchgefallen.** Fenster A (in-sample) mal
+  positiv (bis PF 1,24 / z 3,01 bei z2.5), Fenster B (out-of-sample) bei
+  JEDEM ZEntry negativ (PF 0,94-0,95, z negativ).
+- **Drei Lektionen:** (A) Cointegrationsstaerke sagt Handelbarkeit nicht
+  voraus - das *staerker* cointegrierte EURUSD~GBPUSD war der *schlechtere*
+  Trader (verliert in allen 6 Konfigs). (B) Klassischer In-/Out-of-Sample-
+  Bruch bei AUDUSD~USDCAD. (C) Kosten waren NICHT der Killer (~10-12 % vom
+  Gewinner) - es fehlt schlicht das OOS-Signal.
+- **Entscheidung:** Pair-Trading als Edge verworfen. EA bleibt als sauberes
+  Multi-Symbol-Test-Geruest. Naechster Ansatz: Phase 3 (Erweiterungen des
+  Haupt-EAs, MT5-Calendar-News-Filter als HIGH-Prio). Jetzt 73 Backtests
+  ueber 7 Strategie-Familien, weiterhin kein robuster Edge.
+
 ---
 
 ## 2026-07-12 (Tag 2) – Der grosse Test-Tag: von "+141!" zu "kein belegbarer Edge"

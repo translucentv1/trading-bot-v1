@@ -24,18 +24,28 @@ Die frueheren BT4-7 (EURUSD 2025-2026, Zeitebenen) verteilen sich auf
 id4-16. Im Zweifel: Chronik-Text lesen, nicht die id raten.
 
 ## Aktueller Stand
-Phase 3 (Forschung). **PHASE-1-GATE BESTANDEN (13.07.):** Der
-Cointegration-Pre-Check ueber alle 15 Korb-Paare fand **2 cointegrierte
-Paare (1 %): EURUSD~GBPUSD (ADF -5,43) und AUDUSD~USDCAD (-3,70)**. Damit
-ist **Phase 2 (Pair-Trading) freigegeben** - es gibt erstmals einen
-statistisch fundierten Ansatzpunkt (Details unten: "Phase 1"). Warte auf
-Nutzer-Bestaetigung, bevor `pair_trading_v1.mq5` gebaut wird.
+Phase 3 (Forschung). **PHASE 2 (PAIR-TRADING) GEBAUT UND DURCHGEFALLEN
+(13.07.):** `experts/pair_trading_v1.mq5` gebaut (Multi-Symbol, rollierende
+Hedge-Ratio, Spread-z-Score, Kosten-Check, risikoneutrale Lots) und ueber
+die 2 cointegrierten Paare x 2 Fenster x 3 ZEntry (12 Laeufe, id 62-73)
+getestet. **Erfolgskriterium (gepoolt |z|>2 UND PF>1 in BEIDEN Fenstern)
+NICHT erfuellt:** Fenster B (out-of-sample, 2024-2026) ist bei jedem ZEntry
+negativ (PF 0,94-0,95). Das einzige |z|>2 (Fenster A, z2.5) traegt allein
+AUDUSD~USDCAD - EURUSD~GBPUSD (das *staerker* cointegrierte Paar!) verliert
+in JEDER Konfig. Und das ist die **obere Schranke** (Tester degradiert das
+Sekundaersymbol -> real schlechter). Details unten: "Backtest 14".
+
+**PHASE-1-GATE war bestanden (13.07.):** Cointegration-Pre-Check fand 2
+cointegrierte Paare (EURUSD~GBPUSD ADF -5,43, AUDUSD~USDCAD -3,70). Das
+Gate war statistisch korrekt - aber Cointegration im Sample != handelbarer
+OOS-Edge nach Kosten (die zentrale Lektion aus Backtest 14).
 Dabei 1 Bug gefixt (Cointegration-Zaehler zaehlte NOT_COINTEGRATED mit)
 und mehrere Audit-Inkonsistenzen bereinigt (S1/S3/S5/S6 u.a.).
 
-**Vorgeschichte (bleibt gueltig): 61 Backtests, 6 Strategie-Familien - kein
-statistisch belegter, instrumentuebergreifender Edge.** ORB verliert sogar
-signifikant (Backtest 13, z=-2,61); Struktur-Swing = Rauschen (Backtest 12);
+**Vorgeschichte (bleibt gueltig): 73 Backtests, 7 Strategie-Familien - kein
+statistisch belegter, instrumentuebergreifend robuster Edge.** Pair-Trading
+(Backtest 14) faellt OOS durch; ORB verliert signifikant (Backtest 13,
+z=-2,61); Struktur-Swing = Rauschen (Backtest 12);
 - Ein **strukturell anderer EA** (`structure_swing_ea.mq5`, Fractal-Swings
   + MTF-Trend, kein Indikator) gebaut UND mit der neuen **Pooling-Methodik**
   (Korb aus 6 Instrumenten, alle Trades gepoolt) getestet. Ergebnis:
@@ -355,6 +365,41 @@ unveraendert. Isolierte Aenderung. Getestet ueber den 6er-Korb, Fenster A/B
 - Vorab-Check (Traderate): mit ~450-580 Trades/Symbol/Fenster war die
   Stichprobe mehr als ausreichend - die Aussage ist belastbar.
 
+### Backtest 14 – Pair-Trading (Cointegration Phase 2) (13.07.2026) – OOS DURCHGEFALLEN
+Neuer EA `experts/pair_trading_v1.mq5`: handelt den Log-Spread zweier
+cointegrierter Symbole (Mean-Reversion auf z-Score). Rollierende Hedge-Ratio
+(500 Bars, Look-Ahead-frei ab Index 1), Spread-Statistik ueber 100 Bars,
+Einstieg bei |z|>=ZEntry, Ausstieg bei z->0 / Hard-Stop |z|>3,5 / Time-Stop
+200 Bars, Kosten-Check (Erwartung > 2x Round-Turn), risikoneutrale Lots je
+Bein 0,5 % via OrderCalcProfit. H1, Model "1 Min OHLC". Getestet ueber die
+2 cointegrierten Paare x Fenster A/B x ZEntry {1,5; 2,0; 2,5} (id 62-73),
+je Fenster gepoolt:
+| ZEntry | Fenster A (in-sample) | Fenster B (out-of-sample) |
+|---|---|---|
+| 1,5 | PF 1,02  z=0,42 | PF 0,94  z=-1,45 |
+| 2,0 | PF 1,07  z=1,19 | PF 0,95  z=-1,19 |
+| 2,5 | PF 1,24  **z=3,01** | PF 0,94  z=-1,01 |
+- **Kein robuster Edge.** Erfolgskriterium (gepoolt |z|>2 UND PF>1 in BEIDEN
+  Fenstern) verfehlt: Fenster B ist bei jedem ZEntry negativ. Abbruch-
+  Kriterium (Fenster-PF<0,95 ODER |z|<1,0) in Fenster B durchgehend erfuellt.
+- **Lektion A - Cointegrationsstaerke sagt Handelbarkeit NICHT voraus:**
+  EURUSD~GBPUSD war *staerker* cointegriert (ADF -5,43 vs -3,70), aber der
+  *schlechtere* Trader (verliert in ALLEN 6 Konfigs, PF 0,91-0,97).
+  AUDUSD~USDCAD trug das gesamte positive Signal - aber nur in-sample.
+- **Lektion B - klassischer In-/Out-of-Sample-Bruch:** AUDUSD~USDCAD steigt
+  in Fenster A mit ZEntry (PF 1,09->1,19->1,54), bricht in Fenster B aber
+  immer ein (PF 0,94/0,92/0,99). Die rollierende Hedge-Ratio schwankt stark
+  (EG 0,65 vs 1,56; AC -1,37) -> die Beziehung ist instabil, was gegen
+  verlaesslich handelbare Cointegration spricht.
+- **Lektion C - Kosten waren NICHT der Killer:** Round-Turn 2-9 EUR vs
+  avg_win 29-125 EUR (~10-12 %, Kriterium <50 % erfuellt). Der Ansatz
+  scheitert am fehlenden OOS-Signal, nicht an Reibung.
+- **Caveat (verschaerft das Urteil):** MT5-Tester laedt volle Ticks nur fuers
+  Chart-Symbol; das zweite Bein ist grob aufgeloest -> diese Zahlen sind
+  eine OBERE SCHRANKE. Real waere es schlechter.
+- Fazit: Pair-Trading auf diesen Paaren ist als Edge verworfen. Der EA
+  bleibt als sauberes Multi-Symbol-Test-Geruest im Repo.
+
 ## EA v2.0 – Was ist neu
 1. **Marktstruktur-Stop:** SL unter das letzte Swing-Tief (Tief der
    letzten InpSwingLookback Kerzen) minus ATR-Puffer. Stop richtet sich
@@ -400,10 +445,11 @@ stehender Regel WARTET Claude Code aber auf Nutzer-Bestaetigung, bevor
 Phase 2 (pair_trading_v1.mq5) gebaut wird.
 **Status:** Phase 1 ABGESCHLOSSEN mit Ergebnis.
 
-### Phase 2 – Pair-Trading-EA (nur wenn Phase 1 cointegrierte Paare liefert)
-Neuer EA `experts/pair_trading_v1.mq5` mit Multi-Symbol-Setup,
-Hedge-Ratio, Z-Score-Einstieg, Kosten-Check, identischem OnTester-Format.
-Detaillierter Prompt in docs/REVIEW_VERBESSERUNG.md (Teil 2).
+### Phase 2 – Pair-Trading-EA – ABGESCHLOSSEN, DURCHGEFALLEN (13.07.)
+`experts/pair_trading_v1.mq5` gebaut (Multi-Symbol, rollierende Hedge-Ratio,
+z-Score-Einstieg, Kosten-Check, risikoneutrale Lots, OnTester mit Pair-
+Spalten). 12 Laeufe (id 62-73). Kein OOS-robuster Edge -> verworfen (Details
+Backtest 14 oben). Naechster Ansatz: Phase 3 (Erweiterungen Haupt-EA).
 
 ### Phase 3 – Erweiterungen des Haupt-EAs (parallel zu Phase 2 planbar)
 Jede als separater Toggle, isoliert testen, 6er-Korb, Fenster A/B:
@@ -431,6 +477,7 @@ Haltedauer, manueller Discretion, oder Projekt als Lernprojekt abschliessen.
 | Datei | Inhalt |
 |---|---|
 | experts/ema_mtf_v3.mq5 | **AKTIVE EA-Datei** (v3.50: EMA-Kreuz + MTF-Bias, Long/Short, Gewinnsicherung, Mean-Reversion-Modus, Vol-Filter, ORB-Modus 2, OrderCalcProfit-Sizing, OnTester) |
+| experts/pair_trading_v1.mq5 | **Phase-2-EA (Pair-Trading):** Multi-Symbol Log-Spread-Mean-Reversion, rollierende Hedge-Ratio, z-Score, Kosten-Check, risikoneutrale Lots, OnTester mit Pair-Spalten; getestet Backtest 14, OOS durchgefallen |
 | experts/structure_swing_ea.mq5 | Kandidat-EA (Fractal-Swings + MTF-Trend, non-repaint); getestet Backtest 12, kein Edge |
 | experts/ema_9_21_crossover_long_v2.mq5 | alte v2.0 (nur Historie, nicht mehr aktiv) |
 | scripts/cointegration_check.mq5 | **Phase 1 GATE (Script-Variante):** Engle-Granger OLS + ADF, EIN Paar, manuell auf Chart ziehen |
@@ -438,7 +485,7 @@ Haltedauer, manueller Discretion, oder Projekt als Lernprojekt abschliessen.
 | scripts/cointegration_result.txt | Roh-Ergebnis des Cointegration-Laufs (13.07.): 2/15 Paare cointegriert |
 | EA_CODE.md | kompletter aktueller EA-Code als Markdown (Handoff ohne .mq5-Upload) |
 | docs/REVIEW_VERBESSERUNG.md | AI-Studio-Review: 7 Blindstellen + verbesserter Claude-Code-Prompt + 5 neue Ideen + Workflow mit Quality-Gates |
-| backtests.csv | Register aller Backtests (61 Eintraege, id;...;risk_realized_pct;z_score;fazit) |
+| backtests.csv | Register aller Backtests (73 Eintraege, id;...;risk_realized_pct;z_score;fazit) |
 | JOURNAL.md | Tagebuch mit Tageseintraegen (Zeitleiste des Projekts) |
 | tools/validate_backtests.py | objektive Nachrechnung/Validierung von backtests.csv |
 | tools/pool_backtests.py | poolt Korb-Ergebnisse je Fenster, rechnet gepoolten z-Wert (Aufruf: prefix + verzeichnis) |
