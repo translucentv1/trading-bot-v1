@@ -7,6 +7,33 @@
 
 ---
 
+## 2026-07-13 (Tag 3, Sitzung 6) – Data-Snooping-Audit: z>2-Befund widerlegt
+
+**Kurzfassung:** Der "erstmals z=2.46"-Stock-MR-Befund aus Sitzung 5 wurde
+kritisch geprueft — und faellt. Er entstand, weil die 2 schlechtesten Symbole
+(AMZN, AIG) NACH Sichtung der Ergebnisse aus dem Pool gestrichen wurden
+(Selection Bias). Auf dem sauberen 10er-Pool bleibt kein robuster Edge.
+
+- **Audit:** JOURNAL Sitzung 5 belegt selbst, dass AMZN/AIG als "konsistente
+  Loser" identifiziert und dann entfernt wurden = performance-abhaengige,
+  nachtraegliche Pool-Reduktion.
+- **Re-Poolen (Methode wie tools/pool_backtests.py, kein neuer Tester-Lauf):**
+  RSI<5 sauber 10 Sym: A z=-0.42, **B z=+1.47 (nicht mehr signifikant)**,
+  Gesamt z=0.85. RSI<10 sauber 10 Sym: A z=-1.33, B z=+2.54, Gesamt z=1.14.
+  Kein |z|>2 in beiden Fenstern.
+- **Selection-Bias-Beweis:** Ueber alle 45 Streich-Paare ist der gewaehlte Drop
+  (AMZN+AIG) das z-Maximum in Fenster B (3.55 vs. voller Pool 1.47). Man hat
+  exakt die guenstigste Kombination gewaehlt.
+- **Fenster-Diskrepanz:** Nur Bull-Fenster B positiv; A durchgehend negativ.
+  Wahrscheinlich Long-Beta, kein Timing-Edge (ohne Buy&Hold-Benchmark nicht
+  trennbar).
+- **Entschieden:** Kein Demo-Paper mit Gewinnerwartung. Vorschlag dokumentiert
+  (KONTEXT "Entscheidungsvorschlag nach Backtest 19"): Weg A = ein
+  Kontroll-Experiment Signal-vs-Beta, oder Weg B = Lernprojekt-Abschluss.
+- **Offen (Nutzer entscheidet):** Weg A oder Weg B.
+
+---
+
 ## 2026-07-13 (Tag 3, Sitzung 5) – Domain-Pivot: US-Aktien Mean-Reversion
 
 **Kurzfassung:** Nach 121 erfolglosen FX-Backtests: Pivot auf Nasdaq-Aktien.

@@ -1,5 +1,5 @@
 # KONTEXT – Handoff zwischen Claude Code und AI Studio
-_Letzte Aktualisierung: 13.07.2026_
+_Letzte Aktualisierung: 13.07.2026 (Data-Snooping-Audit Stock-MR)_
 
 ## Projekt
 MQL5 Expert Advisor fuer MetaTrader 5.
@@ -29,21 +29,32 @@ Nach 121 FX/Gold-Backtests ohne robusten Edge -> Pivot auf Nasdaq-Aktien.
 MetaQuotes-Demo bietet ~984 Nasdaq-Symbole (alle A-Anfang) + 15 FX + 1 Index
 (AUS200). Historiedaten VERFUEGBAR und im Tester funktional bestaetigt.
 
-**Stock Mean-Reversion EA (`stock_mr_v1.mq5`) gebaut und getestet (Backtest 17+18):**
+**Stock Mean-Reversion EA (`stock_mr_v1.mq5`) getestet (Backtest 17+18) –
+z>2-Befund durch Data-Snooping-Audit (Backtest 19) WIDERLEGT:**
 - Strategie: RSI(2) Oversold-Bounce, Long-Only, SMA(200)-Trend-Filter, ATR-Stop.
 - Getestet auf 10 liquide US-Aktien (AAPL, AMD, AMZN, AVGO, ADBE, ABNB, AXP,
   ABT, AIG, AEP) ueber 2 Fenster (A: 2022-2023, B: 2024-2026).
-- **RSI Entry < 10 (Backtest 17):** Pool 10 Sym: z=-0.42/A, z=2.74/B. B erstmals
-  signifikant! A negativ (Baerenmarkt 2022). Gesamt z=1.18.
-- **RSI Entry < 5 (Backtest 18, selektiver):** Pool 8 Sym (ohne AMZN+AIG): 
-  z=-0.18/A, **z=3.53/B**, **Gesamt z=2.46** (ERSTMALS > 2!).
-  Pool 4 Top-Performer: z=0.21/A, z=2.65/B, Gesamt z=2.13, beide Fenster positiv.
+- **Der urspruengliche "z=2.46"-Befund entstand durch nachtraegliches Streichen
+  der 2 schlechtesten Symbole (AMZN, AIG) NACH Sichtung der Ergebnisse.** Das
+  ist Selection Bias. Auf dem sauberen, a-priori 10er-Pool (kein Streichen)
+  bleibt KEIN robuster Edge:
+  | Konfig | Fenster A (z / PF) | Fenster B (z / PF) | Gesamt |
+  |---|---|---|---|
+  | RSI<5, 10 Sym (sauber) | -0.42 / 0.90 | **+1.47 / 1.35** (n.s.) | z=0.85 |
+  | RSI<5, 8 Sym (gesnoopt) | -0.18 / 0.95 | +3.55 / 2.18 | z=2.47 |
+  | RSI<10, 10 Sym (sauber) | -1.33 / 0.76 | +2.54 / 1.44 | z=1.14 |
+- **Beweis Selection Bias:** Der gewaehlte 8er-Pool (streiche AMZN+AIG) liefert
+  in Fenster B z=3.55 = das MAXIMUM aller 45 moeglichen Streich-Paare. Es wurde
+  exakt die Kombination gewaehlt, die z maximiert.
+- **Kein Erfolgskriterium erfuellt:** |z|>2 in BEIDEN Fenstern wird von keiner
+  Konfig erreicht. Fenster A ist ueber ALLE 45 Teilpools negativ (kein
+  Streich-Artefakt -> im Baeren-/Seitwaerts-Regime kein Edge). Fenster B ist
+  positiv, aber (a) fuer RSI<5 nicht signifikant (z=1.47) und (b) mit
+  Long-Beta konfundiert (Long-only + SMA200-Filter = "im Bullenmarkt long").
 - **AUS200 (Index-CFD):** kein Edge (PF 0.06-0.51).
-- **Bewertung:** Regime-bedingte Strategie (starker Bull-Edge, neutral im Crash).
-  Gesamt-z > 2 ist ein erster statistisch signifikanter positiver Befund.
-  Kein allwetter-Edge, aber defensibel als "Buy-the-Dip im Aufwaertstrend".
-  
-Stand: **163 Backtests, 10 Strategie-Familien. Erster z>2-Befund (bedingt).**
+
+Stand: **163 Backtests, 10 Strategie-Familien. Weiterhin KEIN robuster,
+regime-unabhaengiger Edge (z>2-Befund war Selektions-Artefakt).**
 
 **PHASE 2 (PAIR-TRADING) GEBAUT UND DURCHGEFALLEN
 (13.07.):** `experts/pair_trading_v1.mq5` gebaut (Multi-Symbol, rollierende
@@ -82,6 +93,38 @@ verliert signifikant (Backtest 13, z=-2,61); Struktur-Swing = Rauschen
   Gewinnerwartung. Jede kuenftige Idee wird gepoolt ueber den Korb geprueft
   (Ziel gepoolt |z|>2, PF>1 in BEIDEN Fenstern). Die EMA9/21- wie die
   Swing-Struktur-Idee sind damit sauber ausgeschieden.
+
+## Letzte Aktion (13.07. – Data-Snooping-Audit Stock-MR, Backtest 19)
+Auftrag: den "erstmals z>2"-Befund (Stock-MR) auf Selection Bias pruefen,
+BEVOR irgendein Demo-Schritt erwogen wird. Ergebnis: **Der Befund haelt nicht.**
+- **1) Audit (wie wurden die 8 Symbole gewaehlt?):** Nachweislich NACHTRAEGLICH
+  und performance-abhaengig. JOURNAL-Zitat vom selben Tag: "Konsistente Loser:
+  AMZN (immer PF<0.7), AIG (beide Fenster negativ)" -> genau diese 2 wurden aus
+  dem 10er-Pool entfernt. Kein a-priori-Kriterium. = Data Snooping.
+- **2) Sauberes Kriterium (vorab festgelegt):** Pool = ALLE a-priori getesteten
+  10 Symbole, ohne performance-basiertes Streichen. (10 > die gesnoopten 8, also
+  zugleich der groessere Pool.) Kriterium fuer kuenftige Erweiterung dokumentiert
+  in checklist_new_strategy.md-Sinne: liquideste N A-Ticker nach Stichtags-Volumen,
+  VOR dem Test fixiert.
+- **3) Re-Test (Neu-Poolen der vorhandenen Laeufe id 122-161, Methode identisch
+  zu tools/pool_backtests.py, kein neuer Tester-Lauf noetig):** siehe Tabelle in
+  "Aktueller Stand" und Backtest 19. Kein |z|>2 in beiden Fenstern.
+- **4) Mehrfachtest:** 163 Backtests / 10 Familien; allein in DIESER Familie 45
+  8er-Teilpools x 2 Varianten x 2 Fenster. Ein einzelnes |z|>2 ist unter so vielen
+  Versuchen zu erwarten. 9/45 (RSI<5) bzw. 29/45 (RSI<10) der 8er-Pools "erreichen"
+  z>2 in Fenster B allein durchs Weglassen -> das ist Rauschen im Selektionsspielraum.
+- **5) Fenster-Diskrepanz:** Signifikanz nur in Bull-Fenster B, Fenster A
+  durchgehend negativ. Wahrscheinlichste Erklaerung: Long-Beta, nicht ein echter
+  Mean-Reversion-Timing-Edge (nicht sauber trennbar ohne Buy&Hold-Benchmark).
+  Spricht eher GEGEN robusten Edge als fuer eine saubere Regimeabhaengigkeit.
+- **6) Kosten:** MetaQuotes-Demo-Aktien-CFDs modellieren vermutlich keine
+  realistische Kommission (~0,005 USD/Aktie) -> der gemessene Edge/Trade von nur
+  ~6-7 EUR ist gegen realistische Reibung duenn. Verifikation offen, aber nicht
+  entscheidungsrelevant (Ablehnung steht schon aus 1-5).
+- **7/8) Konsequenz:** KEIN Demo-Paper mit Gewinnerwartung. Vorschlag: entweder
+  EIN entscheidendes Kontroll-Experiment (Signal vs. Buy&Hold-/Zufalls-Beta auf
+  denselben Symbolen/Fenstern), um zu klaeren ob ueberhaupt Timing-Edge existiert,
+  ODER Projekt als dokumentiertes Lernprojekt abschliessen. Details unten.
 
 ## Letzte Aktion (13.07. – Domain-Pivot + Stock MR)
 - **Symbol-Finder gebaut:** `experts/symbol_finder.mq5` + `scripts/add_symbols.mq5`.
@@ -486,6 +529,44 @@ Symbol -> keine Tester-Degradation). Zwei Varianten (id 98-121):
   (N 34-57) begrenzt die z-Power. PF-Urteil bleibt aber eindeutig.
 - Carry verworfen. EA bleibt als Test-Geruest im Repo.
 
+### Backtest 19 – Data-Snooping-Audit Stock-MR (13.07.2026) – z>2-BEFUND WIDERLEGT
+Kein neuer Tester-Lauf, sondern eine objektive Nach-Analyse der vorhandenen
+Stock-MR-Laeufe (id 122-161), weil der "erstmals z=2.46"-Befund auf einem
+NACHTRAEGLICH auf 8 Symbole reduzierten Pool beruhte. Geprueft mit derselben
+2-Punkt-Pooling-Methode wie tools/pool_backtests.py.
+
+**Kernbefund: Der Edge ist ein Selektions-Artefakt.**
+| Konfig | Fenster A (z / PF) | Fenster B (z / PF) | Gesamt A+B |
+|---|---|---|---|
+| RSI<5, **10 Sym (sauber, a-priori)** | -0.42 / 0.90 | **+1.47 / 1.35** | +0.85 |
+| RSI<5, 8 Sym (ohne AMZN+AIG, gesnoopt) | -0.18 / 0.95 | +3.55 / 2.18 | +2.47 |
+| RSI<10, **10 Sym (sauber)** | -1.33 / 0.76 | +2.54 / 1.44 | +1.14 |
+
+- **Selection-Bias-Nachweis (Sensitivitaet ueber alle C(10,8)=45 Streich-Paare):**
+  Fuer RSI<5 Fenster B ist der gewaehlte Drop (AMZN+AIG) mit z=3.55 das
+  MAXIMUM der Verteilung (voller Pool z=1.47, Median der 45 Pools z=1.12).
+  Man hat exakt die z-maximierende Kombination gewaehlt. 9/45 der 8er-Pools
+  "schaffen" z>2 rein durchs Weglassen -> reines Selektionsrauschen.
+- **Erfolgskriterium (|z|>2 in BEIDEN Fenstern) verfehlt.** Fenster A ist ueber
+  ALLE 45 Teilpools negativ -> kein Streich-Artefakt, sondern echtes Fehlen
+  eines Edges im Baeren-/Seitwaerts-Regime 2022-2023.
+- **Fenster B (Bull) ist positiv, aber:** (a) fuer RSI<5 nicht signifikant
+  (z=1.47), (b) mit Long-Beta konfundiert. Long-only + SMA200-Filter heisst
+  "im Aufwaertstrend long kaufen" - in einem Bullenmarkt (B) verdient man damit
+  auch ohne echten Timing-Edge. Ohne Buy&Hold-/Zufalls-Benchmark auf denselben
+  Symbolen ist NICHT belegt, dass das RSI(2)-Timing etwas ueber das blosse
+  Long-Sein hinaus beitraegt.
+- **Mehrfachtest-Einordnung:** Bei 163 Backtests / 10 Familien und 45x2x2
+  Auswertungsfreiheitsgraden allein hier ist ein einzelnes |z|>2 zu erwarten.
+  Der Befund ist damit KEIN Beleg fuer einen Edge.
+- **Kosten (Caveat, nicht entscheidungsrelevant):** Der gemessene Edge/Trade
+  betraegt im besten sauberen Fall nur ~6-7 EUR (RSI<5 B: E=+6.39). Realistische
+  Aktien-Reibung (Kommission ~0,005 USD/Aktie + Spread/Slippage), die die
+  MetaQuotes-Demo als Stock-CFD vermutlich nicht voll abbildet, wuerde diese
+  duenne, ohnehin nicht signifikante Ein-Fenster-Kante weiter erodieren.
+- **Fazit:** Stock-MR RSI(2) zeigt KEINEN robusten, regime-unabhaengigen Edge.
+  Der z=2.46-Befund war Data Snooping. EA bleibt als Test-Geruest im Repo.
+
 ## EA v2.0 – Was ist neu
 1. **Marktstruktur-Stop:** SL unter das letzte Swing-Tief (Tief der
    letzten InpSwingLookback Kerzen) minus ATR-Puffer. Stop richtet sich
@@ -565,6 +646,34 @@ Teil 4.
 ### Notausstieg
 Nach insg. 100 Backtests ohne |z|>2 Edge: Pivot auf Indices, laengere
 Haltedauer, manueller Discretion, oder Projekt als Lernprojekt abschliessen.
+
+### Entscheidungsvorschlag nach Backtest 19 (13.07.) – zwei ehrliche Wege
+Der einzige positive z>2-Befund des Projekts hat sich als Selektions-Artefakt
+erwiesen. Stand: 163 Backtests, 10 Familien, weiterhin kein robuster Edge.
+Empfehlung (Reihenfolge), Umsetzung entscheidet der Nutzer:
+
+**Weg A – EIN entscheidendes Kontroll-Experiment (billig, klaert die Kernfrage):**
+Bevor noch eine Strategie gebaut wird, die offene Frage beantworten: Traegt das
+RSI(2)-Timing ueberhaupt etwas bei, oder ist der Bull-Fenster-Gewinn nur
+Long-Beta? Test: dieselben 10 Aktien, Fenster A/B, drei Varianten gepoolt
+vergleichen — (1) RSI(2)-Signal (Ist-Zustand), (2) Buy&Hold "immer long solange
+Kurs > SMA200", (3) Zufalls-Einstieg mit gleicher durchschn. Haltedauer im
+gleichen SMA200-Regime. Nur wenn (1) (2) und (3) sauber schlaegt (positive
+Differenz-Erwartung, |z|>2 auf der DIFFERENZ, in BEIDEN Fenstern), gibt es einen
+echten Timing-Edge. Realistische Aktien-Kosten dabei sofort mit modellieren.
+Erwartung ehrlich: eher negativ — aber es ist der sauberste Schlussstrich.
+
+**Weg B – Projekt als Lernprojekt dokumentiert abschliessen:**
+Falls kein weiterer Aufwand gewuenscht: Der bisherige Ertrag ist methodisch, nicht
+finanziell — eine saubere, ehrlich gefuehrte Pipeline (Pooling, OOS-Fenster,
+Zweitinstrument, z-Wert, Data-Snooping-Audit), die reihenweise populaere
+Retail-Strategien statistisch verworfen hat. Das ist ein vorzeigbares Ergebnis.
+Kein Demo-/Live-Einsatz mit Gewinnerwartung.
+
+**Nicht empfohlen:** Weiter-Tuning von Stock-MR (Haltedauer, H4, dritter Zeitraum)
+BEVOR Weg A geklaert ist — das waere erneut Parameter-Jagd auf einem Signal ohne
+belegten Edge. Ebenso KEIN Demo-Paper "nur im Bullenmarkt aktiv": das ist eine
+ungetestete Regime-Wette auf einem konfundierten Ein-Fenster-Ergebnis.
 
 ## Kernregeln (Kurzfassung)
 - Keine Kontodaten/Passwoerter/API-Keys in Code, Chat oder Commits
