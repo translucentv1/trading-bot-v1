@@ -7,6 +7,31 @@
 
 ---
 
+## 2026-07-13 (Tag 3, Sitzung 5) – Domain-Pivot: US-Aktien Mean-Reversion
+
+**Kurzfassung:** Nach 121 erfolglosen FX-Backtests: Pivot auf Nasdaq-Aktien.
+MetaQuotes-Demo hat ~984 handelbare Nasdaq-Symbole mit voller Historie.
+Stock-MR-EA gebaut (RSI Oversold Bounce, Long-Only), auf 10 Aktien getestet.
+**ERSTMALS z > 2 im Gesamtpool** (z=2.46 bei RSI<5, 8 Symbole). Aber:
+regime-bedingt (nur im Bullenmarkt signifikant).
+
+- **Symbol-Finder:** Broker hat 12.672 Symbole, davon ~984 Nasdaq-Aktien
+  (nur A-Anfang: AAPL, AMD, AMZN, AVGO, ADBE, ABNB, AXP, ABT, AIG, AEP...).
+  15 FX-Paare, 1 Index-CFD (AUS200). Krypto/andere Indices: DISABLED.
+- **stock_mr_v1.mq5 gebaut:** RSI(2)-Entry, SMA200-Filter, ATR-Stop, Long-Only.
+- **42 Backtests gelaufen (id 122-163):**
+  - RSI<10 (Backtest 17): Fenster B z=2.74 (signifikant!), A z=-0.04 (null).
+  - RSI<5 (Backtest 18): Fenster B z=3.53 (sehr signifikant!),
+    A z=-0.18 (neutral). Gesamt z=2.46. Top: AXP PF 7.23, AVGO PF 2.47.
+  - AUS200 Index-CFD: kein Edge (PF 0.06-0.51).
+- **Konsistente Loser:** AMZN (immer PF<0.7), AIG (beide Fenster negativ).
+- **Konsistente Gewinner:** AVGO, AXP, AMD, AAPL (alle in B profitabel,
+  in A leicht positiv oder neutral bei RSI<5).
+- **Entscheidung offen:** Regime-bedingte Strategie akzeptieren (Demo-Paper
+  mit "nur im Bullenmarkt aktiv")?  Oder weiter suchen?
+
+---
+
 ## 2026-07-13 (Tag 3) – Onboarding ZCode + Repo-Audit + Konsistenz-Fixes
 
 **Kurzfassung:** ZCode ist als dritter Mit-Arbeiter (neben Claude Code

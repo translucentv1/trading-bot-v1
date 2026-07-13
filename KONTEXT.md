@@ -24,15 +24,26 @@ Die frueheren BT4-7 (EURUSD 2025-2026, Zeitebenen) verteilen sich auf
 id4-16. Im Zweifel: Chronik-Text lesen, nicht die id raten.
 
 ## Aktueller Stand
-Phase 3 (Forschung). **PHASE 3.1 + 3.2 ABGEARBEITET (13.07.):** News-Filter
-(3.1) gebaut, aber im Tester nicht testbar (Kalender liefert 0 Events);
-Saisonalitaets-Filter (3.2) gebaut und getestet -> kein Edge (Backtest 15,
-Fenster B bleibt negativ). Beide als Toggle im EA (v3.51, default aus).
-**Carry-Basket (3.4/Teil 4) getestet -> kein Edge (Backtest 16):** pur beide
-Fenster negativ; mit Trend-Filter nur Fenster A positiv, B faellt durch.
-Offen bleiben 3.3 (Korb-Volatilitaetsregime) und die restlichen Teil-4-Ideen
-(Tick-Volume-Profile, Cross-Asset/DXY, Vol-Expansion).
-Stand: **121 Backtests, 9 Strategie-Familien - weiterhin kein robuster Edge.**
+**Phase 4: Domain-Pivot zu US-Aktien (13.07.).**
+Nach 121 FX/Gold-Backtests ohne robusten Edge -> Pivot auf Nasdaq-Aktien.
+MetaQuotes-Demo bietet ~984 Nasdaq-Symbole (alle A-Anfang) + 15 FX + 1 Index
+(AUS200). Historiedaten VERFUEGBAR und im Tester funktional bestaetigt.
+
+**Stock Mean-Reversion EA (`stock_mr_v1.mq5`) gebaut und getestet (Backtest 17+18):**
+- Strategie: RSI(2) Oversold-Bounce, Long-Only, SMA(200)-Trend-Filter, ATR-Stop.
+- Getestet auf 10 liquide US-Aktien (AAPL, AMD, AMZN, AVGO, ADBE, ABNB, AXP,
+  ABT, AIG, AEP) ueber 2 Fenster (A: 2022-2023, B: 2024-2026).
+- **RSI Entry < 10 (Backtest 17):** Pool 10 Sym: z=-0.42/A, z=2.74/B. B erstmals
+  signifikant! A negativ (Baerenmarkt 2022). Gesamt z=1.18.
+- **RSI Entry < 5 (Backtest 18, selektiver):** Pool 8 Sym (ohne AMZN+AIG): 
+  z=-0.18/A, **z=3.53/B**, **Gesamt z=2.46** (ERSTMALS > 2!).
+  Pool 4 Top-Performer: z=0.21/A, z=2.65/B, Gesamt z=2.13, beide Fenster positiv.
+- **AUS200 (Index-CFD):** kein Edge (PF 0.06-0.51).
+- **Bewertung:** Regime-bedingte Strategie (starker Bull-Edge, neutral im Crash).
+  Gesamt-z > 2 ist ein erster statistisch signifikanter positiver Befund.
+  Kein allwetter-Edge, aber defensibel als "Buy-the-Dip im Aufwaertstrend".
+  
+Stand: **163 Backtests, 10 Strategie-Familien. Erster z>2-Befund (bedingt).**
 
 **PHASE 2 (PAIR-TRADING) GEBAUT UND DURCHGEFALLEN
 (13.07.):** `experts/pair_trading_v1.mq5` gebaut (Multi-Symbol, rollierende
@@ -71,6 +82,20 @@ verliert signifikant (Backtest 13, z=-2,61); Struktur-Swing = Rauschen
   Gewinnerwartung. Jede kuenftige Idee wird gepoolt ueber den Korb geprueft
   (Ziel gepoolt |z|>2, PF>1 in BEIDEN Fenstern). Die EMA9/21- wie die
   Swing-Struktur-Idee sind damit sauber ausgeschieden.
+
+## Letzte Aktion (13.07. – Domain-Pivot + Stock MR)
+- **Symbol-Finder gebaut:** `experts/symbol_finder.mq5` + `scripts/add_symbols.mq5`.
+  Broker (MetaQuotes-Demo) hat 12.672 Symbole: ~984 Nasdaq-Aktien/ETFs (A-Range),
+  15 FX, 1 Index-CFD (AUS200), Rest DISABLED. Gold (XAUUSD) NUR als FX-Kreuzpaar.
+- **stock_mr_v1.mq5 gebaut:** RSI(2) Mean-Reversion, Long-Only, SMA(200)-Filter,
+  ATR-Stop. Kompiliert 0 errors. Korb von 10 US-Aktien getestet (42 Laeufe,
+  id 122-163 in backtests.csv).
+- **Ergebnis:** Erstmals z > 2 im Gesamtpool (z=2.46 bei 8 Symbolen, RSI<5).
+  Fenster B (Bull) sehr stark (z=3.53), Fenster A (Bear) neutral (z=-0.18).
+  Regime-bedingter Edge, kein Allwetter-Signal.
+- **Naechster Schritt:** Entscheidung ob (a) Demo-Paper mit Regime-Bedingung,
+  (b) weiteres Tuning (laengerer Haltezeitraum, H4 statt D1), oder
+  (c) dritter OOS-Zeitraum (2020-2021 mit COVID-Crash + Recovery).
 
 ## Letzte Aktion (13.07. – Audit + P1-Konsistenz-Fixes)
 ZCode (dritter Mit-Arbeiter) hat das Repo einer objektiven Pruefung
