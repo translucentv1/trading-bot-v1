@@ -78,6 +78,21 @@ GATE), Pair-Trading erst nach positivem Ergebnis (siehe Nachmittag/Abend).
   auf den 2 Paaren) freigegeben, aber Claude Code WARTET auf Nutzer-
   Bestaetigung, bevor `pair_trading_v1.mq5` gebaut wird.
 
+**Nachts (Claude Code – Phase 3.2 Saisonalitaet):**
+- **Session-Filter in `ema_mtf_v3.mq5` gebaut** (v3.51, Toggle
+  `InpUseSessionFilter`, default aus): Einstiege nur in a-priori Stunden-
+  fenster (EET), optional Mo/Fr aus. Rein zeitbasiert, voll im Tester testbar.
+- **Backtest 15 (id 74-97):** EMA-Kreuz Long+Short ueber 6er-Korb, Fenster
+  A/B, Basis vs. London/NY-Stunden 8-18 EET, gepoolt. **Kein Edge:** Filter
+  hebt A nur marginal (PF 0,97->0,99), macht B schlechter (0,90->0,88), B
+  bleibt negativ. Disziplin: nur EINE a-priori-Hypothese getestet, nicht alle
+  Fenster durchoptimiert.
+- **Nebenbefund:** Die Basis (EMA-Kreuz L+S, Korb) verliert in Fenster B
+  signifikant (PF 0,90, z=-2,06) - wie ORB ein echter Verlierer, kein
+  Nullsignal. GBPUSD einziges positives Symbol = Rauschen.
+- **Stand: 97 Backtests, 8 Familien, weiter kein robuster Edge.** Offen:
+  3.3 (Vol-Regime), 3.4 (Carry), Teil-4-Ideen (Tick-Volume, DXY, Vol-Exp).
+
 **Nachts (Claude Code – Phase 3.1 News-Filter, Nutzer: "los"):**
 - **News-Filter in `ema_mtf_v3.mq5` gebaut** (Toggle `InpUseNewsFilter`,
   default aus): `IsNewsBlackout()` sperrt Einstiege im Fenster um High-Impact-

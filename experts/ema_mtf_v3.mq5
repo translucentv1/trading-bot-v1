@@ -1,5 +1,5 @@
 //+------------------------------------------------------------------+
-//| EMA 9/21 + Multi-Timeframe-Bias - v3.50 (Long & Short)         |
+//| EMA 9/21 + Multi-Timeframe-Bias - v3.51 (Long & Short)         |
 //|                                                                  |
 //| Idee (Market-Structure / Top-Down):                             |
 //|  - HOEHERE Zeitebene (Standard H4) gibt die RICHTUNG (Bias):    |
@@ -21,7 +21,7 @@
 //| Tester laufen im MetaEditor/MT5.                                |
 //+------------------------------------------------------------------+
 #property copyright "Phase 3 - Demo/Paper"
-#property version   "3.50"
+#property version   "3.51"
 #property strict
 #property description "EMA 9/21 + Multi-Timeframe-Bias, generisches Test-Geruest."
 #property description "KEINE Handels-Empfehlung - Forschungsphase."
@@ -93,6 +93,13 @@ input bool            InpUseNewsFilter    = false;   // Einstiege um High-Impact
 input int             InpNewsMinsBefore   = 30;      // Minuten vor dem Event sperren
 input int             InpNewsMinsAfter    = 30;      // Minuten nach dem Event sperren
 input int             InpNewsImportance   = 3;       // Mindest-Wichtigkeit (1=Low, 2=Moderate, 3=High)
+
+input group "--- Saisonalitaets-Filter (Session-Stunden / Wochentag) ---"
+input bool            InpUseSessionFilter = false;   // Einstiege nur in bestimmten Stunden/Tagen
+input int             InpSessionStartHour = 8;       // Handelsfenster Beginn (Stunde, Serverzeit EET)
+input int             InpSessionEndHour   = 18;      // Handelsfenster Ende (exklusiv, EET)
+input bool            InpSkipMonday       = false;   // Montags keine neuen Einstiege
+input bool            InpSkipFriday       = false;   // Freitags keine neuen Einstiege
 
 input group "--- Gewinn sichern (Break-Even / Teil-TP) ---"
 input bool            InpUseBreakEven   = true;     // Stop auf Einstieg ziehen sobald im Plus
@@ -217,7 +224,7 @@ int OnInit()
    m_last_day          = tm.day_of_year;
    m_day_start_balance = AccountInfoDouble(ACCOUNT_BALANCE);
 
-   Print("EA v3.50 gestartet: EMA ", InpFastEMAPeriod, "/", InpSlowEMAPeriod,
+   Print("EA v3.51 gestartet: EMA ", InpFastEMAPeriod, "/", InpSlowEMAPeriod,
          " auf ", EnumToString(_Period),
          " | Bias-EMA ", InpBiasEMAPeriod, " auf ", EnumToString(InpBiasTF),
          " | Long ", (InpAllowLong ? "an" : "aus"),
@@ -411,19 +418,36 @@ void OnTick()
    // 7. Einstieg (nur wenn keine Position und kein Tagesstopp)
    if(m_loss_limit_active) return;
 
-   bool volOk  = (!InpUseVolFilter)  || VolatilityOk();
-   bool newsOk = (!InpUseNewsFilter) || !IsNewsBlackout(TimeCurrent());
+   bool volOk  = (!InpUseVolFilter)     || VolatilityOk();
+   bool newsOk = (!InpUseNewsFilter)    || !IsNewsBlackout(TimeCurrent());
+   bool sessOk = (!InpUseSessionFilter) || IsSessionOk(TimeCurrent());
 
-   if(InpAllowLong && longSignal && volOk)
+   if(InpAllowLong && longSignal && volOk && sessOk)
      {
       if(newsOk) OpenTrade(true, atrValue);
       else       m_newsBlocked++;
      }
-   else if(InpAllowShort && shortSignal && volOk)
+   else if(InpAllowShort && shortSignal && volOk && sessOk)
      {
       if(newsOk) OpenTrade(false, atrValue);
       else       m_newsBlocked++;
      }
+  }
+
+//+------------------------------------------------------------------+
+//| Saisonalitaets-Filter: nur in bestimmten Stunden/Wochentagen     |
+//| einsteigen. Rein zeitbasiert, a-priori (kein Fenster-Tuning).    |
+//+------------------------------------------------------------------+
+bool IsSessionOk(datetime t)
+  {
+   if(!InpUseSessionFilter) return(true);
+   MqlDateTime m; TimeToStruct(t, m);
+   if(InpSkipMonday && m.day_of_week == 1) return(false);   // 1 = Montag
+   if(InpSkipFriday && m.day_of_week == 5) return(false);   // 5 = Freitag
+   if(InpSessionStartHour <= InpSessionEndHour)
+      return(m.hour >= InpSessionStartHour && m.hour < InpSessionEndHour);
+   // Fenster ueber Mitternacht (z.B. 22 bis 6)
+   return(m.hour >= InpSessionStartHour || m.hour < InpSessionEndHour);
   }
 
 //+------------------------------------------------------------------+

@@ -72,3 +72,27 @@ id;datum;ea_version;zeitraum;symbol;exec_tf;bias_tf;richtung;strategie;net_profi
 71;2026-07-13;pair_v1.0;2024-01_2026-07;AUDUSD~USDCAD;H1;-;spread;pair-trading-coint;-1275.63;0.92;-0.64;20.15;796;37.94;45.48;-30.38;17;0.30;-1.23;Coint-Pair AUDUSD~USDCAD Fenster B ZEntry2.0 - OOS negativ
 72;2026-07-13;pair_v1.0;2022-01_2023-12;AUDUSD~USDCAD;H1;-;spread;pair-trading-coint;6873.90;1.54;4.34;7.91;406;38.92;124.65;-51.70;13;0.52;3.97;Coint-Pair AUDUSD~USDCAD Fenster A ZEntry2.5 - in-sample sehr stark ABER nicht OOS-robust
 73;2026-07-13;pair_v1.0;2024-01_2026-07;AUDUSD~USDCAD;H1;-;spread;pair-trading-coint;-200.25;0.99;-0.12;16.31;552;31.34;79.13;-36.65;15;0.37;-0.16;Coint-Pair AUDUSD~USDCAD Fenster B ZEntry2.5 - OOS negativ (nahe Null)
+74;2026-07-13;v3.51;2022-01_2023-12;EURUSD;H1;H4;long+short;ema-cross-l+s-basis;2875.85;1.23;3.16;16.23;214;43.46;165.57;-103.49;7;1.03;1.47;EMA-Kreuz Long+Short Korb EURUSD Fenster A
+75;2026-07-13;v3.51;2024-01_2026-07;EURUSD;H1;H4;long+short;ema-cross-l+s-basis;-2723.00;0.77;-3.63;32.58;250;36.80;99.07;-74.92;12;0.75;-2.05;EMA-Kreuz Long+Short Korb EURUSD Fenster B
+76;2026-07-13;v3.51;2022-01_2023-12;GBPUSD;H1;H4;long+short;ema-cross-l+s-basis;359.81;1.03;0.54;12.41;190;38.42;157.88;-95.43;8;0.95;0.21;EMA-Kreuz Long+Short Korb GBPUSD Fenster A
+77;2026-07-13;v3.51;2024-01_2026-07;GBPUSD;H1;H4;long+short;ema-cross-l+s-basis;2638.52;1.16;2.54;8.54;259;42.47;170.21;-107.95;6;1.08;1.19;EMA-Kreuz Long+Short Korb GBPUSD Fenster B
+78;2026-07-13;v3.51;2022-01_2023-12;USDJPY;H1;H4;long+short;ema-cross-l+s-basis;-1384.00;0.85;-2.30;24.10;173;36.99;123.15;-85.01;11;0.85;-1.05;EMA-Kreuz Long+Short Korb USDJPY Fenster A
+79;2026-07-13;v3.51;2024-01_2026-07;USDJPY;H1;H4;long+short;ema-cross-l+s-basis;-2433.42;0.84;-3.18;34.49;258;36.05;133.54;-90.01;8;0.90;-1.41;EMA-Kreuz Long+Short Korb USDJPY Fenster B
+80;2026-07-13;v3.51;2022-01_2023-12;AUDUSD;H1;H4;long+short;ema-cross-l+s-basis;-2562.33;0.77;-3.93;29.86;206;32.52;126.95;-79.62;9;0.80;-1.85;EMA-Kreuz Long+Short Korb AUDUSD Fenster A
+81;2026-07-13;v3.51;2024-01_2026-07;AUDUSD;H1;H4;long+short;ema-cross-l+s-basis;-2683.76;0.81;-3.50;30.72;278;36.69;112.23;-80.29;13;0.80;-1.73;EMA-Kreuz Long+Short Korb AUDUSD Fenster B
+82;2026-07-13;v3.51;2022-01_2023-12;USDCAD;H1;H4;long+short;ema-cross-l+s-basis;-1124.49;0.91;-1.45;23.67;226;36.73;131.92;-84.43;8;0.84;-0.72;EMA-Kreuz Long+Short Korb USDCAD Fenster A
+83;2026-07-13;v3.51;2024-01_2026-07;USDCAD;H1;H4;long+short;ema-cross-l+s-basis;-2693.44;0.81;-3.24;32.94;277;34.66;118.59;-77.78;10;0.78;-1.73;EMA-Kreuz Long+Short Korb USDCAD Fenster B
+84;2026-07-13;v3.51;2022-01_2023-12;XAUUSD;H1;H4;long+short;ema-cross-l+s-basis;-12.04;1.00;-0.02;17.62;199;40.20;136.84;-92.10;14;0.92;-0.01;EMA-Kreuz Long+Short Korb XAUUSD Fenster A
+85;2026-07-13;v3.51;2024-01_2026-07;XAUUSD;H1;H4;long+short;ema-cross-l+s-basis;-620.58;0.95;-0.81;14.39;245;38.78;125.24;-83.46;7;0.83;-0.39;EMA-Kreuz Long+Short Korb XAUUSD Fenster B
+86;2026-07-13;v3.51;2022-01_2023-12;EURUSD;H1;H4;long+short;saison-london-ny;1742.22;1.24;4.22;12.67;125;41.60;173.84;-99.97;8;1.00;1.15;Saison-Filter London/NY 8-18 EET EURUSD Fenster A
+87;2026-07-13;v3.51;2024-01_2026-07;EURUSD;H1;H4;long+short;saison-london-ny;-2121.58;0.72;-5.00;23.96;136;33.09;122.39;-83.84;10;0.84;-1.87;Saison-Filter London/NY 8-18 EET EURUSD Fenster B
+88;2026-07-13;v3.51;2022-01_2023-12;GBPUSD;H1;H4;long+short;saison-london-ny;1256.68;1.17;3.18;8.23;122;40.16;176.73;-101.42;8;1.01;0.83;Saison-Filter London/NY 8-18 EET GBPUSD Fenster A
+89;2026-07-13;v3.51;2024-01_2026-07;GBPUSD;H1;H4;long+short;saison-london-ny;353.16;1.04;0.89;7.89;133;36.09;171.12;-92.48;6;0.92;0.24;Saison-Filter London/NY 8-18 EET GBPUSD Fenster B
+90;2026-07-13;v3.51;2022-01_2023-12;USDJPY;H1;H4;long+short;saison-london-ny;-1638.12;0.69;-5.00;19.22;89;31.46;128.09;-85.65;7;0.86;-1.75;Saison-Filter London/NY 8-18 EET USDJPY Fenster A
+91;2026-07-13;v3.51;2024-01_2026-07;USDJPY;H1;H4;long+short;saison-london-ny;-566.23;0.93;-1.58;24.13;120;36.67;171.44;-106.70;15;1.07;-0.38;Saison-Filter London/NY 8-18 EET USDJPY Fenster B
+92;2026-07-13;v3.51;2022-01_2023-12;AUDUSD;H1;H4;long+short;saison-london-ny;-823.82;0.85;-2.69;15.43;94;31.91;155.65;-85.83;8;0.86;-0.76;Saison-Filter London/NY 8-18 EET AUDUSD Fenster A
+93;2026-07-13;v3.51;2024-01_2026-07;AUDUSD;H1;H4;long+short;saison-london-ny;-2309.58;0.69;-5.00;26.23;134;32.09;120.25;-82.20;16;0.82;-2.11;Saison-Filter London/NY 8-18 EET AUDUSD Fenster B
+94;2026-07-13;v3.51;2022-01_2023-12;USDCAD;H1;H4;long+short;saison-london-ny;-1171.82;0.82;-3.52;19.36;114;33.33;143.37;-87.10;9;0.87;-1.01;Saison-Filter London/NY 8-18 EET USDCAD Fenster A
+95;2026-07-13;v3.51;2024-01_2026-07;USDCAD;H1;H4;long+short;saison-london-ny;-1161.97;0.86;-3.06;18.95;144;34.03;150.27;-89.74;8;0.90;-0.85;Saison-Filter London/NY 8-18 EET USDCAD Fenster B
+96;2026-07-13;v3.51;2022-01_2023-12;XAUUSD;H1;H4;long+short;saison-london-ny;356.58;1.05;1.03;12.49;119;40.34;152.71;-98.22;8;0.98;0.27;Saison-Filter London/NY 8-18 EET XAUUSD Fenster A
+97;2026-07-13;v3.51;2024-01_2026-07;XAUUSD;H1;H4;long+short;saison-london-ny;-12.09;1.00;-0.03;9.83;130;39.23;144.82;-93.64;8;0.94;-0.01;Saison-Filter London/NY 8-18 EET XAUUSD Fenster B

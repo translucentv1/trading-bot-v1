@@ -24,7 +24,15 @@ Die frueheren BT4-7 (EURUSD 2025-2026, Zeitebenen) verteilen sich auf
 id4-16. Im Zweifel: Chronik-Text lesen, nicht die id raten.
 
 ## Aktueller Stand
-Phase 3 (Forschung). **PHASE 2 (PAIR-TRADING) GEBAUT UND DURCHGEFALLEN
+Phase 3 (Forschung). **PHASE 3.1 + 3.2 ABGEARBEITET (13.07.):** News-Filter
+(3.1) gebaut, aber im Tester nicht testbar (Kalender liefert 0 Events);
+Saisonalitaets-Filter (3.2) gebaut und getestet -> kein Edge (Backtest 15,
+Fenster B bleibt negativ). Beide als Toggle im EA (v3.51, default aus).
+Offen bleiben 3.3 (Korb-Volatilitaetsregime) und 3.4 (Carry-Trade-Signal)
+sowie die Ideen aus Teil 4 (Tick-Volume, Cross-Asset/DXY, Vol-Expansion).
+Stand: **97 Backtests, 8 Strategie-Familien - weiterhin kein robuster Edge.**
+
+**PHASE 2 (PAIR-TRADING) GEBAUT UND DURCHGEFALLEN
 (13.07.):** `experts/pair_trading_v1.mq5` gebaut (Multi-Symbol, rollierende
 Hedge-Ratio, Spread-z-Score, Kosten-Check, risikoneutrale Lots) und ueber
 die 2 cointegrierten Paare x 2 Fenster x 3 ZEntry (12 Laeufe, id 62-73)
@@ -42,10 +50,11 @@ OOS-Edge nach Kosten (die zentrale Lektion aus Backtest 14).
 Dabei 1 Bug gefixt (Cointegration-Zaehler zaehlte NOT_COINTEGRATED mit)
 und mehrere Audit-Inkonsistenzen bereinigt (S1/S3/S5/S6 u.a.).
 
-**Vorgeschichte (bleibt gueltig): 73 Backtests, 7 Strategie-Familien - kein
-statistisch belegter, instrumentuebergreifend robuster Edge.** Pair-Trading
-(Backtest 14) faellt OOS durch; ORB verliert signifikant (Backtest 13,
-z=-2,61); Struktur-Swing = Rauschen (Backtest 12);
+**Vorgeschichte (bleibt gueltig): 97 Backtests, 8 Strategie-Familien - kein
+statistisch belegter, instrumentuebergreifend robuster Edge.** Saisonalitaet
+(Backtest 15) ohne Edge; Pair-Trading (Backtest 14) faellt OOS durch; ORB
+verliert signifikant (Backtest 13, z=-2,61); Struktur-Swing = Rauschen
+(Backtest 12);
 - Ein **strukturell anderer EA** (`structure_swing_ea.mq5`, Fractal-Swings
   + MTF-Trend, kein Indikator) gebaut UND mit der neuen **Pooling-Methodik**
   (Korb aus 6 Instrumenten, alle Trades gepoolt) getestet. Ergebnis:
@@ -400,6 +409,31 @@ je Fenster gepoolt:
 - Fazit: Pair-Trading auf diesen Paaren ist als Edge verworfen. Der EA
   bleibt als sauberes Multi-Symbol-Test-Geruest im Repo.
 
+### Backtest 15 – Saisonalitaets-Filter (Session-Stunden) (13.07.2026) – KEIN EDGE
+Neuer Toggle `InpUseSessionFilter` in `ema_mtf_v3.mq5` (v3.51): Einstiege nur
+in einem a-priori Stundenfenster (Serverzeit EET), optional Montag/Freitag
+aussparen. Rein zeitbasiert, voll im Tester testbar. Getestet: EMA-Kreuz
+Long+Short ueber den 6er-Korb, Fenster A/B, **Basis (kein Filter) vs.
+London/NY-Stunden 8-18 EET** (a-priori-Hypothese: hoechste Liquiditaet), je
+gepoolt (id 74-97).
+| Konfig | Fenster A (PF / z) | Fenster B (PF / z) |
+|---|---|---|
+| Basis (kein Filter) | 0,97 / -0,47 | **0,90 / -2,06** |
+| Session 8-18 EET | 0,99 / -0,09 | 0,88 / -1,80 |
+- **Kein Edge.** Der Filter hebt Fenster A nur marginal (PF 0,97->0,99, immer
+  noch <1) und macht Fenster B sogar schlechter (0,90->0,88). z sinkt in B nur
+  betragsmaessig, weil die Stichprobe halbiert wird (N 1567->797), nicht weil
+  die Kante besser waere. Erfolgskriterium (PF>1 in beiden Fenstern, |z|>2)
+  klar verfehlt.
+- **Nebenbefund (wichtig): Die Basis EMA-Kreuz Long+Short verliert im Korb in
+  Fenster B signifikant** (PF 0,90, z=-2,06) - konsistent mit ORB (Backtest
+  13). Long+Short-EMA-Kreuz ist ueber den Korb ein statistisch signifikanter
+  Verlierer, kein neutrales Nullsignal.
+- GBPUSD einziges durchgehend positives Symbol (B: PF 1,16 Basis / 1,04
+  gefiltert) - 1 von 6 = Rauschen/Overfitting, kein verteilter Vorteil.
+- Filter bleibt als Toggle (default aus). Saisonalitaet als Edge-Quelle
+  verworfen.
+
 ## EA v2.0 – Was ist neu
 1. **Marktstruktur-Stop:** SL unter das letzte Swing-Tief (Tief der
    letzten InpSwingLookback Kerzen) minus ATR-Puffer. Stop richtet sich
@@ -464,10 +498,12 @@ Jede als separater Toggle, isoliert testen, 6er-Korb, Fenster A/B:
   Demo/Live (dort ist der Kalender live da). Optionaler Weg fuer Backtests:
   historischen Kalender als Datei/Resource buendeln (bringt externe Daten
   rein - vorerst zurueckgestellt).
-- **3.2 Saisonalitaets-Filter** (Stunde/Wochentag) — rein zeitbasiert, VOLL
-  im Tester testbar, keine externen Daten. Naechster Schritt.
-- **3.3 Korb-Volatilitaetsregime**
-- **3.4 Carry-Trade-Signal**
+- **3.2 Saisonalitaets-Filter (Stunde/Wochentag) — GEBAUT UND GETESTET,
+  KEIN EDGE (13.07., Backtest 15).** Toggle `InpUseSessionFilter` (default
+  aus). London/NY-Stunden 8-18 EET vs Basis, gepoolt: verbessert nichts
+  robust, Fenster B bleibt negativ. Verworfen.
+- **3.3 Korb-Volatilitaetsregime** (offen)
+- **3.4 Carry-Trade-Signal** (offen)
 
 ### weitere Ideen im Pool (falls Phase 2+3 scheitern)
 Tick-Volume-Profile, Carry-Basket, Volatility-Expansion (preisbasiert,
@@ -496,7 +532,7 @@ Haltedauer, manueller Discretion, oder Projekt als Lernprojekt abschliessen.
 | scripts/cointegration_result.txt | Roh-Ergebnis des Cointegration-Laufs (13.07.): 2/15 Paare cointegriert |
 | EA_CODE.md | kompletter aktueller EA-Code als Markdown (Handoff ohne .mq5-Upload) |
 | docs/REVIEW_VERBESSERUNG.md | AI-Studio-Review: 7 Blindstellen + verbesserter Claude-Code-Prompt + 5 neue Ideen + Workflow mit Quality-Gates |
-| backtests.csv | Register aller Backtests (73 Eintraege, id;...;risk_realized_pct;z_score;fazit) |
+| backtests.csv | Register aller Backtests (97 Eintraege, id;...;risk_realized_pct;z_score;fazit) |
 | JOURNAL.md | Tagebuch mit Tageseintraegen (Zeitleiste des Projekts) |
 | tools/validate_backtests.py | objektive Nachrechnung/Validierung von backtests.csv |
 | tools/pool_backtests.py | poolt Korb-Ergebnisse je Fenster, rechnet gepoolten z-Wert (Aufruf: prefix + verzeichnis) |
