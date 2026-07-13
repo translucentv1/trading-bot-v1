@@ -7,6 +7,33 @@
 
 ---
 
+## 2026-07-13 (Tag 3, Sitzung 7) – Kontroll-Experiment Weg A + Chartanalyse
+
+**Kurzfassung:** Weg A durchgezogen (Timing vs. Beta vs. Zufall). Ergebnis
+eindeutig: **Das RSI(2)-Timing schlaegt "einfach long im Trend" (Beta) in keinem
+Fenster signifikant.** Die Strategie ist Long-Beta, kein Alpha. Dazu ein
+visueller Chart-Report (Artifact) gebaut.
+
+- **Datenexport:** `experts/export_daily.mq5` gebaut + 10x headless gelaufen
+  (D1-OHLC + MT5-RSI/SMA/ATR der 10 Aktien nach Common\Files exportiert).
+- **`tools/control_experiment.py`:** 3 Arme, identische Exits/Kosten/Daten, nur
+  Einstieg variiert. 2 RSI-Schwellen x 2 Fenster x 3 Kostenszenarien + 500-Seed-
+  Zufalls-Null. Validiert gegen Tester (Signal-Arm reproduziert id 122-161).
+- **Ergebnis:** z(Signal-Beta) nie >2 (RSI<10: A -1.67, B +1.38). In Fenster A
+  ist Signal schlechter als Zufall. Regime-Effekt nur schwach (nur Bull-B, und
+  nur ohne Kosten). Kosten fressen 25-35 % der Kante; RSI<10 B faellt von z=2.57
+  auf 1.90 (real). Regime-Ursache: 49 % Tage ueber SMA200 in A vs. 68 % in B.
+- **Chartanalyse (Artifact, deutsch):** Regime-Balken, AAPL-Kurs+SMA200,
+  Equity-Kurven A/B, E-pro-Trade Signal-vs-Beta-vs-Zufall ueber Kostenszenarien,
+  Kennzahlen-Tabelle. Kernaussage visuell belegt.
+- **Reproduzierbar im Repo:** tools/pool_from_csv.py, snoop_sensitivity.py,
+  control_experiment.py + tools/stock_export/ (10 CSVs).
+- **Entschieden:** Weg A negativ -> nur noch Weg B (Lernprojekt-Abschluss) oder
+  grundlegend andere Signalquelle. Kein Demo-Paper mit Gewinnerwartung. Offen:
+  Nutzer-Entscheidung Weg B vs. neue Signalidee.
+
+---
+
 ## 2026-07-13 (Tag 3, Sitzung 6) – Data-Snooping-Audit: z>2-Befund widerlegt
 
 **Kurzfassung:** Der "erstmals z=2.46"-Stock-MR-Befund aus Sitzung 5 wurde

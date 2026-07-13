@@ -15,3 +15,5 @@ Thumbs.db
 
 # Lokale Claude-Code-Einstellungen (nur fuer diesen Rechner)
 .claude/settings.local.json
+tools/control_results.json
+tools/chart_data.json

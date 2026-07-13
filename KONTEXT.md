@@ -1,5 +1,5 @@
 # KONTEXT – Handoff zwischen Claude Code und AI Studio
-_Letzte Aktualisierung: 13.07.2026 (Data-Snooping-Audit Stock-MR)_
+_Letzte Aktualisierung: 13.07.2026 (Kontroll-Experiment Weg A: Timing vs. Beta)_
 
 ## Projekt
 MQL5 Expert Advisor fuer MetaTrader 5.
@@ -55,6 +55,9 @@ z>2-Befund durch Data-Snooping-Audit (Backtest 19) WIDERLEGT:**
 
 Stand: **163 Backtests, 10 Strategie-Familien. Weiterhin KEIN robuster,
 regime-unabhaengiger Edge (z>2-Befund war Selektions-Artefakt).**
+**Kontroll-Experiment Weg A (Backtest 20) bestaetigt: Strategie ist Long-Beta,
+kein Timing-Alpha.** -> Empfehlung: Weg B (Lernprojekt-Abschluss) oder
+grundlegend andere Signalquelle. Kein Demo-Paper mit Gewinnerwartung.
 
 **PHASE 2 (PAIR-TRADING) GEBAUT UND DURCHGEFALLEN
 (13.07.):** `experts/pair_trading_v1.mq5` gebaut (Multi-Symbol, rollierende
@@ -567,6 +570,46 @@ NACHTRAEGLICH auf 8 Symbole reduzierten Pool beruhte. Geprueft mit derselben
 - **Fazit:** Stock-MR RSI(2) zeigt KEINEN robusten, regime-unabhaengigen Edge.
   Der z=2.46-Befund war Data Snooping. EA bleibt als Test-Geruest im Repo.
 
+### Backtest 20 – Kontroll-Experiment Weg A: Timing vs. Beta (13.07.2026) – TIMING SCHLAEGT BETA NICHT
+Die Kernfrage aus Backtest 19: Traegt das RSI(2)-Timing ueberhaupt etwas bei, oder
+ist der Bull-Fenster-Gewinn nur Long-Beta? Test-Aufbau: `experts/export_daily.mq5`
+exportiert die D1-Serie + MT5-eigene RSI/SMA/ATR der 10 Aktien (10 headless
+Tester-Laeufe); `tools/control_experiment.py` simuliert 3 Arme mit IDENTISCHEN
+Exits (RSI>80 / 5 Tage / 3xATR-Stop), Kosten und Daten - nur der EINSTIEG variiert:
+SIGNAL (RSI<Schwelle), BETA (immer long ueber SMA200), RANDOM (Zufallstage, 500
+Seeds als Null). Validierung: der SIGNAL-Arm reproduziert die Tester-z-Werte (id
+122-161), z.B. RSI<10 Fenster B z=+2.57 (Tester 2.54) - der Nachbau ist treu.
+
+**Kernbefund: In KEINEM Fenster schlaegt das Timing die Beta signifikant.**
+| RSI<10 (ohne Kosten) | Fenster A | Fenster B |
+|---|---|---|
+| SIGNAL z | -1.55 | +2.57 |
+| BETA z | +0.65 | +2.90 |
+| **z(Signal - Beta)** | **-1.67** | **+1.38** |
+| Signal-Perzentil in Random-Null | 0 % (schlechter als Zufall) | 100 % (schlaegt Zufall) |
+
+- **z(Signal-Beta) erreicht nie 2** (RSI<10: A -1.67, B +1.38; RSI<5: A +0.18,
+  B +1.09). Das RSI(2)-Timing bringt keinen belegbaren Mehrwert gegenueber
+  "einfach im Aufwaertstrend long sein". In Fenster A ist Signal sogar schlechter
+  als der Zufall (0. Perzentil).
+- **Nur schwacher Regime-Effekt:** In Bull-Fenster B liegt Signal ueber dem
+  Random-Band (schlaegt Zufalls-Timing), in A nicht. Der Effekt ist also
+  regime-gebunden UND verschwindet unter Kosten.
+- **Kosten sind material (Schritt 6 beantwortet):** realistische Aktien-Reibung
+  (Kommission max(0,005/Aktie;1$)/Seite + ~2bp Spread) frisst ~25-35 % der Kante.
+  RSI<10 B SIGNAL: z 2.57 (ohne) -> 1.90 (real) -> 1.68 (pessimistisch). In
+  Fenster A wird Signal mit Kosten signifikant negativ (z -1.99 real). Die
+  MetaQuotes-Demo modelliert diese Kosten fuer Stock-CFDs vermutlich nicht.
+- **Regime-Ursache (Chartanalyse):** Anteil Tage ueber SMA200 - Fenster A nur
+  49 %, Fenster B 68 %. Die Long-only-Strategie hat in B strukturell viel mehr
+  Rueckenwind. Das erklaert den Fenster-Unterschied ohne jeden Timing-Edge.
+- **Schlussfolgerung: Die Strategie ist Long-Beta, kein Timing-Alpha.** Die
+  Kernfrage ist damit sauber beantwortet. Kein Demo-Paper mit Gewinnerwartung.
+- Visueller Report (Artifact, deutsch): Chartanalyse "Timing oder Long-Beta?"
+  (Regime-Charts, Equity-Kurven, E/Trade-Vergleich, Kostenszenarien).
+- Hinweis: Die 3 Arme sind Python-Re-Simulationen (validiert gegen die Tester-
+  Laeufe), KEINE neuen Tester-Zeilen -> bewusst nicht in backtests.csv eingetragen.
+
 ## EA v2.0 – Was ist neu
 1. **Marktstruktur-Stop:** SL unter das letzte Swing-Tief (Tief der
    letzten InpSwingLookback Kerzen) minus ATR-Puffer. Stop richtet sich
@@ -652,16 +695,11 @@ Der einzige positive z>2-Befund des Projekts hat sich als Selektions-Artefakt
 erwiesen. Stand: 163 Backtests, 10 Familien, weiterhin kein robuster Edge.
 Empfehlung (Reihenfolge), Umsetzung entscheidet der Nutzer:
 
-**Weg A – EIN entscheidendes Kontroll-Experiment (billig, klaert die Kernfrage):**
-Bevor noch eine Strategie gebaut wird, die offene Frage beantworten: Traegt das
-RSI(2)-Timing ueberhaupt etwas bei, oder ist der Bull-Fenster-Gewinn nur
-Long-Beta? Test: dieselben 10 Aktien, Fenster A/B, drei Varianten gepoolt
-vergleichen — (1) RSI(2)-Signal (Ist-Zustand), (2) Buy&Hold "immer long solange
-Kurs > SMA200", (3) Zufalls-Einstieg mit gleicher durchschn. Haltedauer im
-gleichen SMA200-Regime. Nur wenn (1) (2) und (3) sauber schlaegt (positive
-Differenz-Erwartung, |z|>2 auf der DIFFERENZ, in BEIDEN Fenstern), gibt es einen
-echten Timing-Edge. Realistische Aktien-Kosten dabei sofort mit modellieren.
-Erwartung ehrlich: eher negativ — aber es ist der sauberste Schlussstrich.
+**Weg A – Kontroll-Experiment (ERLEDIGT 13.07., Backtest 20): NEGATIV.**
+Das RSI(2)-Timing schlaegt "immer long ueber SMA200" (Beta) in keinem Fenster
+signifikant (z(Signal-Beta) nie >2; in Fenster A negativ) und wird unter
+realistischen Kosten unbrauchbar. Die Strategie ist Long-Beta, kein Timing-Alpha.
+Die Kernfrage ist damit sauber beantwortet -> es bleibt nur noch Weg B.
 
 **Weg B – Projekt als Lernprojekt dokumentiert abschliessen:**
 Falls kein weiterer Aufwand gewuenscht: Der bisherige Ertrag ist methodisch, nicht
@@ -698,6 +736,11 @@ ungetestete Regime-Wette auf einem konfundierten Ein-Fenster-Ergebnis.
 | JOURNAL.md | Tagebuch mit Tageseintraegen (Zeitleiste des Projekts) |
 | tools/validate_backtests.py | objektive Nachrechnung/Validierung von backtests.csv |
 | tools/pool_backtests.py | poolt Korb-Ergebnisse je Fenster, rechnet gepoolten z-Wert (Aufruf: prefix + verzeichnis) |
+| experts/export_daily.mq5 | Datenexport-EA (D1-OHLC + RSI/SMA/ATR je Symbol -> Common\Files) fuer das Kontroll-Experiment |
+| tools/control_experiment.py | **Weg A (Backtest 20):** Timing vs. Beta vs. Zufall, identische Exits/Kosten, 500-Seed-Null; liest tools/stock_export/ |
+| tools/pool_from_csv.py | poolt beliebige Symbol-Teilmengen aus backtests.csv (Data-Snooping-Audit, Backtest 19) |
+| tools/snoop_sensitivity.py | z-Verteilung ueber alle Streich-Paare (belegt Selection Bias, Backtest 19) |
+| tools/stock_export/ | 10 exportierte D1-CSV (2022-2026) fuer control_experiment.py (standalone reproduzierbar) |
 | tools/checklist_new_strategy.md | Checkliste fuer neue Strategie-Ideen (10 Punkte, Anhang B aus AI-Studio-Review) |
 | AI_STUDIO_PROMPT.md | fertiger Prompt fuer AI Studio (inkl. gelernter Lektionen) |
 | CLAUDE.md | Projektregeln + Handoff-Workflow |
