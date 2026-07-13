@@ -78,6 +78,23 @@ GATE), Pair-Trading erst nach positivem Ergebnis (siehe Nachmittag/Abend).
   auf den 2 Paaren) freigegeben, aber Claude Code WARTET auf Nutzer-
   Bestaetigung, bevor `pair_trading_v1.mq5` gebaut wird.
 
+**Nachts (Claude Code – Carry-Basket, Nutzer waehlte diese Richtung):**
+- **`experts/carry_basket_v1.mq5` gebaut** (0 Errors): haelt je Symbol die
+  Seite mit guenstigerem Swap (Zins-/Carry-Differenz), weiter ATR-Stop,
+  optional Trend-Filter. Per-Symbol-Korb (kein Multi-Symbol -> keine Tester-
+  Degradation wie Pair-Trading).
+- **Backtest 16 (id 98-121):** 6er-Korb, Fenster A/B, zwei Varianten.
+  Carry pur: PF 0,76 (A) / 0,61 (B) - beide negativ. Carry + Trend (W1):
+  PF 1,45 (A) / 0,87 (B) - Fenster A positiv, B faellt durch. Gleicher
+  In-/Out-of-Sample-Bruch wie ueberall.
+- **Warum es scheitert:** (a) Retail-Swaps oft in beide Richtungen negativ
+  (Broker-Aufschlag) -> keine echte Carry-Einnahme, reine Richtungswette;
+  (b) Zinsrichtung != Preisrichtung (XAUUSD Short-Bias auf steigendes Gold
+  = -1849 in B). Ergebnis von USDJPY dominiert (5-7 Trades) = Rauschen.
+  Niedrige Trade-Zahl (N 34-57), aber PF-Urteil eindeutig.
+- **Stand: 121 Backtests, 9 Familien, weiter kein robuster Edge.** Carry
+  verworfen. Offen: 3.3 (Vol-Regime), Tick-Volume, DXY-Cross-Asset, Vol-Exp.
+
 **Nachts (Claude Code – Phase 3.2 Saisonalitaet):**
 - **Session-Filter in `ema_mtf_v3.mq5` gebaut** (v3.51, Toggle
   `InpUseSessionFilter`, default aus): Einstiege nur in a-priori Stunden-

@@ -6,22 +6,22 @@ handelt. Er wird im **Strategy Tester** gebacktestet; ein Demo-Einsatz
 Zielkonto: Forex, Hedged, EUR, 1.000 EUR Startkapital, Hebel 1:30.
 
 **Ehrlicher Projektstand:** Wir sind in einer *Forschungsphase*. Nach
-97 dokumentierten Backtests über 8 Strategie-Familien hat noch **keine**
+121 dokumentierten Backtests über 9 Strategie-Familien hat noch **keine**
 getestete Signal-Idee einen instrumentübergreifend robusten,
 statistisch belastbaren Vorteil gezeigt (Details: `backtests.csv`,
-`KONTEXT.md`). Zuletzt fielen ein Cointegration-Pair-Trading-Ansatz
-(Backtest 14) und ein Saisonalitäts-/Session-Filter (Backtest 15) durch –
-beide out-of-sample negativ. Ein MT5-News-Filter wurde gebaut, ist aber
-im Strategy Tester nicht backtestbar (der Kalender liefert dort keine
-Historie). Der EA selbst ist ein solides, generisches Test-Gerüst –
-gesucht wird die Signal-Kante.
+`KONTEXT.md`). Zuletzt fielen Cointegration-Pair-Trading (Backtest 14),
+ein Saisonalitäts-/Session-Filter (Backtest 15) und ein Carry-Basket
+(Backtest 16) durch – jeweils out-of-sample negativ. Ein MT5-News-Filter
+wurde gebaut, ist aber im Strategy Tester nicht backtestbar (der Kalender
+liefert dort keine Historie). Der EA selbst ist ein solides, generisches
+Test-Gerüst – gesucht wird die Signal-Kante.
 
 ## Projektstruktur
 
 ```
-experts/        MQL5-EAs (.mq5) – aktiv: ema_mtf_v3.mq5 (v3.50);
-                Kandidaten: structure_swing_ea.mq5, pair_trading_v1.mq5
-                (beide getestet, kein robuster Edge)
+experts/        MQL5-EAs (.mq5) – aktiv: ema_mtf_v3.mq5 (v3.51);
+                Kandidaten: structure_swing_ea.mq5, pair_trading_v1.mq5,
+                carry_basket_v1.mq5 (alle getestet, kein robuster Edge)
 scripts/        Cointegration-Pre-Check (Script + EA-Variante) + Ergebnis
 tools/          validate_backtests.py, pool_backtests.py, checklist_new_strategy.md
 backtests.csv   Register ALLER Backtests (Kennzahlen, z-Score, Fazit)

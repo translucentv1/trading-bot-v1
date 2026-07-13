@@ -28,9 +28,11 @@ Phase 3 (Forschung). **PHASE 3.1 + 3.2 ABGEARBEITET (13.07.):** News-Filter
 (3.1) gebaut, aber im Tester nicht testbar (Kalender liefert 0 Events);
 Saisonalitaets-Filter (3.2) gebaut und getestet -> kein Edge (Backtest 15,
 Fenster B bleibt negativ). Beide als Toggle im EA (v3.51, default aus).
-Offen bleiben 3.3 (Korb-Volatilitaetsregime) und 3.4 (Carry-Trade-Signal)
-sowie die Ideen aus Teil 4 (Tick-Volume, Cross-Asset/DXY, Vol-Expansion).
-Stand: **97 Backtests, 8 Strategie-Familien - weiterhin kein robuster Edge.**
+**Carry-Basket (3.4/Teil 4) getestet -> kein Edge (Backtest 16):** pur beide
+Fenster negativ; mit Trend-Filter nur Fenster A positiv, B faellt durch.
+Offen bleiben 3.3 (Korb-Volatilitaetsregime) und die restlichen Teil-4-Ideen
+(Tick-Volume-Profile, Cross-Asset/DXY, Vol-Expansion).
+Stand: **121 Backtests, 9 Strategie-Familien - weiterhin kein robuster Edge.**
 
 **PHASE 2 (PAIR-TRADING) GEBAUT UND DURCHGEFALLEN
 (13.07.):** `experts/pair_trading_v1.mq5` gebaut (Multi-Symbol, rollierende
@@ -50,9 +52,9 @@ OOS-Edge nach Kosten (die zentrale Lektion aus Backtest 14).
 Dabei 1 Bug gefixt (Cointegration-Zaehler zaehlte NOT_COINTEGRATED mit)
 und mehrere Audit-Inkonsistenzen bereinigt (S1/S3/S5/S6 u.a.).
 
-**Vorgeschichte (bleibt gueltig): 97 Backtests, 8 Strategie-Familien - kein
-statistisch belegter, instrumentuebergreifend robuster Edge.** Saisonalitaet
-(Backtest 15) ohne Edge; Pair-Trading (Backtest 14) faellt OOS durch; ORB
+**Vorgeschichte (bleibt gueltig): 121 Backtests, 9 Strategie-Familien - kein
+statistisch belegter, instrumentuebergreifend robuster Edge.** Carry-Basket
+(Backtest 16) ohne Edge; Saisonalitaet (Backtest 15) ohne Edge; Pair-Trading (Backtest 14) faellt OOS durch; ORB
 verliert signifikant (Backtest 13, z=-2,61); Struktur-Swing = Rauschen
 (Backtest 12);
 - Ein **strukturell anderer EA** (`structure_swing_ea.mq5`, Fractal-Swings
@@ -434,6 +436,31 @@ gepoolt (id 74-97).
 - Filter bleibt als Toggle (default aus). Saisonalitaet als Edge-Quelle
   verworfen.
 
+### Backtest 16 – Carry-Basket (Zins-/Swap-Differenz) (13.07.2026) – KEIN EDGE
+Neuer EA `experts/carry_basket_v1.mq5`: haelt je Symbol die Seite mit dem
+guenstigeren Swap (swap_long vs swap_short), weiter ATR-Schutzstopp (3x ATR-
+D1), Richtung taeglich geprueft. Per-Symbol ueber den 6er-Korb (kein Multi-
+Symbol -> keine Tester-Degradation). Zwei Varianten (id 98-121):
+| Variante | Fenster A (PF / z / Netto) | Fenster B (PF / z / Netto) |
+|---|---|---|
+| Carry pur | 0,76 / -0,44 / -586 | 0,61 / -1,13 / -1674 |
+| Carry + Trend (W1) | **1,45** / 0,62 / +702 | 0,87 / -0,41 / -256 |
+- **Kein robuster Edge.** Pur: beide Fenster negativ. Mit Trend-Filter
+  (Lehrbuch-Kombi Carry+Trend): Fenster A wird positiv (PF 1,45), aber
+  Fenster B bleibt negativ (PF 0,87) -> derselbe In-/Out-of-Sample-Bruch.
+- **Ergebnis von USDJPY dominiert** (A PF 6,96, B PF 5,08, aber nur 5-7
+  Trades) - 1 Symbol von 6 = Rauschen, kein verteilter Vorteil. USDCAD
+  durchgehend katastrophal (PF 0,18-0,23).
+- **Zwei strukturelle Gruende:** (a) Retail-Swaps sind oft in BEIDE Richtungen
+  negativ (Broker-Aufschlag) -> die "Carry-Einnahme" ist real negativ, es
+  bleibt eine reine Richtungswette. (b) Zinsrichtung != Preisrichtung bei
+  Trendassets (XAUUSD carry_diff -8 -> Short-Bias auf steigendes Gold,
+  -1849 in B). Der Trend-Filter mildert (b), rettet aber B nicht.
+- **Tester-Grenze:** SYMBOL_SWAP_* liefert im Tester statische (aktuelle)
+  Swaps -> Carry-Richtung ueber den Backtest fix; niedrige Trade-Zahl
+  (N 34-57) begrenzt die z-Power. PF-Urteil bleibt aber eindeutig.
+- Carry verworfen. EA bleibt als Test-Geruest im Repo.
+
 ## EA v2.0 – Was ist neu
 1. **Marktstruktur-Stop:** SL unter das letzte Swing-Tief (Tief der
    letzten InpSwingLookback Kerzen) minus ATR-Puffer. Stop richtet sich
@@ -525,6 +552,7 @@ Haltedauer, manueller Discretion, oder Projekt als Lernprojekt abschliessen.
 |---|---|
 | experts/ema_mtf_v3.mq5 | **AKTIVE EA-Datei** (v3.50: EMA-Kreuz + MTF-Bias, Long/Short, Gewinnsicherung, Mean-Reversion-Modus, Vol-Filter, ORB-Modus 2, OrderCalcProfit-Sizing, OnTester) |
 | experts/pair_trading_v1.mq5 | **Phase-2-EA (Pair-Trading):** Multi-Symbol Log-Spread-Mean-Reversion, rollierende Hedge-Ratio, z-Score, Kosten-Check, risikoneutrale Lots, OnTester mit Pair-Spalten; getestet Backtest 14, OOS durchgefallen |
+| experts/carry_basket_v1.mq5 | **Carry-EA (Teil 4):** Zins-/Swap-Differenz je Symbol, ATR-Schutzstopp, optionaler Trend-Filter, per-Symbol-Korb; getestet Backtest 16, kein Edge |
 | experts/structure_swing_ea.mq5 | Kandidat-EA (Fractal-Swings + MTF-Trend, non-repaint); getestet Backtest 12, kein Edge |
 | experts/ema_9_21_crossover_long_v2.mq5 | alte v2.0 (nur Historie, nicht mehr aktiv) |
 | scripts/cointegration_check.mq5 | **Phase 1 GATE (Script-Variante):** Engle-Granger OLS + ADF, EIN Paar, manuell auf Chart ziehen |
@@ -532,7 +560,7 @@ Haltedauer, manueller Discretion, oder Projekt als Lernprojekt abschliessen.
 | scripts/cointegration_result.txt | Roh-Ergebnis des Cointegration-Laufs (13.07.): 2/15 Paare cointegriert |
 | EA_CODE.md | kompletter aktueller EA-Code als Markdown (Handoff ohne .mq5-Upload) |
 | docs/REVIEW_VERBESSERUNG.md | AI-Studio-Review: 7 Blindstellen + verbesserter Claude-Code-Prompt + 5 neue Ideen + Workflow mit Quality-Gates |
-| backtests.csv | Register aller Backtests (97 Eintraege, id;...;risk_realized_pct;z_score;fazit) |
+| backtests.csv | Register aller Backtests (121 Eintraege, id;...;risk_realized_pct;z_score;fazit) |
 | JOURNAL.md | Tagebuch mit Tageseintraegen (Zeitleiste des Projekts) |
 | tools/validate_backtests.py | objektive Nachrechnung/Validierung von backtests.csv |
 | tools/pool_backtests.py | poolt Korb-Ergebnisse je Fenster, rechnet gepoolten z-Wert (Aufruf: prefix + verzeichnis) |
