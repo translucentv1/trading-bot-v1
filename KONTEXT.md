@@ -345,22 +345,41 @@ unveraendert. Isolierte Aenderung. Getestet ueber den 6er-Korb, Fenster A/B
    genau InpRiskPerTradePct % (1 %) kostet – egal wie eng/weit der Stop.
 6. Trendfilter (EMA 200) und Tagesverlust-Stopp bleiben erhalten.
 
-## Naechste Schritte (nach ORB-Fehlschlag)
-Drei "andere Informationsquellen" wurden vorgeschlagen; ORB (Session) ist
-durch = signifikant negativ. Verbleibend: **(a) Mean-Reversion zwischen
-korrelierten Paaren** (z.B. EURUSD vs GBPUSD Spread-Rueckkehr) und
-**(b) News-/Kalender-Filter**. Empfehlung: **(a) zuerst** - strukturell am
-weitesten weg von allem bisher (relativer statt absoluter Preis), passt
-zur Pooling-Methodik und braucht keine externen Datenquellen (im Gegensatz
-zum News-Filter, der einen Kalender-Feed braucht = ausserhalb des Testers).
-1. Nach der Strategen-Rolle EINE saubere Hypothese fuer den Paar-Spread
-   festlegen (Konfig a priori, kein Tuning).
-2. Test-Disziplin (unveraendert): OOS-Fenster A/B, gepoolt (soweit sinnvoll)
-   bzw. Zweitinstrument/-paar, Ziel gepoolt |z|>2 und PF>1 in BEIDEN.
-3. Ehrliche Grundhaltung bleibt: bislang kein uebertragbarer Edge; kein
-   Live-Einsatz mit Gewinnerwartung. Die Pooling-Methodik macht Fehlschlaege
-   jetzt wenigstens SCHNELL und BELASTBAR sichtbar.
-Jeder Lauf -> Zeile in `backtests.csv` (inkl. risk_realized_pct + z_score).
+## Naechste Schritte (Roadmap nach AI-Studio-Review, 13.07.)
+
+**Vorbedingung:** AI-Studio-Review (docs/REVIEW_VERBESSERUNG.md) hat 7
+Blindstellen im Pair-Trading-Plan identifiziert. Wichtigste: EURUSD/GBPUSD
+sind wahrscheinlich NICHT cointegriert (Strukturbrueche Brexit, Gilt-Krise,
+BoE-vs-ECB-Divergenz). MT5 Calendar API wurde uebersehen (News-Filter
+funktioniert IM TESTER ohne externe Daten).
+
+### Phase 1 – Cointegration-Pre-Check (GATE fuer Phase 2!)
+**Script:** `scripts/cointegration_check.mq5` (Engle-Granger OLS + ADF).
+Kompiliert: 0 Errors, 0 Warnings. Look-Ahead-frei (Index ab 1).
+**Test:** Alle 15 Paar-Kombinationen aus dem 6er-Korb, H1, Lookback 2000.
+Abbruch: Kein Paar cointegriert -> Phase 2 UEBERSPRINGEN, direkt Phase 3.
+**Status:** Script fertig, muss im MT5 auf Chart-6er-Korb ausgefuehrt werden.
+
+### Phase 2 – Pair-Trading-EA (nur wenn Phase 1 cointegrierte Paare liefert)
+Neuer EA `experts/pair_trading_v1.mq5` mit Multi-Symbol-Setup,
+Hedge-Ratio, Z-Score-Einstieg, Kosten-Check, identischem OnTester-Format.
+Detaillierter Prompt in docs/REVIEW_VERBESSERUNG.md (Teil 2).
+
+### Phase 3 – Erweiterungen des Haupt-EAs (parallel zu Phase 2 planbar)
+Jede als separater Toggle, isoliert testen, 6er-Korb, Fenster A/B:
+- **3.1 MT5 Calendar API News-Filter** (HIGH-Prio, im Tester testbar!)
+- **3.2 Saisonalitaets-Filter** (Stunde/Wochentag)
+- **3.3 Korb-Volatilitaetsregime**
+- **3.4 Carry-Trade-Signal**
+
+### weitere Ideen im Pool (falls Phase 2+3 scheitern)
+Tick-Volume-Profile, Carry-Basket, Volatility-Expansion (preisbasiert,
+NICHT ORB), Cross-Asset-Bestätigung via DXY. Details: REVIEW_VERBESSERUNG.md
+Teil 4.
+
+### Notausstieg
+Nach insg. 100 Backtests ohne |z|>2 Edge: Pivot auf Indices, laengere
+Haltedauer, manueller Discretion, oder Projekt als Lernprojekt abschliessen.
 
 ## Kernregeln (Kurzfassung)
 - Keine Kontodaten/Passwoerter/API-Keys in Code, Chat oder Commits
@@ -371,14 +390,17 @@ Jeder Lauf -> Zeile in `backtests.csv` (inkl. risk_realized_pct + z_score).
 ## Relevante Dateien
 | Datei | Inhalt |
 |---|---|
-| experts/ema_mtf_v3.mq5 | **AKTIVE EA-Datei** (v3.41: EMA-Kreuz + MTF-Bias, Long/Short, Gewinnsicherung, Mean-Reversion-Modus, Volatilitaetsfilter, OrderCalcProfit-Sizing, OnTester) |
+| experts/ema_mtf_v3.mq5 | **AKTIVE EA-Datei** (v3.50: EMA-Kreuz + MTF-Bias, Long/Short, Gewinnsicherung, Mean-Reversion-Modus, Vol-Filter, ORB-Modus 2, OrderCalcProfit-Sizing, OnTester) |
 | experts/structure_swing_ea.mq5 | Kandidat-EA (Fractal-Swings + MTF-Trend, non-repaint); getestet Backtest 12, kein Edge |
 | experts/ema_9_21_crossover_long_v2.mq5 | alte v2.0 (nur Historie, nicht mehr aktiv) |
+| scripts/cointegration_check.mq5 | **Phase 1 GATE:** Engle-Granger OLS + ADF-Test (Look-Ahead-frei), kompiliert 0 errors |
 | EA_CODE.md | kompletter aktueller EA-Code als Markdown (Handoff ohne .mq5-Upload) |
-| backtests.csv | Register aller Backtests (id;...;risk_realized_pct;z_score;fazit) |
+| docs/REVIEW_VERBESSERUNG.md | AI-Studio-Review: 7 Blindstellen + verbesserter Claude-Code-Prompt + 5 neue Ideen + Workflow mit Quality-Gates |
+| backtests.csv | Register aller Backtests (61 Eintraege, id;...;risk_realized_pct;z_score;fazit) |
 | JOURNAL.md | Tagebuch mit Tageseintraegen (Zeitleiste des Projekts) |
 | tools/validate_backtests.py | objektive Nachrechnung/Validierung von backtests.csv |
 | tools/pool_backtests.py | poolt Korb-Ergebnisse je Fenster, rechnet gepoolten z-Wert (Aufruf: prefix + verzeichnis) |
-| AI_STUDIO_PROMPT.md | fertiger Prompt fuer AI Studio |
+| tools/checklist_new_strategy.md | Checkliste fuer neue Strategie-Ideen (10 Punkte, Anhang B aus AI-Studio-Review) |
+| AI_STUDIO_PROMPT.md | fertiger Prompt fuer AI Studio (inkl. gelernter Lektionen) |
 | CLAUDE.md | Projektregeln + Handoff-Workflow |
 | README.md | Projektueberblick + Setup + Test-Disziplin |

@@ -85,5 +85,38 @@ Suche **stabile Parameter-Bereiche**, keine Zufallsspitzen (Overfitting).
 Bevorzuge Ideen, die ueber lange Zeitraeume (2022-2026) und mehrere
 Zeitebenen robust sind, statt maximaler Rendite auf kurzen Fenstern.
 
+## Gelernte Lektionen (13.07. - AI-Studio-Review, ZCode-Audit)
+Zusaetzlich zu den obigen Regeln (immer noch gueltig!):
+- **Korrelation != Cointegration.** Pair-Trading funktioniert nur bei
+  cointegrierten Paaren. EURUSD/GBPUSD sind wahrscheinlich NICHT
+  cointegriert (Brexit, Gilt-Krise, BoE-vs-ECB-Divergenz). Vor jedem
+  Pair-Trading-Ansatz: Cointegration-Pre-Check!
+- **MT5 Calendar API existiert** (`CalendarValueHistory`, Build 2155+).
+  News-Filter ist im Strategy Tester testbar, OHNE externe Daten. Der
+  fruehere Ausschluss ("braucht externen Feed") war falsch.
+- **Look-Ahead-Bias:** Bei jeglicher Regression/Hedge-Ratio immer
+  `iClose(..., 1)` statt `iClose(..., 0)` verwenden. Die aktuelle Kerze
+  ist beim Signalzeitpunkt noch nicht geschlossen.
+- **Transaktionskosten bei Pair-Trading:** 2x Spread + 2x Kommission +
+  Swap-Differential koennen marginalen Edge sofort vernichten. Kosten-Check
+  VOR Signalgenerierung.
+- **MT5 Strategy Tester Multi-Symbol-Limitation:** Nur das Haupt-Symbol
+  bekommt volle Tick-Daten; das sekundaere Symbol hat degradierte Ticks.
+  Pair-Trading-Backtests sind eine obere Schranke, keine realistische
+  Simulation.
+- **Strategie-Checkliste** (tools/checklist_new_strategy.md): 10 Punkte,
+  die JEDER neuen Idee genuegen muss, bevor sie in den Workflow geht.
+- **Notausstieg:** Nach insg. 100 Backtests ohne |z|>2 Edge: Pivot auf
+  Indices, laengere Haltedauer, oder Projekt als Lernprojekt abschliessen.
+
+## Aktuelle Roadmap (Phase 1 -> 2 -> 3)
+1. **Phase 1 (GATE):** Cointegration-Pre-Check ueber 15 Paar-Kombinationen
+   (`scripts/cointegration_check.mq5`). Kein Paar cointegriert -> Phase 2
+   ueberspringen, direkt Phase 3.
+2. **Phase 2:** Pair-Trading-EA (nur wenn Phase 1 cointegrierte Paare liefert).
+3. **Phase 3:** News-Filter (MT5 Calendar API), Saisonalitaet, Vol-Regime,
+   Carry-Trade (jeweils isoliert als Toggle im Haupt-EA).
+Details: `docs/REVIEW_VERBESSERUNG.md` (Teil 2: verbesserter Claude-Code-Prompt).
+
 Beginne damit, KONTEXT.md und backtests.csv zusammenzufassen und mir
 DEIN naechstes, bestes Einzel-Experiment im obigen Format vorzuschlagen.

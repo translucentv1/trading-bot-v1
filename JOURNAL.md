@@ -39,6 +39,25 @@ das Claude-Code-Memory zum MT5-Workflow.
 **Offen:** P0 Token-Rotation (Nutzer). Naechstes Vorhaben: Pair-Spread-
 Mean-Reversion (neuer Modus) - ZCode legt zunaechst einen Plan vor.
 
+**Nachmittag (AI-Studio-Review-Integration + Phase 1):**
+- Nutzer hat AI-Studio-Review (`docs/REVIEW_VERBESSERUNG.md`) reingeliefert:
+  7 Blindstellen im Pair-Trading-Plan, verbesserter Claude-Code-Prompt,
+  5 neue strategische Ideen, Workflow mit Quality-Gates.
+- Wichtigste Erkenntnis: EURUSD/GBPUSD sind wahrscheinlich NICHT
+  cointegriert (Brexit, Gilt-Krise, BoE-vs-ECB). Pair-Trading-Blind
+  gebaut ohne Cointegration-Pre-Check -> Phase 1 GATE noetig.
+- MT5 Calendar API wurde uebersehen: News-Filter IST im Tester testbar.
+- **Phase 1: Cointegration-Script gebaut** (`scripts/cointegration_check.mq5`).
+  Engle-Granger OLS + ADF-Test, Look-Ahead-frei (Index ab 1), 0 Errors/0
+  Warnings beim Kompilieren. Muss im MT5 auf den 6er-Korb geloest werden
+  (15 Kombinationen). Ergebnis entscheidet ueber Phase 2 (Pair-Trading-EA).
+- KONTEXT.md: Roadmap Phase 1->2->3 dokumentiert, Relevante-Dateien-Tabelle
+  aktualisiert (neue Dateien, v3.50).
+- AI_STUDIO_PROMPT.md: 7 gelernte Lektionen + Roadmap ergaenzt.
+- Strategie-Checkliste (10 Punkte, tools/checklist_new_strategy.md) aus
+  AI-Studio-Review Anhang B abgelegt.
+- Compile-Log im Repo aufgeraeumt (kompiliert sauber).
+
 ---
 
 ## 2026-07-12 (Tag 2) – Der grosse Test-Tag: von "+141!" zu "kein belegbarer Edge"
