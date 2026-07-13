@@ -88,6 +88,12 @@ input bool            InpUseVolFilter   = false;    // nur handeln wenn Volatili
 input int             InpVolLookback    = 100;      // Lookback Handelstage fuer ATR-D1-Median
 
 //--- Eingaben: Gewinn sichern ---------------------------------------
+input group "--- News-Filter (MT5 Wirtschaftskalender) ---"
+input bool            InpUseNewsFilter    = false;   // Einstiege um High-Impact-News sperren
+input int             InpNewsMinsBefore   = 30;      // Minuten vor dem Event sperren
+input int             InpNewsMinsAfter    = 30;      // Minuten nach dem Event sperren
+input int             InpNewsImportance   = 3;       // Mindest-Wichtigkeit (1=Low, 2=Moderate, 3=High)
+
 input group "--- Gewinn sichern (Break-Even / Teil-TP) ---"
 input bool            InpUseBreakEven   = true;     // Stop auf Einstieg ziehen sobald im Plus
 input double          InpBreakEvenAtR   = 1.0;      // ab wieviel R (Risiko-Vielfaches) auf Break-Even
@@ -127,6 +133,10 @@ double   m_orbHigh     = 0.0;     // Spannen-Hoch
 double   m_orbLow      = 0.0;     // Spannen-Tief
 bool     m_orbHasRange = false;   // Spanne fuer heute vorhanden?
 bool     m_orbDoneToday= false;   // heutiger Einstiegsversuch verbraucht?
+
+//--- News-Filter (Wirtschaftskalender) -----------------------------
+bool     m_calAvailable = false;  // Kalenderdaten im Tester vorhanden?
+long     m_newsBlocked  = 0;      // Diagnose: wieviele Einstiege geblockt
 
 //--- Merker fuer die aktuell verfolgte Position (Gewinn sichern) ----
 ulong    m_pos_ticket   = 0;      // Ticket der aktuell verfolgten Position
@@ -184,6 +194,22 @@ int OnInit()
       return(INIT_FAILED);
      }
 
+   // News-Filter: pruefen ob der Wirtschaftskalender im Tester Daten liefert.
+   // (Kritischer Vorab-Check - ohne Kalenderdaten ist der Filter wirkungslos.)
+   if(InpUseNewsFilter)
+     {
+      MqlCalendarValue chk[];
+      int c = CalendarValueHistory(chk, D'2022.01.01', D'2022.02.01');
+      m_calAvailable = (c > 0);
+      if(m_calAvailable)
+         Print("News-Filter AKTIV: Kalender verfuegbar (Testabfrage Jan-2022 = ",
+               c, " Events). Sperre ", InpNewsMinsBefore, "min vor / ",
+               InpNewsMinsAfter, "min nach Wichtigkeit>=", InpNewsImportance);
+      else
+         Print("WARNING: Kalenderdaten im Tester NICHT verfuegbar (0 Events) - ",
+               "News-Filter bleibt wirkungslos. Ergebnis = wie ohne Filter.");
+     }
+
    m_last_bar_time     = 0;
    m_loss_limit_active = false;
    MqlDateTime tm;
@@ -210,6 +236,9 @@ void OnDeinit(const int reason)
    if(h_rsi     != INVALID_HANDLE) IndicatorRelease(h_rsi);
    if(h_biasEMA != INVALID_HANDLE) IndicatorRelease(h_biasEMA);
    if(h_atrD1   != INVALID_HANDLE) IndicatorRelease(h_atrD1);
+   if(InpUseNewsFilter)
+      Print("News-Filter Bilanz: ", m_newsBlocked, " Einstiege geblockt ",
+            "(Kalender ", (m_calAvailable ? "verfuegbar" : "NICHT verfuegbar"), ").");
   }
 
 //+------------------------------------------------------------------+
@@ -382,12 +411,50 @@ void OnTick()
    // 7. Einstieg (nur wenn keine Position und kein Tagesstopp)
    if(m_loss_limit_active) return;
 
-   bool volOk = (!InpUseVolFilter) || VolatilityOk();
+   bool volOk  = (!InpUseVolFilter)  || VolatilityOk();
+   bool newsOk = (!InpUseNewsFilter) || !IsNewsBlackout(TimeCurrent());
 
    if(InpAllowLong && longSignal && volOk)
-      OpenTrade(true, atrValue);
+     {
+      if(newsOk) OpenTrade(true, atrValue);
+      else       m_newsBlocked++;
+     }
    else if(InpAllowShort && shortSignal && volOk)
-      OpenTrade(false, atrValue);
+     {
+      if(newsOk) OpenTrade(false, atrValue);
+      else       m_newsBlocked++;
+     }
+  }
+
+//+------------------------------------------------------------------+
+//| News-Filter: liegt zum Zeitpunkt now ein Event mit ausreichender |
+//| Wichtigkeit fuer eine der Symbol-Waehrungen im Sperrfenster?     |
+//| Sperre gilt von (Event - MinsBefore) bis (Event + MinsAfter);    |
+//| also blockiert, wenn ein Event in [now-After, now+Before] liegt. |
+//+------------------------------------------------------------------+
+bool IsNewsBlackout(datetime now)
+  {
+   if(!m_calAvailable) return(false);
+   string curBase  = SymbolInfoString(_Symbol, SYMBOL_CURRENCY_BASE);
+   string curQuote = SymbolInfoString(_Symbol, SYMBOL_CURRENCY_PROFIT);
+   datetime from = now - (datetime)InpNewsMinsAfter  * 60;
+   datetime to   = now + (datetime)InpNewsMinsBefore * 60;
+
+   string curs[2]; curs[0] = curBase; curs[1] = curQuote;
+   for(int k = 0; k < 2; k++)
+     {
+      if(curs[k] == "" ) continue;
+      if(k == 1 && curQuote == curBase) continue;  // nicht doppelt pruefen
+      MqlCalendarValue vals[];
+      int n = CalendarValueHistory(vals, from, to, NULL, curs[k]);
+      for(int i = 0; i < n; i++)
+        {
+         MqlCalendarEvent ev;
+         if(!CalendarEventById(vals[i].event_id, ev)) continue;
+         if((int)ev.importance >= InpNewsImportance) return(true);
+        }
+     }
+   return(false);
   }
 
 //+------------------------------------------------------------------+

@@ -78,6 +78,20 @@ GATE), Pair-Trading erst nach positivem Ergebnis (siehe Nachmittag/Abend).
   auf den 2 Paaren) freigegeben, aber Claude Code WARTET auf Nutzer-
   Bestaetigung, bevor `pair_trading_v1.mq5` gebaut wird.
 
+**Nachts (Claude Code – Phase 3.1 News-Filter, Nutzer: "los"):**
+- **News-Filter in `ema_mtf_v3.mq5` gebaut** (Toggle `InpUseNewsFilter`,
+  default aus): `IsNewsBlackout()` sperrt Einstiege im Fenster um High-Impact-
+  Events (MT5 Calendar API, beide Symbol-Waehrungen). Mit OnInit-Vorab-Check
+  auf Kalender-Verfuegbarkeit. 0 Errors.
+- **Befund: der MT5-Kalender liefert im Strategy Tester 0 Events** fuer
+  historische Zeitraeume -> Filter im Backtest wirkungslos (EURUSD Fenster B:
+  0 Trades geblockt, Ergebnis identisch zu ohne Filter). Die Review-Annahme
+  (Blindstelle 4, "im Tester testbar") ist auf dieser MT5-Version widerlegt.
+  Der Vorab-Check hat das erkannt, bevor ein ganzer Korb-Lauf verpuffte.
+- **Entscheidung:** Filter-Code bleibt (greift im Demo/Live), aber kein
+  Backtest-Register-Eintrag (nichts messbar). Weiter mit Phase 3.2
+  (Saisonalitaet) - rein zeitbasiert, voll im Tester testbar.
+
 **Abend spaet (Claude Code – Phase 2 gebaut und getestet, Nutzer: "fuehre fort"):**
 - **`experts/pair_trading_v1.mq5` gebaut** (0 Errors): Multi-Symbol Log-
   Spread-Mean-Reversion. Rollierende Hedge-Ratio (500 Bars, Look-Ahead-frei),

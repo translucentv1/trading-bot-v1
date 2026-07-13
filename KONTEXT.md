@@ -453,8 +453,19 @@ Backtest 14 oben). Naechster Ansatz: Phase 3 (Erweiterungen Haupt-EA).
 
 ### Phase 3 – Erweiterungen des Haupt-EAs (parallel zu Phase 2 planbar)
 Jede als separater Toggle, isoliert testen, 6er-Korb, Fenster A/B:
-- **3.1 MT5 Calendar API News-Filter** (HIGH-Prio, im Tester testbar!)
-- **3.2 Saisonalitaets-Filter** (Stunde/Wochentag)
+- **3.1 MT5 Calendar API News-Filter — GEBAUT, aber im Tester NICHT testbar
+  (13.07.).** Toggle `InpUseNewsFilter` + `IsNewsBlackout()` sauber im EA
+  gekapselt (default aus). Eingebauter Vorab-Check in OnInit: `CalendarValue
+  History()` liefert im Strategy Tester **0 Events** fuer historische Fenster
+  -> Filter wirkungslos im Backtest (verifiziert EURUSD B: 0 Trades geblockt,
+  identisch zum Lauf ohne Filter). Die Review-Annahme (Blindstelle 4,
+  "Kalender im Tester verfuegbar") ist auf dieser MT5-Version falsch: der
+  eingebaute Kalender haelt keine Jahres-Historie vor. Code bleibt fuer
+  Demo/Live (dort ist der Kalender live da). Optionaler Weg fuer Backtests:
+  historischen Kalender als Datei/Resource buendeln (bringt externe Daten
+  rein - vorerst zurueckgestellt).
+- **3.2 Saisonalitaets-Filter** (Stunde/Wochentag) — rein zeitbasiert, VOLL
+  im Tester testbar, keine externen Daten. Naechster Schritt.
 - **3.3 Korb-Volatilitaetsregime**
 - **3.4 Carry-Trade-Signal**
 
