@@ -6,22 +6,22 @@ gebacktestet und danach auf einem **Demo-Konto** automatisiert
 paper-getradet (Forex, Hedged, EUR, 1.000 EUR Startkapital, Hebel 1:30).
 MQL5/MT5 ist der komplette Stack – kein Pine Script, kein Python (vorerst;
 der frühere TradingView/Python-Stand liegt in der Git-Historie und kann
-jederzeit wiederhergestellt werden).
+jederzeit wiederhergestellt werden). **Aktueller Projektstand** (Phase,
+aktive Strategie, nächste Schritte) steht immer in `KONTEXT.md` – die
+Phasenliste stand früher hier und veraltete, deshalb lebt sie jetzt nur
+noch dort.
 
 ## Grundregeln
 - **NIEMALS Kontodaten, Passwörter, Login-/Servernummern in Code, Commits
   oder Prompts/Chat.** Claude nimmt grundsätzlich keine Zugangsdaten
   entgegen und gibt keine ein – Anmeldung am Terminal macht der Nutzer
   immer selbst.
-- **Tech-Stack:** MQL5 (Expert Advisors) für MetaTrader 5. Die Dateien
-  unter `/experts` sind zum Kompilieren im MetaEditor gedacht.
 - **Kompilieren und Strategy-Tester-Läufe passieren beim Nutzer im
   MT5-Terminal, nicht bei Claude** – Ausnahmen nur mit ausdrücklicher
   Erlaubnis des Nutzers (diese liegt seit 12.07.2026 vor, siehe
-  Backtest-Automatik). Claude schreibt den Code so einfach und
-  standardnah wie möglich, damit er auf Anhieb kompiliert.
-- Vor jeder größeren strukturellen Änderung: kurzer Plan im Chat, keine
-  Überraschungen.
+  Backtest-Automatik). Die `.mq5`-Dateien unter `/experts` sind zum
+  Kompilieren im MetaEditor gedacht; Claude schreibt den Code so einfach
+  und standardnah wie möglich, damit er auf Anhieb kompiliert.
 - Deutsche Kommentare, für Anfänger lesbar. In `.mq5`-Dateien ohne
   Umlaute (ae/oe/ue), damit es keine Zeichensatz-Probleme im MetaEditor
   gibt.
@@ -31,6 +31,13 @@ Backtest im Strategy Tester → automatisiertes Paper-Trading auf dem
 Demo-Konto → eine Live-Schaltung kommt frühestens nach bestandenen,
 dokumentierten Tests in Frage, ist allein Entscheidung und Handlung des
 Nutzers, und wird von Claude weder ausgeführt noch aktiviert.
+
+## Forschungs-Disziplin (Edge-Nachweis)
+Jede neue Signal-Idee wird streng geprüft, bevor sie als Edge gilt:
+Out-of-Sample-Fenster A/B + Gegentest auf einem zweiten Instrument, Ziel
+|z| > 2 bei 1 % Risiko pro Trade. Kein Demo-/Live-Einsatz mit
+Gewinnerwartung, solange kein instrument-übergreifend robuster Edge belegt
+ist. (Chronik der geprüften/verworfenen Ideen: `KONTEXT.md` + backtests.csv.)
 
 ## Handoff-Workflow (Claude Code ↔ AI Studio)
 `KONTEXT.md` im Repo-Root ist die gemeinsame Handoff-Datei.
@@ -46,14 +53,12 @@ Nutzers, und wird von Claude weder ausgeführt noch aktiviert.
 
 ### Protokoll-Pflicht (jeder Backtest zaehlt)
 - **Jeder Backtest wird protokolliert** — eine Zeile pro Lauf in
-  `backtests.csv` (id;datum;ea_version;zeitraum;symbol;exec_tf;bias_tf;
-  richtung;strategie;net_profit;profit_factor;sharpe;dd_pct;trades;
-  win_rate_pct;avg_win;avg_loss;max_loss_streak;risk_realized_pct;z_score;
-  fazit). Profitfaktor bei 0 Verlusten = "inf" (nicht 0).
-  risk_realized_pct = |avg_loss|/Kontostand*100 (soll ~1% sein, sonst
-  Sizing-Problem). z_score = Erwartung/Standardfehler (|z|>~2 = statistisch
-  von Null verschieden; darunter Rauschen). So bleiben die Daten nutzbar und
-  Fehlschlaege werden nicht doppelt getestet.
+  `backtests.csv`. Die Spaltenliste ist die Header-Zeile der Datei selbst;
+  Formeln + unabhaengige Nachrechnung stehen in `tools/validate_backtests.py`.
+  Kernlesart: `risk_realized_pct` soll ~1 % sein (sonst Sizing-Problem),
+  `|z_score|` > ~2 = statistisch von Null verschieden (darunter Rauschen),
+  Profitfaktor bei 0 Verlusten = "inf" (nicht 0). So werden Fehlschlaege
+  nicht doppelt getestet.
 - **Jede groessere Aenderung** wird in `KONTEXT.md` festgehalten
   (Aktueller Stand, Letzte Aktion, Backtest-Chronik) und committet.
 - Automatik: Der EA schreibt via `OnTester()` die Kennzahlen nach
@@ -71,20 +76,6 @@ Nutzers, und wird von Claude weder ausgeführt noch aktiviert.
   z_score, risk_realized_pct, PF- und Netto-Konsistenz unabhaengig nach);
   mit `--write` traegt es die berechneten Werte ein. Nach jedem neuen
   Eintrag einmal laufen lassen.
-
-## Phasen
-1. **Phase 1 (fertig):** Struktur, erster EA (EMA-9/21-Crossover, long-only,
-   EURUSD H4, SL/TP in % vom Kapital) inkl. Tagesverlust-Stopp.
-2. **Phase 2 (fertig):** EA v2.0 mit Marktstruktur-SL, dynamischem TP,
-   ATR-Trailing und RSI-Filter. Erster profitabler Backtest (PF 1,09).
-3. **Phase 3 (aktiv, Forschungsphase):** EA v3.x (Long & Short, Multi-
-   Timeframe-Bias, Gewinnsicherung, Vol-Filter – alles per Toggle) als
-   generisches Test-Geruest. Stand: KEINE getestete Signal-Idee hat einen
-   instrument-uebergreifend robusten Edge gezeigt (siehe backtests.csv,
-   z-Werte). Gesucht wird eine grundlegend neue Signal-Idee; jede neue
-   Idee wird streng geprueft: Out-of-Sample-Fenster A/B + GBPUSD-Gegentest,
-   Ziel |z| > 2 bei 1 % Risiko. Kein Demo-/Live-Einsatz mit
-   Gewinnerwartung vorher.
 
 _Hinweis: Ein von AI Studio generiertes React/Node-Web-Tool wurde bewusst
 wieder entfernt – das Repo bleibt schlank auf MQL5/MT5 fokussiert._
