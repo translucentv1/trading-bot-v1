@@ -746,6 +746,19 @@ realistische Kosten. Kandidaten-Richtungen (Nutzer waehlt die erste):
 Empfehlung: mit **(A)** starten — beta-immun testbar, dokumentierter Struktur-Grund,
 nutzt das grosse A-Universum als echte Querschnitts-Stichprobe.
 
+**Nutzer-Wahl (14.07.): (B) Markt-neutral Long/Short.** Gate-Pruefung sofort
+erledigt (`experts/phase5_short_check.mq5`, headless): **985 von 985 handelbaren
+Aktien sind FULL (long+short), 0 LONGONLY** -> Shorten voll moeglich, Ansatz
+umsetzbar. Naechste Schritte Phase 5:
+1. A-priori-Universum fixieren (z.B. alle A-Aktien mit Historie ab < 2021, nach
+   Liquiditaet; Kriterium VOR dem Test schriftlich) - kein performance-basiertes
+   Streichen (Lektion 4).
+2. Cross-sectional Momentum-Ranking (Standard 12-1-Monat), monatliches Rebalancing,
+   Long Top-Quantil / Short Bottom-Quantil, dollar-neutral (Beta ~0 per Konstruktion).
+3. Test = Long/Short-Spread, gepoolt, OOS Fenster A/B, realistische Kosten von
+   Anfang an. Erfolg: Spread-Rendite > 0 mit |z|>2 in BEIDEN Fenstern nach Kosten.
+   (Beta ~0 -> die Rendite IST das Alpha, kein Beta-Konfundierer mehr.)
+
 ## Kernregeln (Kurzfassung)
 - Keine Kontodaten/Passwoerter/API-Keys in Code, Chat oder Commits
 - Kompilieren + Strategy Tester: nur der Nutzer im MT5-Terminal
