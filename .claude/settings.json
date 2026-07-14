@@ -1,5 +1,6 @@
 {
   "disableBundledSkills": true,
+  "autoCompactWindow": 250000,
   "permissions": {
     "deny": [
       "NotebookEdit",

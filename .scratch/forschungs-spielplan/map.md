@@ -1,7 +1,7 @@
 # Forschungs- & Betriebs-Spielplan
 
 Label: wayfinder:map
-Letzte Aktualisierung: 14.07.2026
+Letzte Aktualisierung: 15.07.2026
 
 ## Destination
 
@@ -64,14 +64,24 @@ entscheiden ist; gebaut/umgebaut/getestet wird danach.
   Demo->Live nur manuell + dokumentiert (JOURNAL.md), kleiner Ramp-up, eine
   Strategie zur Zeit. Rueckwaerts: Sofort-Abbruch bei Demo-Kollaps,
   Live-Rueckstufung, harter Kill-Switch (an Notausstieg-Regel), kein Martingale.
+- [04 Marktfokus](issues/04-marktfokus.md) -- Gestaffelt: Stufe 1 = US100/NAS100
+  (Index) als Validierungs-Sandkasten fuer das 05-Protokoll auf sauberen Daten;
+  Stufe 2 (Phase-4b) = Einzelaktien-Korb als Folge-Vorhaben. Uebergangs-Trigger:
+  Protokoll einmal end-to-end durchlaufen (Pass ODER ehrlicher Abbruch) UND
+  Broker-/Symbol-Datencheck bestanden. FX/Gold ruht. -> Hypothesen-Pipeline (jetzt
+  entblockt) graduiert zu Ticket 09.
+- [08 Automatisierungsgrad](issues/08-automatisierungsgrad.md) -- Zielgrad: voller
+  End-to-End-Loop (kompilieren -> .ini -> Lauf -> XML parsen -> backtests.csv ->
+  validate). PowerShell-Orchestrator + Python-Auswertung in tools/. Robust:
+  Plausibilitaetscheck + Retry + lautes Stoppen statt Muell; manueller Fallback bei
+  Demo-Server-Aussetzern. Endet strikt vor Live. Bau = vorrangiges Folge-Vorhaben
+  (planen, nicht bauen). -> Repo-Struktur graduiert zu Ticket 10.
 
 ## Not yet specified
 
 <!-- in-scope Nebel, noch nicht scharf genug fuer ein Ticket -->
 
-- Ziel-Repo-Struktur & Skill/Tool-Kuratierung (haengt an 05 + 08).
-- Handoff-/Multi-Surface-Fluss verfeinern (Claude Code <-> GLM-5 <-> AI Studio).
-- Systematische Hypothesen-Pipeline: woher kommen Strategie-Ideen (haengt an 04+05).
+- Handoff-Fluss verfeinern (Claude Code <-> Claude Code; Gemini/GLM ausgeschlossen).
 - Kapital-/Risiko-Sizing ueber die Eisernen Regeln hinaus.
 
 ## Out of scope
