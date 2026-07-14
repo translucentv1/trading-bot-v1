@@ -7,6 +7,32 @@
 
 ---
 
+## 2026-07-14 (Tag 4, Sitzung 2) – Phase 5 Start: markt-neutral Long/Short
+
+**Kurzfassung:** Nutzer waehlt markt-neutral Long/Short + "eher mehr Trades".
+Gate geprueft (Shorts moeglich: 985/985 FULL). Cross-Sectional Momentum- und
+Reversal-Prototyp gebaut und getestet -> **kein robuster Edge**; bindende
+Grenze ist das schmale A-only-Universum.
+
+- **Gate:** `experts/phase5_short_check.mq5` - alle 985 handelbaren Aktien sind
+  FULL (long+short). Markt-neutral umsetzbar.
+- **Universum:** `experts/export_universe.mq5` (Bulk-D1-Export, liest Listendatei).
+  A-priori-Liste von 54 bekannten liquiden A-Large-Caps fixiert (vor jedem Test);
+  45 mit voller Historie nutzbar (Tester synct Nicht-Chart-Symbole teils nur
+  partiell). Daten in `tools/phase5_univ/`.
+- **`tools/momentum_ls.py`:** Terzile, dollar-neutral, Fenster A/B, Kostenszenarien.
+  L/S-Konstruktion bestaetigt beta-neutral (Beta ~0.1-0.3).
+- **Ergebnis:** Momentum tot (auch brutto). Reversal nur in Fenster A (2022,
+  volatil; Sharpe 1.35 brutto), faellt in B, kostenempfindlich. |z|>2 in beiden
+  Fenstern nach Kosten klar verfehlt.
+- **Erkenntnis:** 45 A-Ticker sind ein zu schmaler Querschnitt; echte L/S-Praemien
+  brauchen Hunderte Aktien. Broker hat nur A-Range -> strukturelle Decke.
+- **Offen:** mit Nutzer klaeren - Universum breiter exportieren (langsam, bleibt
+  A-only), anderer marktneutraler Ansatz, oder Lernprojekt-Stand halten. Nicht
+  blind weiter-sweepen (Snooping).
+
+---
+
 ## 2026-07-14 (Tag 4) – Lernprojekt-Abschluss (Weg B) + Phase 5 eroeffnet
 
 **Kurzfassung:** Nach dem negativen Kontroll-Experiment (Weg A) Weg B gewaehlt:

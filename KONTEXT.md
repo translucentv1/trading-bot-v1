@@ -759,6 +759,33 @@ umsetzbar. Naechste Schritte Phase 5:
    Anfang an. Erfolg: Spread-Rendite > 0 mit |z|>2 in BEIDEN Fenstern nach Kosten.
    (Beta ~0 -> die Rendite IST das Alpha, kein Beta-Konfundierer mehr.)
 
+**Prototyp-Ergebnis (14.07., `tools/momentum_ls.py` auf 45 a-priori A-Large-Caps,
+`experts/export_universe.mq5`-Export): KEIN robuster Edge.**
+Terzile, dollar-neutral; die L/S-Konstruktion ist bestaetigt beta-neutral
+(Beta_vsKorb ~ +0.1..+0.3 -> misst echtes Alpha). Kein neuer Tester-Eintrag
+(Python-Prototyp), Daten in `tools/phase5_univ/`.
+| Signal | Fenster A brutto/z | Fenster B brutto/z | nach 10bps |
+|---|---|---|---|
+| Momentum 12-1 monatlich | -10.3% / -0.84 | +2.7% / +0.16 | beide ~0/negativ |
+| Momentum 6-1 woechentlich | -2.9% / -0.24 | -3.7% / -0.22 | negativ |
+| Reversal 5T woechentlich | **+18.0% / +1.87** | -8.6% / -0.75 | A z=0.79, B z=-1.65 |
+| Reversal 1T taeglich | +12.9% / +1.09 | -2.6% / -0.16 | z=-3.1 (Kosten toeten) |
+- **Momentum: tot** (kein Signal, auch brutto). 2022 war ein Momentum-Crash.
+- **Reversal: nur regime-abhaengig** (Signal nur im volatilen Fenster A, Sharpe 1.35
+  brutto) - faellt in Fenster B, und die noetige hohe Umschlagsrate macht es
+  kostenempfindlich (taeglich nach Kosten katastrophal). Erfolgskriterium
+  (|z|>2 in BEIDEN Fenstern nach Kosten) klar verfehlt.
+- **Bindende Grenze: Universum.** Nur ~45 liquide A-Ticker (Broker hat nur
+  A-Range) = schmaler Querschnitt fuer Cross-Sectional-Strategien; echte
+  Momentum/Reversal-Praemien werden auf 500-3000 Aktien gemessen. Plus
+  Survivorship (nur heutige Large-Caps) und zwei cross-sectional-feindliche
+  Fenster. Universums-Erweiterung ist im Tester langsam (~3.7s/Symbol,
+  Nicht-Chart-Symbole teils nur ~178 Bars synchronisiert) und bleibt A-only.
+- **Konsequenz:** Cross-Sectional L/S auf dem handelbaren A-Universum hat eine
+  strukturelle Decke. Nicht weiter blind sweepen (Snooping-Gefahr). Naechste
+  Optionen mit dem Nutzer klaeren (Universum breiter, anderer marktneutraler
+  Ansatz, oder Lernprojekt-Stand halten).
+
 ## Kernregeln (Kurzfassung)
 - Keine Kontodaten/Passwoerter/API-Keys in Code, Chat oder Commits
 - Kompilieren + Strategy Tester: nur der Nutzer im MT5-Terminal
