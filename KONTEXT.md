@@ -1,5 +1,15 @@
 # KONTEXT – Handoff zwischen Claude Code und AI Studio
-_Letzte Aktualisierung: 13.07.2026 (Kontroll-Experiment Weg A: Timing vs. Beta)_
+_Letzte Aktualisierung: 14.07.2026 (Lernprojekt-Abschluss Phase 1-4, Phase 5 eroeffnet)_
+
+## Letzte Aktion (14.07. – Lernprojekt-Abschluss + Phase 5 eroeffnet)
+Weg B gewaehlt: Phase 1-4 sauber abgeschlossen. **`ABSCHLUSS.md`** neu
+(ehrliche Retrospektive: 10 Familien-Tabelle, 7 belegte Lektionen,
+bleibender Werkzeugkasten, Sicherheit). README auf Endstand aktualisiert
+(163 Backtests / 10 Familien, Test-Disziplin um Beta-Kontrolle + Kosten
+erweitert). **Phase 5 eroeffnet** (siehe Roadmap unten): naechste, strukturell
+ANDERE Signalfamilie mit Leitplanken; Empfehlung Cross-Sectional Momentum
+(beta-immun testbar). Kein Code fuer Phase 5 gebaut - wartet auf Nutzer-Wahl
+der Richtung. Kein Demo-/Live-Einsatz.
 
 ## Projekt
 MQL5 Expert Advisor fuer MetaTrader 5.
@@ -701,17 +711,40 @@ signifikant (z(Signal-Beta) nie >2; in Fenster A negativ) und wird unter
 realistischen Kosten unbrauchbar. Die Strategie ist Long-Beta, kein Timing-Alpha.
 Die Kernfrage ist damit sauber beantwortet -> es bleibt nur noch Weg B.
 
-**Weg B – Projekt als Lernprojekt dokumentiert abschliessen:**
-Falls kein weiterer Aufwand gewuenscht: Der bisherige Ertrag ist methodisch, nicht
-finanziell — eine saubere, ehrlich gefuehrte Pipeline (Pooling, OOS-Fenster,
-Zweitinstrument, z-Wert, Data-Snooping-Audit), die reihenweise populaere
-Retail-Strategien statistisch verworfen hat. Das ist ein vorzeigbares Ergebnis.
-Kein Demo-/Live-Einsatz mit Gewinnerwartung.
+**Weg B – Lernprojekt abgeschlossen (GEWAEHLT, 14.07.).**
+Phase 1-4 sind sauber abgeschlossen, Retrospektive in `ABSCHLUSS.md` (10 Familien,
+7 Lektionen, Werkzeugkasten). Der Ertrag ist methodisch: eine belastbare Pipeline,
+die reihenweise Retail-Strategien statistisch widerlegt hat. Kein Demo-/Live-Einsatz
+mit Gewinnerwartung. Der Nutzer will danach **bessere Strategien** versuchen ->
+siehe "Phase 5 - Neue Signalfamilie".
 
 **Nicht empfohlen:** Weiter-Tuning von Stock-MR (Haltedauer, H4, dritter Zeitraum)
 BEVOR Weg A geklaert ist — das waere erneut Parameter-Jagd auf einem Signal ohne
 belegten Edge. Ebenso KEIN Demo-Paper "nur im Bullenmarkt aktiv": das ist eine
 ungetestete Regime-Wette auf einem konfundierten Ein-Fenster-Ergebnis.
+
+### Phase 5 – Neue Signalfamilie (aktiv ab 14.07., "bessere Strategien")
+Aufnahmepruefung (aus den 7 Lektionen, ABSCHLUSS.md): strukturell ANDERS,
+Beta-/Zufalls-Benchmark von Anfang an, gepoolt + OOS (Pool vorher fixiert),
+realistische Kosten. Kandidaten-Richtungen (Nutzer waehlt die erste):
+
+- **(A) Cross-Sectional Momentum / Relative Staerke (EMPFEHLUNG).** Aus dem
+  ~984er A-Aktien-Universum monatlich die staerksten N kaufen (relativ zum Korb).
+  Cross-sectional Momentum ist eine der am besten dokumentierten Anomalien
+  (Jegadeesh-Titman). Entscheidend: Edge wird als **Ueberrendite gegen den
+  gleichgewichteten Korb** gemessen (beta-adjustiert) — genau die Disziplin, die
+  in Phase 4 gefehlt hat. Voll im Tester + Python-Ranking abbildbar.
+- **(B) Markt-neutral Long/Short.** Long Top-N, Short Bottom-N desselben Universums
+  -> Beta per Konstruktion ~0, sauberster Alpha-Test. Voraussetzung: Shorten der
+  Aktien-CFDs auf der Demo moeglich (pruefen). Anspruchsvoller.
+- **(C) Volatility-Targeting / Risk-Parity auf dem vorhandenen Korb.** Kein neues
+  Signal, sondern besseres Positions-Sizing (gleiche Risiko-Beitraege) — testet, ob
+  Money-Management statt Signal den Unterschied macht. Kleinster Aufwand.
+- **(D) Etwas ganz anderes** nach Nutzer-Idee (ereignis-/mikrostruktur-basiert),
+  sofern im Tester ohne externe Daten pruefbar.
+
+Empfehlung: mit **(A)** starten — beta-immun testbar, dokumentierter Struktur-Grund,
+nutzt das grosse A-Universum als echte Querschnitts-Stichprobe.
 
 ## Kernregeln (Kurzfassung)
 - Keine Kontodaten/Passwoerter/API-Keys in Code, Chat oder Commits

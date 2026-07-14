@@ -5,16 +5,20 @@ handelt. Er wird im **Strategy Tester** gebacktestet; ein Demo-Einsatz
 (Spielgeld) kommt erst, wenn eine Strategie nachweislich robust ist.
 Zielkonto: Forex, Hedged, EUR, 1.000 EUR Startkapital, Hebel 1:30.
 
-**Ehrlicher Projektstand:** Wir sind in einer *Forschungsphase*. Nach
-121 dokumentierten Backtests über 9 Strategie-Familien hat noch **keine**
-getestete Signal-Idee einen instrumentübergreifend robusten,
-statistisch belastbaren Vorteil gezeigt (Details: `backtests.csv`,
-`KONTEXT.md`). Zuletzt fielen Cointegration-Pair-Trading (Backtest 14),
-ein Saisonalitäts-/Session-Filter (Backtest 15) und ein Carry-Basket
-(Backtest 16) durch – jeweils out-of-sample negativ. Ein MT5-News-Filter
-wurde gebaut, ist aber im Strategy Tester nicht backtestbar (der Kalender
-liefert dort keine Historie). Der EA selbst ist ein solides, generisches
-Test-Gerüst – gesucht wird die Signal-Kante.
+**Ehrlicher Projektstand (Phase 1–4 abgeschlossen):** Nach **163**
+dokumentierten Backtests über **10** Strategie-Familien hat **keine**
+getestete Signal-Idee einen robusten, instrumentübergreifenden, kosten-
+und regime-festen Vorteil gezeigt. Das Lernprojekt wird deshalb an dieser
+Stelle sauber abgeschlossen – die vollständige, ehrliche Retrospektive
+(was getestet wurde, was herauskam, die 7 wichtigsten Lektionen) steht in
+**[`ABSCHLUSS.md`](ABSCHLUSS.md)**. Zuletzt scheiterte eine Aktien-
+Mean-Reversion (Stock RSI(2), Backtest 17–20): der scheinbare z > 2 war
+Data Snooping, und ein Kontroll-Experiment zeigte, dass die Strategie nur
+Long-Beta ist (kein echtes Timing). Das eigentliche Ergebnis ist
+**methodisch**: eine belastbare Test-Pipeline, die reihenweise populäre
+Strategien statistisch widerlegt hat. Nächster Schritt: eine strukturell
+andere Signalfamilie mit besseren Leitplanken (siehe `KONTEXT.md`,
+"Phase 5").
 
 ## Projektstruktur
 
@@ -66,9 +70,15 @@ Generisches Test-Gerüst mit allem per Eingabe-Parameter schaltbar:
 Jede neue Strategie-Idee wird geprüft mit:
 1. **Out-of-Sample:** getrennte Fenster (A: 2022–2023, B: 2024–2026) –
    nicht nur ein durchgehender Zeitraum.
-2. **Generalisierung:** Gegentest auf einem zweiten Instrument (GBPUSD).
+2. **Generalisierung:** Gegentest auf einem zweiten Instrument / gepoolt
+   über einen Korb (Symbol-Pool **vorher** festlegen – kein nachträgliches
+   Streichen, das ist Data Snooping).
 3. **Statistik:** Ziel |z-Score| > 2 bei sauberem 1-%-Risiko –
    sonst ist ein Ergebnis vom Zufall nicht zu unterscheiden.
+4. **Beta-Kontrolle:** Long-Strategien gegen einen Beta-/Zufalls-Benchmark
+   messen (`tools/control_experiment.py`) – ein Bullenmarkt-Gewinn allein
+   ist kein Edge.
+5. **Kosten:** realistische Reibung von Anfang an im Modell.
 
 Live-Trading kommt frühestens nach bestandenen, dokumentierten Tests und
 ist allein Entscheidung und Handlung des Nutzers.

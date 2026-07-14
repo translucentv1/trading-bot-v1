@@ -7,6 +7,28 @@
 
 ---
 
+## 2026-07-14 (Tag 4) – Lernprojekt-Abschluss (Weg B) + Phase 5 eroeffnet
+
+**Kurzfassung:** Nach dem negativen Kontroll-Experiment (Weg A) Weg B gewaehlt:
+Phase 1-4 als Lernprojekt sauber abgeschlossen. Ehrliche Retrospektive
+geschrieben; naechste Phase mit besseren Leitplanken aufgesetzt.
+
+- **`ABSCHLUSS.md` neu:** Tabelle aller 10 Strategie-Familien mit Verdikt,
+  7 mit eigenen Daten belegte Lektionen (Winrate≠Profit, ein Instrument beweist
+  nichts, Cointegration≠handelbar, Data Snooping, Long-Gewinne gegen Beta pruefen,
+  Kosten, Stichprobengroesse), Werkzeugkasten, Sicherheits-Bilanz (nie Demo/Live).
+- **README aktualisiert:** Endstand 163 Backtests / 10 Familien; Test-Disziplin
+  um Beta-Kontrolle (Punkt 4) und Kosten (Punkt 5) erweitert; Verweis auf ABSCHLUSS.
+- **KONTEXT: Phase 5 eroeffnet** mit Aufnahmepruefung + 4 Kandidaten-Richtungen.
+  Empfehlung: Cross-Sectional Momentum (relative Staerke im A-Universum), weil
+  beta-immun gegen den Korb testbar und strukturell dokumentiert.
+- **Entschieden:** Projekt-Ertrag ist methodisch, nicht finanziell. Kein
+  Gewinnerwartungs-Einsatz. Der Nutzer will bessere Strategien versuchen.
+- **Offen:** Nutzer waehlt Phase-5-Richtung (A/B/C/D). Dann Code + gepoolter
+  OOS-Test mit Beta-Benchmark.
+
+---
+
 ## 2026-07-13 (Tag 3, Sitzung 7) – Kontroll-Experiment Weg A + Chartanalyse
 
 **Kurzfassung:** Weg A durchgezogen (Timing vs. Beta vs. Zufall). Ergebnis
