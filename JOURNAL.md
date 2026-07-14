@@ -7,6 +7,34 @@
 
 ---
 
+## 2026-07-14 (Tag 4) – Skills-Kuration + KONTEXT-Glossar + Token-Bloat
+
+**Kurzfassung:** Werkzeug-/Doku-Sitzung, keine neuen Backtests. mattpocock-
+Skills auf eine kuratierte Auswahl reduziert, KONTEXT.md als Glossar
+umgebaut, CLAUDE.md verschlankt, Token-Bloat gemessen und erste konservative
+settings.json-Schalter gesetzt.
+
+- **Skills:** Von 22 committeten Skills auf die kuratierten 7 abgeglichen
+  (diagnosing-bugs, grill-me, grill-with-docs, handoff, research, wayfinder,
+  setup-matt-pocock-skills) + 4 auf Wunsch behalten (domain-modeling,
+  git-guardrails, grilling, setup-pre-commit). 12 geloescht. `setup-matt-
+  pocock-skills` neu angelegt; `docs/agents/{issue-tracker,domain}.md` erzeugt
+  (domain.md verweist auf KONTEXT.md, NICHT CONTEXT.md).
+- **KONTEXT.md:** Kopf durch Glossar (12 Begriffe mit *Avoid*-Zeilen) +
+  Relationships + Flagged ambiguities ersetzt. Faktenstand (163 Backtests,
+  Chronik BT1-18, Roadmap, Dateiindex) unveraendert erhalten.
+- **CLAUDE.md:** von ~130 auf 24 Zeilen; nur Strukturfakten + Verweise auf
+  KONTEXT.md (Eiserne Regeln) und docs/agents/*.md.
+- **Token-Bloat:** Baseline ~81,4k Overhead; ~59k davon MCP-Tools
+  (trader-dev ~35k). `.claude/settings.json` gesetzt: disableBundledSkills +
+  deny NotebookEdit/DesignSync (~3-3,5k Ersparnis). Proxy + Runbook in
+  tools/bloat/ fuer die eigentliche Messung durch den Nutzer.
+- **Offen:** Proxy-Messung + Vorher/Nachher-/context durch Nutzer; Entscheidung
+  ueber Abschalten ungenutzter MCP-Server (grosser Hebel); disableWorkflows
+  erst nach Messung.
+
+---
+
 ## 2026-07-13 (Tag 3, Sitzung 5) – Domain-Pivot: US-Aktien Mean-Reversion
 
 **Kurzfassung:** Nach 121 erfolglosen FX-Backtests: Pivot auf Nasdaq-Aktien.

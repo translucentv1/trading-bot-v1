@@ -1,0 +1,9 @@
+{
+  "disableBundledSkills": true,
+  "permissions": {
+    "deny": [
+      "NotebookEdit",
+      "DesignSync"
+    ]
+  }
+}
