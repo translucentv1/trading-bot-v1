@@ -73,7 +73,23 @@ MCP-Server werden NICHT ueber settings.json abgeschaltet, sondern ueber die
 MCP-Konfiguration (`claude mcp ...` bzw. `~/.claude.json`). Das ist eine
 Infra-Entscheidung — bewusst hier nur dokumentiert, nicht angefasst.
 
-## Nach den Aenderungen
-Claude Code neu starten, `/context` erneut ausfuehren und mit der Baseline oben
-vergleichen. Realistische Ersparnis der gesetzten Schalter allein: ~3-3,5k
-(Skills-Block). Der grosse Sprung kommt erst, wenn ungenutzte MCP-Server raus.
+## Nach den Aenderungen (gemessen 14.07.2026, nach Neustart)
+`/context` in frischer Session, `trader-dev` aus `~/.claude.json` entfernt
+(Backup: `~/.claude.json.backup-vor-trader-dev-2026-07-14`), settings.json-Schalter
+aktiv. Die Session meldete: "49 deferred tools no longer available: DesignSync,
+mcp__trader-dev__* (47), NotebookEdit" — alle drei Hebel greifen.
+
+| Kategorie | Baseline | Nachher | Delta |
+|---|---|---|---|
+| System prompt | 3,3k | 3,3k | 0 |
+| System tools | 11,6k | 15,9k | +4,3k |
+| MCP tools | 9,3k | 8,9k | -0,4k |
+| MCP tools (deferred) | 34,6k | 16,6k | **-18,0k** |
+| System tools (deferred) | 15,5k | 9,9k | -5,6k |
+| Memory files | 3,2k | 1,1k | -2,1k |
+| Skills | 3,9k | 1,7k | -2,2k |
+| **Overhead-Summe** | **~81,4k** | **~57,4k** | **~-24k** |
+
+Kernergebnis: ~24k weniger Overhead pro Session. Groesster Einzelposten war
+`trader-dev` (-18k im deferred-MCP-Block). Falls `trader-dev` je wieder
+gebraucht wird: Backup zurueckspielen oder Server neu hinzufuegen.
