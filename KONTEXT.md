@@ -247,12 +247,19 @@ verliert signifikant (Backtest 13, z=-2,61); Struktur-Swing = Rauschen
 - **Groundwork umgesetzt:** `backtests.csv` +4 Spalten (hypothese, phase,
   wf_zyklus, dsr, vor fazit) -- 163 Zeilen migriert, validate gruen.
   `hypothesen.md` angelegt. Glossar um 5 Begriffe erweitert (s.o.).
-- **Pipeline gebaut (`tools/pipeline/`):** run_backtest.ps1 + parse_report.py
-  (gegen Fixture getestet) + backtest.ini.template + config.json. Roh-Reports
-  gitignored, `reports/heatmaps/` versioniert. AI_STUDIO_PROMPT.md entfernt.
-- **Naechster Schritt:** `config.json` mit MT5-Pfaden fuellen; ersten echten
-  US100-Lauf fahren und die 2 markierten Baustellen (Report-Fundort + LABELS)
-  bestaetigen; danach DSR-Skript + erster Hypothesen-Zyklus.
+- **Pipeline gebaut + an echtem Lauf verifiziert (`tools/pipeline/`):**
+  run_backtest.ps1 + parse_report.py + backtest.ini.template + config.json (mit
+  echten MT5-Pfaden gefuellt). Shakedown auf AUS200 lief End-to-End; 2 Parser-Bugs
+  gefixt (deutscher Report = UTF-16; Umlaut-Labels). Roh-Reports gitignored,
+  `reports/heatmaps/` versioniert. AI_STUDIO_PROMPT.md entfernt.
+- **Datencheck:** MetaQuotes-Demo hat KEIN US100 -> Stufe-1-Index = AUS200 (einziger
+  Index-CFD, reale Ticks).
+- **Zwei disziplinierte Hypothesen-Zyklen (klickfrei via Pipeline), beide verworfen:**
+  EMA-Trend auf AUS200 (id164/165: PF 0,73/1,04) und stock_mr Oversold-Bounce
+  (id166: PF 0,25, z -2,12, 8 Trades). Kern-Einsicht: der bewaehrte Aktien-MR-Edge
+  (z=2,46) lebt vom Korb-POOLING; ein einzelner Index liefert zu wenige Signale.
+- **Naechster Schritt (pausiert):** Stufe 2 -- MR-Mechanismus auf dem Aktien-Korb
+  unter dem neuen Protokoll (Pooling + Walk-Forward). Offen: DSR-Skript.
 
 ## Letzte Aktion (13.07. – Domain-Pivot + Stock MR)
 - **Symbol-Finder gebaut:** `experts/symbol_finder.mq5` + `scripts/add_symbols.mq5`.

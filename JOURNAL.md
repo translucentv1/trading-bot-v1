@@ -33,10 +33,23 @@ Folge-Vorhaben umgesetzt: die Backtest-Automatisierungs-Pipeline.
   Roh-Reports gitignored, `reports/heatmaps/` versioniert.
 - **Aufraeumen:** `AI_STUDIO_PROMPT.md` geloescht; GLM-5/AI-Studio-Rollen aus
   KONTEXT/README bereinigt (nur noch Claude Code + Claude-Web).
-- **Offen:** `config.json` mit MT5-Pfaden ausfuellen; ersten echten US100-Lauf
-  fahren und dabei die 2 markierten Baustellen bestaetigen (Report-Fundort +
-  Report-Labels); DSR-Skript + KONTEXT-Glossar-Feinschliff; erster
-  Hypothesen-Zyklus nach neuem Prozess.
+- **Pipeline an echtem Lauf verifiziert:** `config.json` selbst mit den MT5-Pfaden
+  gefuellt (terminal64/MetaEditor64 unter Program Files, Instanz-Hash D0E8...).
+  Shakedown auf AUS200 lief End-to-End; dabei 2 echte Parser-Bugs gefixt (deutscher
+  Report ist UTF-16; Umlaut-Labels). Alle 9 Kennzahlen exakt. Datencheck: MetaQuotes-
+  Demo hat KEIN US100 -> Stufe-1-Index = AUS200.
+- **Zwei disziplinierte Hypothesen-Zyklen (Meilenstein: erstmals mechanismus-
+  registriert, klickfrei getestet, sauber verworfen):**
+  - H-...-AUS200-trend (EMA-Trend): Fenster A PF 0,73/z -1,42, Fenster B PF 1,04/
+    z 0,21 (id164/165) -> verworfen, kein Edge.
+  - H-...-AUS200-mr (stock_mr Oversold-Bounce): Fenster A 0 Trades (Trendfilter),
+    Fenster B PF 0,25/z -2,12/8 Trades (id166) -> verworfen.
+  - **Kern-Einsicht:** der bewaehrte Aktien-MR-Edge (z=2,46) lebt vom POOLING ueber
+    einen Korb; ein einzelner Index liefert zu wenige Signale. AUS200 ist als
+    Stufe-1-Sandkasten strukturell schwach. Uebergangs-Trigger zu Stufe 2 erfuellt.
+- **Naechster Schritt (bewusst pausiert):** Stufe 2 -- MR-Mechanismus auf dem
+  Aktien-Korb (AAPL, AMD, ...) unter dem neuen Protokoll (Pooling + Walk-Forward via
+  Pipeline). Offen weiterhin: DSR-Skript, KONTEXT-Glossar-Feinschliff.
 
 ---
 
