@@ -5,6 +5,11 @@
 *.ex5
 *.log
 
+# Backtest-Pipeline (Ticket 08/10): Roh-Reports + generierte .ini sind
+# reproduzierbar -> gitignored. Verdichtete Heatmap-Belege bleiben versioniert.
+reports/*
+!reports/heatmaps/
+
 # Betriebssystem
 .DS_Store
 Thumbs.db
@@ -12,6 +17,10 @@ Thumbs.db
 # Editoren
 .vscode/
 .idea/
+
+# Python
+__pycache__/
+*.pyc
 
 # Lokale Claude-Code-Einstellungen (nur fuer diesen Rechner)
 .claude/settings.local.json

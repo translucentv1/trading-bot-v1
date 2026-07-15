@@ -1,0 +1,31 @@
+; MT5 Strategy-Tester Konfiguration -- VORLAGE.
+; run_backtest.ps1 ersetzt die {{PLATZHALTER}} und schreibt eine fertige .ini
+; in den report_dir. NICHT direkt bearbeiten -- Aenderungen in config.json / im
+; Aufruf von run_backtest.ps1.
+;
+; Model=4 = jeder Tick auf realen Ticks (Pflicht fuer Wertungslaeufe, Ticket 07).
+; ForwardMode steuert das versiegelte OOS (Walk-Forward, Ticket 05):
+;   0 = kein Forward | 1 = 1/2 | 2 = 1/3 | 3 = 1/4 | 4 = eigenes Datum (ForwardDate)
+
+[Tester]
+Expert={{EXPERT}}
+ExpertParameters={{SET_FILE}}
+Symbol={{SYMBOL}}
+Period={{PERIOD}}
+Model={{MODEL}}
+ExecutionMode={{EXECUTION_MODE}}
+Optimization=0
+FromDate={{FROM_DATE}}
+ToDate={{TO_DATE}}
+ForwardMode={{FORWARD_MODE}}
+ForwardDate={{FORWARD_DATE}}
+Deposit={{DEPOSIT}}
+Currency={{CURRENCY}}
+Leverage={{LEVERAGE}}
+Report={{REPORT}}
+ReplaceReport=1
+ShutdownTerminal=1
+Visual=0
+
+[TesterInputs]
+{{TESTER_INPUTS}}

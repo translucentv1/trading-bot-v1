@@ -11,6 +11,16 @@ aktive Strategie, nächste Schritte) steht immer in `KONTEXT.md` – die
 Phasenliste stand früher hier und veraltete, deshalb lebt sie jetzt nur
 noch dort.
 
+## Aufbau (stabile Verweise – welcher EA aktiv ist, steht in `KONTEXT.md`)
+- `experts/*.mq5` — EAs, vom Nutzer im MetaEditor kompiliert.
+- `scripts/*.mq5` — Hilfsskripte (z. B. Cointegration-Checks, Symbol-Finder).
+- `tools/` — Python-Werkzeuge: `validate_backtests.py`, `pool_backtests.py`,
+  `fetch_forex.py` / `analyze_forex.py` (freier Datenkanal), Checklisten.
+- `tools/pipeline/` — automatisierte IS+OOS-Korb-Backtests (README dort).
+- `docs/agents/*.md` — Skill-/Agent-Konfiguration (Issue-Tracker, Domain-Docs).
+- `backtests.csv` — eine Zeile pro Backtest-Lauf; Header definiert die Spalten.
+- `hypothesen.md` — Register geprüfter/verworfener Hypothesen (4-Feld-Format).
+
 ## Grundregeln
 - **NIEMALS Kontodaten, Passwörter, Login-/Servernummern in Code, Commits
   oder Prompts/Chat.** Claude nimmt grundsätzlich keine Zugangsdaten
@@ -37,7 +47,8 @@ Jede neue Signal-Idee wird streng geprüft, bevor sie als Edge gilt:
 Out-of-Sample-Fenster A/B + Gegentest auf einem zweiten Instrument, Ziel
 |z| > 2 bei 1 % Risiko pro Trade. Kein Demo-/Live-Einsatz mit
 Gewinnerwartung, solange kein instrument-übergreifend robuster Edge belegt
-ist. (Chronik der geprüften/verworfenen Ideen: `KONTEXT.md` + backtests.csv.)
+ist. (Chronik der geprüften/verworfenen Ideen: `KONTEXT.md` + backtests.csv;
+Hypothesen-Register: `hypothesen.md`.)
 
 ## Handoff-Workflow (Claude Code ↔ AI Studio)
 `KONTEXT.md` im Repo-Root ist die gemeinsame Handoff-Datei.
@@ -64,7 +75,8 @@ ist. (Chronik der geprüften/verworfenen Ideen: `KONTEXT.md` + backtests.csv.)
 - Automatik: Der EA schreibt via `OnTester()` die Kennzahlen nach
   `Common\Files\tester_result.txt`; Claude liest sie aus und traegt sie
   in `backtests.csv` ein. Details/Technik in der Claude-Memory
-  (mt5-backtest-workflow).
+  (mt5-backtest-workflow). Fuer Korb-Laeufe uebernimmt das
+  `tools/pipeline/` (IS+OOS automatisiert).
 - `AI_STUDIO_PROMPT.md` = fertiger Prompt fuer AI Studio (Rollen,
   Regeln, gelernte Lektionen, Workflow). Vor jeder AI-Studio-Sitzung
   aktuell halten.

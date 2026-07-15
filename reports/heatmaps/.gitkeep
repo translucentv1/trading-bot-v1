@@ -1,0 +1,4 @@
+# Versionierte Ablage fuer verdichtete Robustheits-Heatmaps (PNG) eines
+# Schluessellaufs -- der visuelle Beleg "Plateau statt Peak" (Ticket 05/10).
+# Roh-Reports und generierte .ini liegen eine Ebene hoeher in reports/ und
+# sind gitignored.

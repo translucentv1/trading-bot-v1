@@ -7,6 +7,80 @@
 
 ---
 
+## 2026-07-15 (Tag 5) – Wayfinder-Spielplan (10/10) + Backtest-Pipeline gebaut
+
+**Kurzfassung:** Planungs- und Bau-Sitzung, keine neuen Backtests. Der
+Forschungs- & Betriebs-Spielplan wurde als Wayfinder-Karte fertig gechartet
+(alle 10 Tickets geloest) und zur `spec.md` verdichtet; anschliessend das erste
+Folge-Vorhaben umgesetzt: die Backtest-Automatisierungs-Pipeline.
+
+- **Spielplan komplett (10/10):** Tickets 07 (Broker-Realitaet), 09 (Hypothesen-
+  Pipeline), 10 (Repo-Struktur) geloest; Karte + `spec.md` in
+  `.scratch/forschungs-spielplan/`. Roter Faden: die 121 Nullnummern waren
+  Methodik (Overfitting), kein Markt -> disziplinierter Ideen-Eingang,
+  Walk-Forward + Lockbox + Deflated Sharpe, ehrliche Broker-Kosten, US100 als
+  Validierungs-Sandkasten, Promotion-Gate, automatisierter Loop.
+- **Groundwork:** `backtests.csv` um 4 Spalten erweitert (hypothese, phase,
+  wf_zyklus, dsr) vor `fazit`; alle 163 Zeilen migriert, validate gruen.
+  `hypothesen.md` als Register angelegt (Mechanismus-vor-Test, Anti-HARKing).
+  KONTEXT-Glossar um Walk-Forward, WFE, Lockbox, Deflated Sharpe, HARKing-Budget
+  ergaenzt.
+- **Pipeline gebaut (`tools/pipeline/`):** `run_backtest.ps1` (Orchestrator,
+  Compile->ini->Lauf->parse->validate, mit Retry + lautem Abbruch),
+  `parse_report.py` (Report->CSV, label-basiert EN/DE, gegen Fixture getestet:
+  alle Kennzahlen korrekt, Leer-Report bricht laut ab), `backtest.ini.template`
+  (Model=4 reale Ticks), `config.json` (die eine auszufuellende Datei).
+  Roh-Reports gitignored, `reports/heatmaps/` versioniert.
+- **Aufraeumen:** `AI_STUDIO_PROMPT.md` geloescht; GLM-5/AI-Studio-Rollen aus
+  KONTEXT/README bereinigt (nur noch Claude Code + Claude-Web).
+- **Pipeline an echtem Lauf verifiziert:** `config.json` selbst mit den MT5-Pfaden
+  gefuellt (terminal64/MetaEditor64 unter Program Files, Instanz-Hash D0E8...).
+  Shakedown auf AUS200 lief End-to-End; dabei 2 echte Parser-Bugs gefixt (deutscher
+  Report ist UTF-16; Umlaut-Labels). Alle 9 Kennzahlen exakt. Datencheck: MetaQuotes-
+  Demo hat KEIN US100 -> Stufe-1-Index = AUS200.
+- **Zwei disziplinierte Hypothesen-Zyklen (Meilenstein: erstmals mechanismus-
+  registriert, klickfrei getestet, sauber verworfen):**
+  - H-...-AUS200-trend (EMA-Trend): Fenster A PF 0,73/z -1,42, Fenster B PF 1,04/
+    z 0,21 (id164/165) -> verworfen, kein Edge.
+  - H-...-AUS200-mr (stock_mr Oversold-Bounce): Fenster A 0 Trades (Trendfilter),
+    Fenster B PF 0,25/z -2,12/8 Trades (id166) -> verworfen.
+  - **Kern-Einsicht:** der bewaehrte Aktien-MR-Edge (z=2,46) lebt vom POOLING ueber
+    einen Korb; ein einzelner Index liefert zu wenige Signale. AUS200 ist als
+    Stufe-1-Sandkasten strukturell schwach. Uebergangs-Trigger zu Stufe 2 erfuellt.
+- **Naechster Schritt (bewusst pausiert):** Stufe 2 -- MR-Mechanismus auf dem
+  Aktien-Korb (AAPL, AMD, ...) unter dem neuen Protokoll (Pooling + Walk-Forward via
+  Pipeline). Offen weiterhin: DSR-Skript, KONTEXT-Glossar-Feinschliff.
+
+---
+
+## 2026-07-14 (Tag 4) – Skills-Kuration + KONTEXT-Glossar + Token-Bloat
+
+**Kurzfassung:** Werkzeug-/Doku-Sitzung, keine neuen Backtests. mattpocock-
+Skills auf eine kuratierte Auswahl reduziert, KONTEXT.md als Glossar
+umgebaut, CLAUDE.md verschlankt, Token-Bloat gemessen und erste konservative
+settings.json-Schalter gesetzt.
+
+- **Skills:** Von 22 committeten Skills auf die kuratierten 7 abgeglichen
+  (diagnosing-bugs, grill-me, grill-with-docs, handoff, research, wayfinder,
+  setup-matt-pocock-skills) + 4 auf Wunsch behalten (domain-modeling,
+  git-guardrails, grilling, setup-pre-commit). 12 geloescht. `setup-matt-
+  pocock-skills` neu angelegt; `docs/agents/{issue-tracker,domain}.md` erzeugt
+  (domain.md verweist auf KONTEXT.md, NICHT CONTEXT.md).
+- **KONTEXT.md:** Kopf durch Glossar (12 Begriffe mit *Avoid*-Zeilen) +
+  Relationships + Flagged ambiguities ersetzt. Faktenstand (163 Backtests,
+  Chronik BT1-18, Roadmap, Dateiindex) unveraendert erhalten.
+- **CLAUDE.md:** von ~130 auf 24 Zeilen; nur Strukturfakten + Verweise auf
+  KONTEXT.md (Eiserne Regeln) und docs/agents/*.md.
+- **Token-Bloat:** Baseline ~81,4k Overhead; ~59k davon MCP-Tools
+  (trader-dev ~35k). `.claude/settings.json` gesetzt: disableBundledSkills +
+  deny NotebookEdit/DesignSync (~3-3,5k Ersparnis). Proxy + Runbook in
+  tools/bloat/ fuer die eigentliche Messung durch den Nutzer.
+- **Offen:** Proxy-Messung + Vorher/Nachher-/context durch Nutzer; Entscheidung
+  ueber Abschalten ungenutzter MCP-Server (grosser Hebel); disableWorkflows
+  erst nach Messung.
+
+---
+
 ## 2026-07-13 (Tag 3, Sitzung 5) – Domain-Pivot: US-Aktien Mean-Reversion
 
 **Kurzfassung:** Nach 121 erfolglosen FX-Backtests: Pivot auf Nasdaq-Aktien.

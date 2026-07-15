@@ -1,27 +1,181 @@
-# KONTEXT – Handoff zwischen Claude Code und AI Studio
-_Letzte Aktualisierung: 13.07.2026_
+# KONTEXT — Glossar & Handoff (Claude Code <-> Claude Code)
+_Letzte Aktualisierung: 15.07.2026_
 
-## Projekt
-MQL5 Expert Advisor fuer MetaTrader 5.
-Demo-Ziel: Forex Hedged EUR, 1.000 EUR Startkapital, Hebel 1:30.
-(Backtests bisher mit 10.000 USD / 1:33 gelaufen – Ziel-Setup fuer spaeter angleichen.)
-Repo (privat): origin = github.com/translucentv1/trading-bot (nicht mehr -v1).
+Diese Datei ist die **Domain-Doc** des Projekts (siehe docs/agents/domain.md):
+ein Glossar der zentralen Fachbegriffe + Beziehungen + offene Mehrdeutigkeiten.
+Der bewahrte Faktenstand (Projektstand, Backtest-Chronik, Roadmap, Dateiindex)
+steht unveraendert unter "## Aktueller Stand" und darunter.
 
-## Mit-Arbeiter und Rollen (S2-Klaerung, 13.07.)
-- **Claude Code** = schreibt Code, Git, Dateien, faehrt Backtests per CLI
-  (voller Terminal-/Repo-Zugriff).
-- **GLM-5 / "ZCode"** = derselbe zweite Agent (Planung, Audits, Reviews,
-  ebenfalls Terminal-/Repo-Zugriff). "ZCode" ist ein Alt-Name fuer GLM-5.
-- **AI Studio** = reine Strategie-/Diskussions-Rolle, **KEIN** Repo-Zugriff
-  (bekommt Dateien eingefuegt, siehe AI_STUDIO_PROMPT.md).
+Projekt: MQL5 Expert Advisor fuer MetaTrader 5. Demo-Ziel Forex Hedged EUR,
+1.000 EUR, Hebel 1:30 (Backtests bislang 10.000 USD / 1:33 — Ziel-Setup spaeter
+angleichen). Seit 13.07. Domain-Pivot auf Nasdaq-US-Aktien (Phase 4).
 
-## Backtest N (Chronik) <-> CSV-id Mapping (S4-Klaerung)
-"Backtest N" in der Chronik ist NICHT die CSV-id! Zuordnung:
-BT1=id1 | BT2=id? (Fruehphase) | BT3=id1(v2.0) | ... | BT8=id23-26 (OOS) |
-BT9=id27-30 (GBPUSD/Gold) | BT10=id31-33 (VolFilter) | BT11=id34-35 (GBPUSD-VF) |
-BT12=id38-49 (Struktur-Swing-Korb) | BT13=id50-61 (ORB-Korb).
-Die frueheren BT4-7 (EURUSD 2025-2026, Zeitebenen) verteilen sich auf
-id4-16. Im Zweifel: Chronik-Text lesen, nicht die id raten.
+Konvention fuer .md-Dateien hier: keine Umlaute (ae/oe/ue), analog zur
+.mq5-Pflichtregel.
+
+## Glossar
+
+**Domain-Pivot**
+Wechsel der gehandelten Anlageklasse als Reaktion auf ausbleibenden Edge —
+konkret der Sprung von FX/Gold (121 Backtests ohne robusten Edge) zu
+Nasdaq-US-Aktien am 13.07.2026 (Phase 4).
+*Avoid*: "Strategiewechsel", "Neustart", "Kurswechsel" (Pivot meint die
+Anlageklasse, nicht die Signal-Idee).
+
+**Aktiver Haupt-EA**
+Die eine .mq5-Datei, die gerade das generische Test-Geruest ist:
+`experts/ema_mtf_v3.mq5` (v3.51) — EMA-Kreuz, MTF-Bias, Gewinnsicherung,
+Mean-Reversion-Modus, Vol-Filter, ORB-Modus, News-/Session-Filter, alles per
+Toggle. `EA_CODE.md` spiegelt exakt diese Datei.
+*Avoid*: "der Bot", "das Skript", "der Haupt-EA" ohne Dateinamen. Kandidaten-
+EAs (pair_trading, carry_basket, structure_swing, stock_mr) sind NICHT der
+aktive Haupt-EA.
+
+**Strategie-Familie**
+Gruppe von Signal-Ideen/EAs mit derselben Grundhypothese (EMA-Kreuz, ORB,
+Pair-Trading/Cointegration, Carry, Stock-Mean-Reversion, ...). Stand: 10
+Familien getestet.
+*Avoid*: "Strategie" allein fuer eine ganze Familie; "Ansatz".
+
+**Backtest-Lauf**
+Ein einzelner Strategy-Tester-Durchlauf = genau eine Zeile in `backtests.csv`
+(id 1-163). Nicht zu verwechseln mit "Backtest N" der Chronik (Mapping unten),
+der mehrere ids buendelt.
+*Avoid*: "Test", "Run", "Durchlauf" ohne csv-id-Bezug.
+
+**Fenster A / Fenster B (Out-of-Sample)**
+Die zwei festen, a-priori definierten Testzeitraeume: Fenster A = 2022-2023,
+Fenster B = 2024-2026 (out-of-sample). Eine Idee gilt nur als robust, wenn sie
+in BEIDEN positiv ist.
+*Avoid*: "Backtest-Zeitraum", "Periode 1/2", "Trainings-/Testset".
+
+**Gepoolter |z|-Wert**
+z-Wert (Erwartung / Standardfehler) ueber ALLE Trades eines Instrument-Korbs
+zusammen (nicht je Symbol), pro Fenster. Loest das Stichprobenproblem
+(|z| ~ sqrt(n)); Ziel fuer echten Edge: |z| > 2 bei sauberem 1%-Risiko.
+|z| < ~2 = Rauschen.
+*Avoid*: "z-Score" je Einzelsymbol als Beweis; "Signifikanz" ohne Pooling.
+
+**Realistischer Edge (PF ~1,1-1,4)**
+Der einzige glaubwuerdige Ziel-Korridor fuer einen echten Vorteil:
+Profitfaktor grob 1,1 bis 1,4. Hoehere Versprechen (90% Winrate, 10%/Monat)
+sind Marketing, nur mit kontosprengendem Risiko darstellbar.
+*Avoid*: "Heiliger Gral", "hohe Trefferquote als Ziel", "10% pro Monat".
+
+**Eiserne Regeln**
+Unumstoessliche Projektinvarianten: (1) kein Martingale/Grid; (2) Erwartung
+(Groesse x Haeufigkeit) zaehlt, NICHT die Trefferquote; (3) Sicherheits-
+Reihenfolge Backtest -> Demo-Paper -> Live, wobei Live allein und manuell durch
+den Nutzer geschaltet wird (Claude nie); (4) keine Kontodaten/Passwoerter/Keys
+in Code/Chat/Commits.
+*Avoid*: diese Regeln in CLAUDE.md duplizieren (sie stehen hier); "Best
+Practices", "Richtlinien" (sie sind hart, nicht optional).
+
+**Notausstieg-Regel**
+Vorab definiertes Abbruchkriterium fuers Gesamtprojekt: nach insg. ~100
+Backtests ohne |z|>2-Edge -> Pivot auf Indices, laengere Haltedauer, manuelle
+Discretion, oder Projekt als Lernprojekt abschliessen.
+*Avoid*: "aufgeben", "Reissleine" (geplante Eskalationsstufe, nicht Scheitern).
+
+**Erfolgs-/Abbruch-Kriterium**
+Pro Idee vorab fixiert: Erfolg = gepoolt |z|>2 UND PF>1 in BEIDEN Fenstern;
+Abbruch = z.B. Fenster-PF<0,95 ODER |z|<1,0. Siehe
+tools/checklist_new_strategy.md.
+*Avoid*: nachtraeglich definierte Schwellen (das waere Cherry-Picking).
+
+**Pooling-Methodik**
+Trades ueber einen Korb mehrerer Instrumente sammeln und gemeinsam auswerten
+(tools/pool_backtests.py), um mit N~500 belastbare z-Werte zu erhalten. Der
+eigentliche methodische Fortschritt des Projekts.
+*Avoid*: "Multi-Symbol-Test" (das ist ein EA, der mehrere Symbole gleichzeitig
+handelt — etwas anderes).
+
+**Walk-Forward (WF)**
+Test-Verfahren des neuen Protokolls (Ticket 05): Parameter werden auf einem
+In-Sample-Fenster (IS) optimiert und unveraendert auf das folgende, ungesehene
+Out-of-Sample-Fenster (OOS) angewandt; dann rollt das Fensterpaar weiter (Rolling).
+Pflicht: IS:OOS 3:1, >=5 Zyklen, >=30 Trades/Parametersatz. Nativ ueber den MT5-
+Forward-Modus. Ersetzt den bisherigen einmaligen A/B-Fenster-Test als Standard.
+*Avoid*: "Optimierung" allein (WF ist Optimierung PLUS versiegelte OOS-Pruefung);
+Fenster A/B mit WF-Zyklen gleichsetzen.
+
+**WFE (Walk-Forward-Efficiency)**
+Verhaeltnis der OOS-Leistung zur IS-Leistung ueber die WF-Zyklen. Erfolgs-Schwelle:
+WFE > 0,5 (OOS haelt mindestens die Haelfte der IS-Kante). Faellt WFE <= 0,5 im
+ersten OOS -> Abbruch-Treppe Stufe 2.
+*Avoid*: WFE mit dem Profitfaktor verwechseln.
+
+**Lockbox (versiegeltes OOS)**
+Ein a-priori abgetrennter Datenabschnitt, der WAEHREND der gesamten Entwicklung
+NICHT angefasst wird und erst ganz am Ende ein einziges Mal geprueft wird. Bricht
+die Strategie in der Lockbox zusammen -> Abbruch-Treppe Stufe 5. Verhindert, dass
+das OOS durch wiederholtes Draufschauen selbst zum In-Sample wird.
+*Avoid*: die Lockbox mehrfach testen; "Testset" (sie ist strenger: nur EIN Blick).
+
+**Deflated Sharpe Ratio (DSR)**
+Sharpe-Wert, der um die Zahl der ausprobierten Varianten (N) nach unten korrigiert
+wird -- je mehr Versuche, desto hoeher die Zufallslatte. N wird ehrlich pro
+Strategie-Familie aus `backtests.csv` gezaehlt (verwandte Laeufe zaehlen voll).
+Erfolgs-Schwelle: DSR > 0,95. Ohne mitgezaehltes N ist jede Korrektur wertlos.
+*Avoid*: den rohen Sharpe als Beweis; N kleinrechnen.
+
+**HARKing-Budget**
+Vorab gesetzte Obergrenze fuer die Zahl der Laeufe pro Strategie-Familie (~15),
+damit nicht durch schiere Versuchsmenge ein Scheintreffer entsteht (HARKing =
+Hypothesizing After Results are Known). Erschoepft eine Familie das Budget ohne
+bestandenes Erfolgs-Tor -> verworfen. Koppelt an die `hypothese`-Spalte + die
+Hypothese-vor-Lauf-Regel (Idee steht fest, bevor die Daten sie bestaetigen).
+*Avoid*: Budget nachtraeglich erhoehen, um einen Liebling zu retten.
+
+**Mit-Arbeiter (Rollen)**
+Nur noch **Claude Code** (schreibt Code, Git, Dateien, faehrt Backtests per CLI —
+Nutzer-Erlaubnis seit 12.07.2026) und die **Claude-Web-Version** (Diskussion/
+Strategie, kein Repo-Zugriff) — falls ueberhaupt ein zweiter Kopf gebraucht wird.
+Uebergaben laufen ueber die Handoff-Dateien. **Gemini, GLM-5.2/"ZCode" und AI Studio
+sind aus dem Projekt ausgeschlossen** (Stand 15.07.2026).
+*Avoid*: "der Assistent"; GLM-5/ZCode/AI Studio als aktive Rollen (historisch).
+
+**Handoff-Dateien**
+Dateien, ueber die Claude-Code-Sitzungen Kontext teilen: `KONTEXT.md` (dieses
+Glossar + Faktenstand), `EA_CODE.md` (aktueller EA-Code als Markdown), `JOURNAL.md`
+(Zeitleiste), `backtests.csv` (Register), `hypothesen.md` (Hypothesen-Register),
+`.scratch/forschungs-spielplan/` (Wayfinder-Karte + `spec.md` + `HANDOFF.md`).
+`docs/agents/*.md` konfiguriert die Skills.
+*Avoid*: "Doku", "Notizen" ohne Dateibezug; `AI_STUDIO_PROMPT.md` (entfernt
+15.07.2026 — war Altlast des ausgeschlossenen AI-Studio-Pfads).
+
+## Relationships
+- Eine **Strategie-Familie** wird in einem **aktiven Haupt-EA** oder Kandidaten-
+  EA implementiert.
+- Ein EA erzeugt viele **Backtest-Laeufe** (je 1 Zeile in `backtests.csv`).
+- Backtest-Laeufe werden je **Fenster A/B** ueber einen Korb **gepoolt** ->
+  ergeben einen **gepoolten |z|-Wert** und PF.
+- Erfolg (|z|>2 & PF>1 in beiden Fenstern, Korridor **realistischer Edge**) vs.
+  **Abbruch-Kriterium** entscheidet ueber Weiterverfolgen/Verwerfen.
+- Bleibt der Edge instrumentuebergreifend aus, greift der **Domain-Pivot**; bei
+  anhaltendem Misserfolg die **Notausstieg-Regel**.
+- Die **Eisernen Regeln** gelten ueber allem; die **Mit-Arbeiter** teilen
+  Kontext ueber die **Handoff-Dateien**.
+- "Backtest N" (Chronik) buendelt mehrere csv-ids (Mapping unten).
+
+## Flagged ambiguities
+- **Repo-Name (teil-aufgeloest):** Der KONTEXT-Kopf nannte historisch
+  `github.com/translucentv1/trading-bot` ("nicht mehr -v1"), der Sicherheits-
+  Fix-Eintrag (13.07.) nennt aber `trading-bot-v1.git`. Faktische Remote laut
+  `git remote -v`: **`https://github.com/translucentv1/trading-bot-v1.git`**.
+  Also: Verzeichnis/Projektname umgangssprachlich "trading-bot", GitHub-Remote
+  real "trading-bot-v1". Im Zweifel gilt `git remote -v`.
+  *Avoid*: "-v1" als veraltet bezeichnen (die Remote traegt es real).
+- **"Backtest N" != CSV-id:** die Chronik-Nummer ist NICHT die csv-id.
+  Mapping: BT1=id1 | BT3=id1(v2.0) | BT8=id23-26 | BT9=id27-30 | BT10=id31-33 |
+  BT11=id34-35 | BT12=id38-49 | BT13=id50-61 | BT14=id62-73 | BT15=id74-97 |
+  BT16=id98-121 | BT17/18=id122-163. BT4-7 verteilen sich auf id4-16. Im
+  Zweifel: Chronik-Text lesen.
+  *Avoid*: Chronik-Nummer und csv-id gleichsetzen.
+- **Startkapital-Diskrepanz:** Demo-Ziel 1.000 EUR / 1:30, Backtests liefen mit
+  10.000 USD / 1:33. Ziel-Setup spaeter angleichen.
+
+---
 
 ## Aktueller Stand
 **Phase 4: Domain-Pivot zu US-Aktien (13.07.).**
@@ -82,6 +236,30 @@ verliert signifikant (Backtest 13, z=-2,61); Struktur-Swing = Rauschen
   Gewinnerwartung. Jede kuenftige Idee wird gepoolt ueber den Korb geprueft
   (Ziel gepoolt |z|>2, PF>1 in BEIDEN Fenstern). Die EMA9/21- wie die
   Swing-Struktur-Idee sind damit sauber ausgeschieden.
+
+## Letzte Aktion (15.07. – Wayfinder-Spielplan + Pipeline)
+- **Spielplan fertig (10/10):** Forschungs- & Betriebs-Spielplan als Wayfinder-
+  Karte gechartet und zur `spec.md` verdichtet (`.scratch/forschungs-spielplan/`).
+  Kern: die 121 Nullnummern sind Methodik (Overfitting), kein Markt. Verbindliches
+  Test-Protokoll (Walk-Forward + Lockbox + Deflated Sharpe, Abbruch-Treppe,
+  HARKing-Budget), Broker-Realitaet (reale Ticks, Kosten-Ertrags-Schranke),
+  US100-Sandkasten, Promotion-Gate, voller Automatisierungs-Loop.
+- **Groundwork umgesetzt:** `backtests.csv` +4 Spalten (hypothese, phase,
+  wf_zyklus, dsr, vor fazit) -- 163 Zeilen migriert, validate gruen.
+  `hypothesen.md` angelegt. Glossar um 5 Begriffe erweitert (s.o.).
+- **Pipeline gebaut + an echtem Lauf verifiziert (`tools/pipeline/`):**
+  run_backtest.ps1 + parse_report.py + backtest.ini.template + config.json (mit
+  echten MT5-Pfaden gefuellt). Shakedown auf AUS200 lief End-to-End; 2 Parser-Bugs
+  gefixt (deutscher Report = UTF-16; Umlaut-Labels). Roh-Reports gitignored,
+  `reports/heatmaps/` versioniert. AI_STUDIO_PROMPT.md entfernt.
+- **Datencheck:** MetaQuotes-Demo hat KEIN US100 -> Stufe-1-Index = AUS200 (einziger
+  Index-CFD, reale Ticks).
+- **Zwei disziplinierte Hypothesen-Zyklen (klickfrei via Pipeline), beide verworfen:**
+  EMA-Trend auf AUS200 (id164/165: PF 0,73/1,04) und stock_mr Oversold-Bounce
+  (id166: PF 0,25, z -2,12, 8 Trades). Kern-Einsicht: der bewaehrte Aktien-MR-Edge
+  (z=2,46) lebt vom Korb-POOLING; ein einzelner Index liefert zu wenige Signale.
+- **Naechster Schritt (pausiert):** Stufe 2 -- MR-Mechanismus auf dem Aktien-Korb
+  unter dem neuen Protokoll (Pooling + Walk-Forward). Offen: DSR-Skript.
 
 ## Letzte Aktion (13.07. – Domain-Pivot + Stock MR)
 - **Symbol-Finder gebaut:** `experts/symbol_finder.mq5` + `scripts/add_symbols.mq5`.
@@ -585,11 +763,13 @@ Haltedauer, manueller Discretion, oder Projekt als Lernprojekt abschliessen.
 | scripts/cointegration_result.txt | Roh-Ergebnis des Cointegration-Laufs (13.07.): 2/15 Paare cointegriert |
 | EA_CODE.md | kompletter aktueller EA-Code als Markdown (Handoff ohne .mq5-Upload) |
 | docs/REVIEW_VERBESSERUNG.md | AI-Studio-Review: 7 Blindstellen + verbesserter Claude-Code-Prompt + 5 neue Ideen + Workflow mit Quality-Gates |
-| backtests.csv | Register aller Backtests (121 Eintraege, id;...;risk_realized_pct;z_score;fazit) |
+| backtests.csv | Register aller Backtests (163 Eintraege; neue Spalten hypothese;phase;wf_zyklus;dsr vor fazit) |
+| hypothesen.md | Hypothesen-Register (Mechanismus-vor-Test, 4-Feld-Format, Anti-HARKing; Ticket 09) |
 | JOURNAL.md | Tagebuch mit Tageseintraegen (Zeitleiste des Projekts) |
 | tools/validate_backtests.py | objektive Nachrechnung/Validierung von backtests.csv |
 | tools/pool_backtests.py | poolt Korb-Ergebnisse je Fenster, rechnet gepoolten z-Wert (Aufruf: prefix + verzeichnis) |
+| tools/pipeline/ | Backtest-Automatisierung (Ticket 08): run_backtest.ps1 (Orchestrator) + parse_report.py (XML->CSV) + backtest.ini.template + config.json |
 | tools/checklist_new_strategy.md | Checkliste fuer neue Strategie-Ideen (10 Punkte, Anhang B aus AI-Studio-Review) |
-| AI_STUDIO_PROMPT.md | fertiger Prompt fuer AI Studio (inkl. gelernter Lektionen) |
+| .scratch/forschungs-spielplan/ | Wayfinder-Karte (map.md, 10/10) + spec.md (Spielplan) + HANDOFF.md + issues/ |
 | CLAUDE.md | Projektregeln + Handoff-Workflow |
 | README.md | Projektueberblick + Setup + Test-Disziplin |
