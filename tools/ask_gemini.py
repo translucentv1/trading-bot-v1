@@ -28,9 +28,12 @@
 #
 # Optionen:
 #   --file PFAD    Datei-Inhalt als Kontext anhaengen (mehrfach moeglich)
-#   --model NAME   Standard gemini-2.5-flash. Alternativen im Free-Tier:
-#                  gemini-3-flash (1500/Tag), gemini-2.5-flash-lite
-#                  (1000/Tag), gemini-2.5-pro (100/Tag, staerker)
+#   --model NAME   Standard gemini-flash-latest (Alias -> immer aktuelles
+#                  Flash-Modell, bricht nicht bei Versions-Abschaltungen).
+#                  Alternativen: gemini-flash-lite-latest (mehr Requests/Tag),
+#                  gemini-pro-latest (staerker, weniger Requests/Tag).
+#                  Feste Versionen (z. B. gemini-2.5-flash) koennen fuer neue
+#                  Accounts gesperrt sein -> lieber die -latest-Aliase.
 #   --system TEXT  System-Instruktion (Rolle, z. B. "Du bist Quant-Reviewer")
 
 import json
@@ -42,7 +45,7 @@ import urllib.request
 API = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 ENV_PATH = ".env"
 ENV_KEY = "GEMINI_API_KEY"
-DEFAULT_MODEL = "gemini-2.5-flash"
+DEFAULT_MODEL = "gemini-flash-latest"
 
 
 def read_api_key():
