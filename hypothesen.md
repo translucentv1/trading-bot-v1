@@ -38,8 +38,32 @@ in der Spalte `hypothese` von `backtests.csv`.
 
 ## Aktive Hypothesen
 
-<!-- Noch keine. Erste Hypothese entsteht mit dem ersten US100-Zyklus des neuen
-     Prozesses (Spielplan Abschnitt 8, Folge-Vorhaben 4). -->
+### H-2026-07-AUS200-trend  --  Trend-Persistenz im Aktienindex
+- Status: in-Pruefung
+- Mechanismus: Aktienindizes zeigen Trend-Persistenz, weil Information langsam
+  diffundiert und eine dauerhafte Long-Risikopraemie besteht. Trendfolger gewinnen
+  das Geld, das Gegentrend-/Mean-Reversion-Haendler und zu frueh aussteigende Anleger
+  systematisch verlieren -- ein wiederkehrender Verhaltensfehler, kein Einmaleffekt.
+- Instrument + Richtung: AUS200 (einziger Index-CFD auf MetaQuotes-Demo, reale
+  Ticks), Einstieg H1 mit H4-Bias, trendfolgend (EMA-Kreuz, `ema_mtf_v3`). Zunaechst
+  long-lastig (Aufwaertstrend-Praemie); Short als Toggle offen.
+- Vorhergesagtes Muster (steht VOR den Wertungslaeufen fest): ein trendfolgender
+  Edge muss sich als PF > 1 in einem trendstarken Fenster zeigen und im
+  Erfolgs-Tor (05) ueber Walk-Forward halten. Ein echter Mechanismus wirkt in BEIDEN
+  Fenstern positiv (nicht nur im Bullenfenster).
+- Falsifikation: kein PF > 1 in einem trendstarken Fenster; oder Edge nur in einem
+  willkuerlichen Teilzeitraum ohne Trend-Regime-Bezug; oder WFE <= 0,5 im ersten OOS.
+  Dann ist die Trend-Persistenz auf AUS200 nicht handelbar -> verwerfen.
+- Vorbefund (Shakedown, KEIN Wertungslauf): AUS200 EMA-Trend, 2024-H1, PF 0,91
+  (Verlust) -- ein erster Gegenwind, formal getestet wird ueber die Fenster A/B unten.
+- backtests.csv-ids: 164 (Fenster A 2022-2023), 165 (Fenster B 2024-2026).
+- **Baseline-Ergebnis (15.07.2026):** Fenster A PF 0,73 / z -1,42 (verliert);
+  Fenster B PF 1,04 / z 0,21 (Rauschen). Das vorhergesagte Muster (PF>1 in einem
+  trendstarken Fenster, in BEIDEN positiv) ist NICHT erfuellt -> Falsifikation
+  greift am Baseline-Tor. Kein Signal, das eine Walk-Forward-Optimierung
+  rechtfertigt (Abbruch-Treppe Stufe 0/1: nicht ueberoptimieren, was baseline
+  schon z~0 zeigt). Empfehlung: EMA-Trend auf AUS200 verwerfen; naechste Hypothese
+  mit anderem Mechanismus/Instrument. Endgueltiges Verwerfen nach Nutzer-Entscheid.
 
 ## Kandidaten-Notizen (Mechanismus fehlt noch)
 
