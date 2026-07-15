@@ -1,6 +1,9 @@
 # Zugangsdaten - NIEMALS committen
 .env
 
+# Heruntergeladene Marktdaten (koennen gross werden, nicht ins Repo)
+data/*.csv
+
 # MetaTrader / MetaEditor (kompilierte EAs, Logs)
 *.ex5
 *.log
