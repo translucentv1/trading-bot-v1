@@ -52,15 +52,20 @@ Wichtige Parameter:
 - **Retry:** begrenzte Wiederholung (`max_retries` in config.json), dann Stopp.
 - **Atomar:** `parse_report.py` schreibt erst `.tmp`, dann `replace` -- nie halbe CSV.
 
-## Zwei ehrliche Baustellen (beim ersten echten Lauf pruefen)
+## Gegen echten Lauf verifiziert (15.07.2026, AUS200)
 
-1. **Report-Fundort** (in `run_backtest.ps1`, Block `REPORT SUCHEN`): wohin MT5 den
-   Report schreibt, ist versions-/konfigurationsabhaengig. Das Skript sucht mehrere
-   Standard-Orte ab; findet es nichts, dort die Suchpfade ergaenzen.
-2. **Report-Labels** (in `parse_report.py`, Dict `LABELS`): die Kennzahl-Zuordnung
-   ist gegen die Standard-MT5-Struktur (EN + DE) gebaut und **gegen eine Fixture
-   getestet**. Weicht dein realer Report ab, ist `LABELS` die einzige Stelle zum
-   Nachziehen -- ein echter Report als Muster genuegt.
+Beide anfaenglichen Baustellen sind an einem echten Tester-Lauf geschlossen:
+
+1. **Report-Fundort:** MT5 legt den Report im Datenordner-Root ab
+   (`...\Terminal\<hash>\<name>.htm`). Der Block `REPORT SUCHEN` in
+   `run_backtest.ps1` findet ihn dort automatisch.
+2. **Kodierung + Labels:** der deutsche MT5-Report ist **UTF-16**; `parse_report.py`
+   erkennt das BOM automatisch, normalisiert Umlaute und nutzt die deutschen Labels
+   (`LABELS`). Alle 9 Kennzahlen wurden korrekt extrahiert (net, PF, Sharpe, DD%,
+   Trades, Winrate, avg_win, avg_loss, Verlustserie).
+
+Falls du MT5 auf **Englisch** stellst oder eine andere Version nutzt, ist `LABELS`
+weiterhin die eine Stelle zum Nachziehen (EN-Varianten sind bereits hinterlegt).
 
 **Robustere Zukunft (empfohlene Haertung):** statt HTML zu parsen, die Kennzahlen
 im EA per `OnTester()` in eine strukturierte Datei (JSON/CSV-Zeile) schreiben und

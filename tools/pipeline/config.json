@@ -21,7 +21,7 @@
 
   "_kosten": "Broker-Realitaet pro Instrument (Ticket 07). Werte aus dem Broker ablesen; solange unbekannt konservativ hoch. Kommission pro Lot pro Seite.",
   "kosten_pro_instrument": {
-    "US100": { "kommission_pro_lot_seite": 0.0, "slippage_points": 2 }
+    "AUS200": { "kommission_pro_lot_seite": 0.0, "slippage_points": 2 }
   },
 
   "_retry": "Robustheit gegen Demo-Server-Aussetzer (Ticket 08): begrenzter Retry, dann lautes Stoppen statt Muell schreiben.",

@@ -39,23 +39,25 @@ REPORT_FIELDS = {
     "max_loss_streak": False,
 }
 
-# Label-Varianten (EN | DE), klein geschrieben. Erstes Treffer-Label gewinnt.
+# Label-Varianten (EN | DE), klein geschrieben und UMLAUT-NORMALISIERT (ue/oe/ae/ss).
+# Gegen echten deutschen MT5-Report (UTF-16) verifiziert. Erstes Treffer-Label gewinnt;
+# die Reihenfolge im Text entscheidet bei aehnlichen Labels (spezifischste zuerst egal,
+# da die kuerzere Kennzahl im Report vor der "... in Folge"-Variante steht).
 LABELS = {
-    "net_profit":     ["total net profit", "gesamtnettogewinn", "netto gesamtgewinn"],
+    "net_profit":     ["total net profit", "nettogewinn gesamt", "gesamtnettogewinn"],
     "profit_factor":  ["profit factor", "profitfaktor"],
-    "sharpe":         ["sharpe ratio"],
-    "trades":         ["total trades", "trades gesamt", "gesamtzahl der trades",
-                       "anzahl trades"],
-    "win_rate_pct":   ["profit trades (% of total)", "gewinntrades (% aller trades)",
-                       "gewinn-trades (% aller"],
-    "avg_win":        ["average profit trade", "durchschnittlicher gewinntrade",
-                       "gewinntrade durchschnitt"],
-    "avg_loss":       ["average loss trade", "durchschnittlicher verlusttrade",
-                       "verlusttrade durchschnitt"],
-    "dd_pct":         ["balance drawdown maximal", "equity drawdown maximal",
-                       "maximaler kontostand-ruecklauf", "maximaler ruecklauf"],
-    "max_loss_streak": ["maximum consecutive losses", "maximal consecutive losses",
-                        "maximale verlustserie", "verluste in folge"],
+    "sharpe":         ["sharpe-ratio", "sharpe ratio"],
+    "trades":         ["total trades", "gesamtanzahl trades", "trades gesamt"],
+    "win_rate_pct":   ["profit trades (% of total)",
+                       "gewonnene trades (in % von gesamt)"],
+    "avg_win":        ["average profit trade", "durchschnitt gewinntrade",
+                       "durchschnittlicher gewinntrade"],
+    "avg_loss":       ["average loss trade", "durchschnitt verlusttrade",
+                       "durchschnittlicher verlusttrade"],
+    "dd_pct":         ["balance drawdown maximal", "rueckgang kontostand maximal",
+                       "equity drawdown maximal"],
+    "max_loss_streak": ["maximum consecutive losses", "verlusttrades in folge",
+                        "maximale verlustserie"],
 }
 
 NUM = r"-?\d[\d ]*[.,]?\d*"  # muss mit Ziffer beginnen (nach opt. -); Tausender-Leerzeichen ok
@@ -76,10 +78,29 @@ def to_float(s):
         return None
 
 
+UMLAUT = str.maketrans({
+    "ä": "ae", "ö": "oe", "ü": "ue", "Ä": "Ae", "Ö": "Oe", "Ü": "Ue", "ß": "ss",
+})
+
+
+def read_report(path):
+    # MT5-Reports sind je nach Sprache UTF-16 (deutsch) oder UTF-8. BOM erkennen.
+    with open(path, "rb") as f:
+        b = f.read()
+    if b[:2] in (b"\xff\xfe", b"\xfe\xff"):
+        enc = "utf-16"
+    elif b[:3] == b"\xef\xbb\xbf":
+        enc = "utf-8-sig"
+    else:
+        enc = "utf-8"
+    return b.decode(enc, errors="replace")
+
+
 def detag(raw):
-    # HTML/XML zu Klartext: Tags raus, Entities aufloesen, Whitespace normalisieren.
+    # HTML/XML zu Klartext: Tags raus, Entities aufloesen, Umlaute normalisieren,
+    # Whitespace vereinheitlichen.
     txt = re.sub(r"<[^>]+>", " ", raw)
-    txt = html.unescape(txt)
+    txt = html.unescape(txt).translate(UMLAUT)
     txt = txt.replace(" ", " ")
     return re.sub(r"[ \t]+", " ", txt)
 
@@ -144,8 +165,7 @@ def main():
     if not os.path.exists(args.report):
         sys.exit(f"FEHLER: Report nicht gefunden: {args.report} -- nichts geschrieben.")
 
-    with open(args.report, encoding="utf-8", errors="replace") as f:
-        text = detag(f.read())
+    text = detag(read_report(args.report))
     meta = json.load(open(args.meta, encoding="utf-8"))
 
     metrics = extract(text)

@@ -52,3 +52,11 @@ Phase-4b wird freigeschaltet, sobald BEIDES gilt:
 ### Offen gelassen (Detail, keine Marktfokus-Entscheidung)
 - Exaktes Broker-Symbol fuer US100/NAS100 und Test-Timeframe(s) -- gehoert zur
   konkreten Strategie/zum Setup, nicht zur Marktfokus-Frage.
+
+## Datencheck-Ergebnis (15.07.2026)
+
+MetaQuotes-Demo bietet **kein US100/NAS100** -- einziger Index-CFD ist **AUS200**
+(reale Tick-Historie vorhanden, 99% Qualitaet; im Shakedown 22 Trades sauber
+gerechnet). Stufe-1-Index-Sandkasten daher = AUS200. Der gestaffelte Weg selbst
+bleibt unveraendert; nur das konkrete Stufe-1-Symbol ist jetzt durch die
+Broker-Realitaet gepinnt. US100-faehiger Broker bleibt optional.

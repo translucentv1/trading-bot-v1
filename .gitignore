@@ -18,5 +18,9 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Python
+__pycache__/
+*.pyc
+
 # Lokale Claude-Code-Einstellungen (nur fuer diesen Rechner)
 .claude/settings.local.json

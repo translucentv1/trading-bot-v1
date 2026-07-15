@@ -52,6 +52,13 @@ in `hypothesen.md`.
   Abbruch) UND Broker-/Symbol-Datencheck bestanden.
 - FX/Gold ruht.
 
+**Datencheck-Ergebnis (15.07.2026):** Auf der MetaQuotes-Demo gibt es **kein
+US100/NAS100** -- der einzige Index-CFD ist **AUS200** (reale Tick-Historie
+vorhanden, 99% Qualitaet). Fuer Stufe 1 wird daher **AUS200** als Index-Sandkasten
+genutzt (ein sauberer, tief bedatener Index reicht, um das 05-Protokoll zu
+validieren). Ein US100-faehiger Broker bleibt eine Option, ist aber nicht noetig,
+um den Prozess erstmals end-to-end zu fahren.
+
 Grund (Ticket 01): Einzelaktien gibt es in MT5 nur als CFDs bei Offshore-Brokern,
 Historientiefe symbol-individuell und fuer Fenster A (2022-2023) nicht garantiert,
 plus Split-/Dividenden-Verzerrung im Tester. Saubere Daten nur beim Index.
