@@ -1,5 +1,5 @@
-# KONTEXT — Glossar & Handoff (Claude Code <-> GLM-5 <-> AI Studio)
-_Letzte Aktualisierung: 14.07.2026_
+# KONTEXT — Glossar & Handoff (Claude Code <-> Claude Code)
+_Letzte Aktualisierung: 15.07.2026_
 
 Diese Datei ist die **Domain-Doc** des Projekts (siehe docs/agents/domain.md):
 ein Glossar der zentralen Fachbegriffe + Beziehungen + offene Mehrdeutigkeiten.
@@ -90,20 +90,59 @@ eigentliche methodische Fortschritt des Projekts.
 *Avoid*: "Multi-Symbol-Test" (das ist ein EA, der mehrere Symbole gleichzeitig
 handelt — etwas anderes).
 
+**Walk-Forward (WF)**
+Test-Verfahren des neuen Protokolls (Ticket 05): Parameter werden auf einem
+In-Sample-Fenster (IS) optimiert und unveraendert auf das folgende, ungesehene
+Out-of-Sample-Fenster (OOS) angewandt; dann rollt das Fensterpaar weiter (Rolling).
+Pflicht: IS:OOS 3:1, >=5 Zyklen, >=30 Trades/Parametersatz. Nativ ueber den MT5-
+Forward-Modus. Ersetzt den bisherigen einmaligen A/B-Fenster-Test als Standard.
+*Avoid*: "Optimierung" allein (WF ist Optimierung PLUS versiegelte OOS-Pruefung);
+Fenster A/B mit WF-Zyklen gleichsetzen.
+
+**WFE (Walk-Forward-Efficiency)**
+Verhaeltnis der OOS-Leistung zur IS-Leistung ueber die WF-Zyklen. Erfolgs-Schwelle:
+WFE > 0,5 (OOS haelt mindestens die Haelfte der IS-Kante). Faellt WFE <= 0,5 im
+ersten OOS -> Abbruch-Treppe Stufe 2.
+*Avoid*: WFE mit dem Profitfaktor verwechseln.
+
+**Lockbox (versiegeltes OOS)**
+Ein a-priori abgetrennter Datenabschnitt, der WAEHREND der gesamten Entwicklung
+NICHT angefasst wird und erst ganz am Ende ein einziges Mal geprueft wird. Bricht
+die Strategie in der Lockbox zusammen -> Abbruch-Treppe Stufe 5. Verhindert, dass
+das OOS durch wiederholtes Draufschauen selbst zum In-Sample wird.
+*Avoid*: die Lockbox mehrfach testen; "Testset" (sie ist strenger: nur EIN Blick).
+
+**Deflated Sharpe Ratio (DSR)**
+Sharpe-Wert, der um die Zahl der ausprobierten Varianten (N) nach unten korrigiert
+wird -- je mehr Versuche, desto hoeher die Zufallslatte. N wird ehrlich pro
+Strategie-Familie aus `backtests.csv` gezaehlt (verwandte Laeufe zaehlen voll).
+Erfolgs-Schwelle: DSR > 0,95. Ohne mitgezaehltes N ist jede Korrektur wertlos.
+*Avoid*: den rohen Sharpe als Beweis; N kleinrechnen.
+
+**HARKing-Budget**
+Vorab gesetzte Obergrenze fuer die Zahl der Laeufe pro Strategie-Familie (~15),
+damit nicht durch schiere Versuchsmenge ein Scheintreffer entsteht (HARKing =
+Hypothesizing After Results are Known). Erschoepft eine Familie das Budget ohne
+bestandenes Erfolgs-Tor -> verworfen. Koppelt an die `hypothese`-Spalte + die
+Hypothese-vor-Lauf-Regel (Idee steht fest, bevor die Daten sie bestaetigen).
+*Avoid*: Budget nachtraeglich erhoehen, um einen Liebling zu retten.
+
 **Mit-Arbeiter (Rollen)**
-Drei Agenten: **Claude Code** (schreibt Code, Git, Dateien, faehrt Backtests
-per CLI — Nutzer-Erlaubnis seit 12.07.2026); **GLM-5 / "ZCode"** (derselbe
-zweite Agent: Planung, Audits, Reviews; "ZCode" ist ein Alt-Name); **AI Studio**
-(reine Strategie-/Diskussionsrolle, KEIN Repo-Zugriff, bekommt Dateien
-eingefuegt).
-*Avoid*: "der Assistent"; "ZCode" und "GLM-5" als zwei verschiedene Rollen.
+Nur noch **Claude Code** (schreibt Code, Git, Dateien, faehrt Backtests per CLI —
+Nutzer-Erlaubnis seit 12.07.2026) und die **Claude-Web-Version** (Diskussion/
+Strategie, kein Repo-Zugriff) — falls ueberhaupt ein zweiter Kopf gebraucht wird.
+Uebergaben laufen ueber die Handoff-Dateien. **Gemini, GLM-5.2/"ZCode" und AI Studio
+sind aus dem Projekt ausgeschlossen** (Stand 15.07.2026).
+*Avoid*: "der Assistent"; GLM-5/ZCode/AI Studio als aktive Rollen (historisch).
 
 **Handoff-Dateien**
-Dateien, ueber die die Agenten Kontext teilen: `KONTEXT.md` (dieses Glossar +
-Faktenstand), `EA_CODE.md` (aktueller EA-Code als Markdown), `AI_STUDIO_PROMPT.md`
-(Prompt fuer AI Studio), `JOURNAL.md` (Zeitleiste), `backtests.csv` (Register).
+Dateien, ueber die Claude-Code-Sitzungen Kontext teilen: `KONTEXT.md` (dieses
+Glossar + Faktenstand), `EA_CODE.md` (aktueller EA-Code als Markdown), `JOURNAL.md`
+(Zeitleiste), `backtests.csv` (Register), `hypothesen.md` (Hypothesen-Register),
+`.scratch/forschungs-spielplan/` (Wayfinder-Karte + `spec.md` + `HANDOFF.md`).
 `docs/agents/*.md` konfiguriert die Skills.
-*Avoid*: "Doku", "Notizen" ohne Dateibezug.
+*Avoid*: "Doku", "Notizen" ohne Dateibezug; `AI_STUDIO_PROMPT.md` (entfernt
+15.07.2026 — war Altlast des ausgeschlossenen AI-Studio-Pfads).
 
 ## Relationships
 - Eine **Strategie-Familie** wird in einem **aktiven Haupt-EA** oder Kandidaten-
@@ -197,6 +236,23 @@ verliert signifikant (Backtest 13, z=-2,61); Struktur-Swing = Rauschen
   Gewinnerwartung. Jede kuenftige Idee wird gepoolt ueber den Korb geprueft
   (Ziel gepoolt |z|>2, PF>1 in BEIDEN Fenstern). Die EMA9/21- wie die
   Swing-Struktur-Idee sind damit sauber ausgeschieden.
+
+## Letzte Aktion (15.07. – Wayfinder-Spielplan + Pipeline)
+- **Spielplan fertig (10/10):** Forschungs- & Betriebs-Spielplan als Wayfinder-
+  Karte gechartet und zur `spec.md` verdichtet (`.scratch/forschungs-spielplan/`).
+  Kern: die 121 Nullnummern sind Methodik (Overfitting), kein Markt. Verbindliches
+  Test-Protokoll (Walk-Forward + Lockbox + Deflated Sharpe, Abbruch-Treppe,
+  HARKing-Budget), Broker-Realitaet (reale Ticks, Kosten-Ertrags-Schranke),
+  US100-Sandkasten, Promotion-Gate, voller Automatisierungs-Loop.
+- **Groundwork umgesetzt:** `backtests.csv` +4 Spalten (hypothese, phase,
+  wf_zyklus, dsr, vor fazit) -- 163 Zeilen migriert, validate gruen.
+  `hypothesen.md` angelegt. Glossar um 5 Begriffe erweitert (s.o.).
+- **Pipeline gebaut (`tools/pipeline/`):** run_backtest.ps1 + parse_report.py
+  (gegen Fixture getestet) + backtest.ini.template + config.json. Roh-Reports
+  gitignored, `reports/heatmaps/` versioniert. AI_STUDIO_PROMPT.md entfernt.
+- **Naechster Schritt:** `config.json` mit MT5-Pfaden fuellen; ersten echten
+  US100-Lauf fahren und die 2 markierten Baustellen (Report-Fundort + LABELS)
+  bestaetigen; danach DSR-Skript + erster Hypothesen-Zyklus.
 
 ## Letzte Aktion (13.07. – Domain-Pivot + Stock MR)
 - **Symbol-Finder gebaut:** `experts/symbol_finder.mq5` + `scripts/add_symbols.mq5`.
@@ -700,11 +756,13 @@ Haltedauer, manueller Discretion, oder Projekt als Lernprojekt abschliessen.
 | scripts/cointegration_result.txt | Roh-Ergebnis des Cointegration-Laufs (13.07.): 2/15 Paare cointegriert |
 | EA_CODE.md | kompletter aktueller EA-Code als Markdown (Handoff ohne .mq5-Upload) |
 | docs/REVIEW_VERBESSERUNG.md | AI-Studio-Review: 7 Blindstellen + verbesserter Claude-Code-Prompt + 5 neue Ideen + Workflow mit Quality-Gates |
-| backtests.csv | Register aller Backtests (121 Eintraege, id;...;risk_realized_pct;z_score;fazit) |
+| backtests.csv | Register aller Backtests (163 Eintraege; neue Spalten hypothese;phase;wf_zyklus;dsr vor fazit) |
+| hypothesen.md | Hypothesen-Register (Mechanismus-vor-Test, 4-Feld-Format, Anti-HARKing; Ticket 09) |
 | JOURNAL.md | Tagebuch mit Tageseintraegen (Zeitleiste des Projekts) |
 | tools/validate_backtests.py | objektive Nachrechnung/Validierung von backtests.csv |
 | tools/pool_backtests.py | poolt Korb-Ergebnisse je Fenster, rechnet gepoolten z-Wert (Aufruf: prefix + verzeichnis) |
+| tools/pipeline/ | Backtest-Automatisierung (Ticket 08): run_backtest.ps1 (Orchestrator) + parse_report.py (XML->CSV) + backtest.ini.template + config.json |
 | tools/checklist_new_strategy.md | Checkliste fuer neue Strategie-Ideen (10 Punkte, Anhang B aus AI-Studio-Review) |
-| AI_STUDIO_PROMPT.md | fertiger Prompt fuer AI Studio (inkl. gelernter Lektionen) |
+| .scratch/forschungs-spielplan/ | Wayfinder-Karte (map.md, 10/10) + spec.md (Spielplan) + HANDOFF.md + issues/ |
 | CLAUDE.md | Projektregeln + Handoff-Workflow |
 | README.md | Projektueberblick + Setup + Test-Disziplin |

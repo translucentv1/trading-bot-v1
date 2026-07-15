@@ -7,6 +7,39 @@
 
 ---
 
+## 2026-07-15 (Tag 5) – Wayfinder-Spielplan (10/10) + Backtest-Pipeline gebaut
+
+**Kurzfassung:** Planungs- und Bau-Sitzung, keine neuen Backtests. Der
+Forschungs- & Betriebs-Spielplan wurde als Wayfinder-Karte fertig gechartet
+(alle 10 Tickets geloest) und zur `spec.md` verdichtet; anschliessend das erste
+Folge-Vorhaben umgesetzt: die Backtest-Automatisierungs-Pipeline.
+
+- **Spielplan komplett (10/10):** Tickets 07 (Broker-Realitaet), 09 (Hypothesen-
+  Pipeline), 10 (Repo-Struktur) geloest; Karte + `spec.md` in
+  `.scratch/forschungs-spielplan/`. Roter Faden: die 121 Nullnummern waren
+  Methodik (Overfitting), kein Markt -> disziplinierter Ideen-Eingang,
+  Walk-Forward + Lockbox + Deflated Sharpe, ehrliche Broker-Kosten, US100 als
+  Validierungs-Sandkasten, Promotion-Gate, automatisierter Loop.
+- **Groundwork:** `backtests.csv` um 4 Spalten erweitert (hypothese, phase,
+  wf_zyklus, dsr) vor `fazit`; alle 163 Zeilen migriert, validate gruen.
+  `hypothesen.md` als Register angelegt (Mechanismus-vor-Test, Anti-HARKing).
+  KONTEXT-Glossar um Walk-Forward, WFE, Lockbox, Deflated Sharpe, HARKing-Budget
+  ergaenzt.
+- **Pipeline gebaut (`tools/pipeline/`):** `run_backtest.ps1` (Orchestrator,
+  Compile->ini->Lauf->parse->validate, mit Retry + lautem Abbruch),
+  `parse_report.py` (Report->CSV, label-basiert EN/DE, gegen Fixture getestet:
+  alle Kennzahlen korrekt, Leer-Report bricht laut ab), `backtest.ini.template`
+  (Model=4 reale Ticks), `config.json` (die eine auszufuellende Datei).
+  Roh-Reports gitignored, `reports/heatmaps/` versioniert.
+- **Aufraeumen:** `AI_STUDIO_PROMPT.md` geloescht; GLM-5/AI-Studio-Rollen aus
+  KONTEXT/README bereinigt (nur noch Claude Code + Claude-Web).
+- **Offen:** `config.json` mit MT5-Pfaden ausfuellen; ersten echten US100-Lauf
+  fahren und dabei die 2 markierten Baustellen bestaetigen (Report-Fundort +
+  Report-Labels); DSR-Skript + KONTEXT-Glossar-Feinschliff; erster
+  Hypothesen-Zyklus nach neuem Prozess.
+
+---
+
 ## 2026-07-14 (Tag 4) – Skills-Kuration + KONTEXT-Glossar + Token-Bloat
 
 **Kurzfassung:** Werkzeug-/Doku-Sitzung, keine neuen Backtests. mattpocock-

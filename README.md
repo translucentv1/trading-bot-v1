@@ -24,12 +24,13 @@ experts/        MQL5-EAs (.mq5) – aktiv: ema_mtf_v3.mq5 (v3.51);
                 carry_basket_v1.mq5 (alle getestet, kein robuster Edge)
 scripts/        Cointegration-Pre-Check (Script + EA-Variante) + Ergebnis
 tools/          validate_backtests.py, pool_backtests.py, checklist_new_strategy.md
-backtests.csv   Register ALLER Backtests (Kennzahlen, z-Score, Fazit)
+                pipeline/ (Backtest-Automatisierung: run_backtest.ps1 + parse_report.py)
+backtests.csv   Register ALLER Backtests (Kennzahlen, z-Score, Hypothese, Fazit)
+hypothesen.md   Hypothesen-Register (Mechanismus-vor-Test, Anti-HARKing)
 KONTEXT.md      Aktueller Stand + Chronik + Roadmap (Handoff-Datei)
-JOURNAL.md      Tagebuch mit Tageseinträgen
-EA_CODE.md      Kompletter EA-Code als Markdown (für AI-Studio-Handoff)
-AI_STUDIO_PROMPT.md  Prompt-Vorlage für AI Studio (Strategie-Rolle)
-docs/           REVIEW_VERBESSERUNG.md (AI-Studio-Review/Roadmap)
+JOURNAL.md      Tagebuch mit Tageseintraegen
+EA_CODE.md      Kompletter EA-Code als Markdown (Handoff)
+docs/           REVIEW_VERBESSERUNG.md (Review/Roadmap, historisch)
 CLAUDE.md       Projektregeln
 ```
 

@@ -5,6 +5,11 @@
 *.ex5
 *.log
 
+# Backtest-Pipeline (Ticket 08/10): Roh-Reports + generierte .ini sind
+# reproduzierbar -> gitignored. Verdichtete Heatmap-Belege bleiben versioniert.
+reports/*
+!reports/heatmaps/
+
 # Betriebssystem
 .DS_Store
 Thumbs.db
