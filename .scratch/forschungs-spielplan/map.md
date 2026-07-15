@@ -1,7 +1,7 @@
 # Forschungs- & Betriebs-Spielplan
 
 Label: wayfinder:map
-Letzte Aktualisierung: 15.07.2026
+Letzte Aktualisierung: 15.07.2026 (Karte komplett -- 10/10 geloest)
 
 ## Destination
 
@@ -76,13 +76,40 @@ entscheiden ist; gebaut/umgebaut/getestet wird danach.
   Plausibilitaetscheck + Retry + lautes Stoppen statt Muell; manueller Fallback bei
   Demo-Server-Aussetzern. Endet strikt vor Live. Bau = vorrangiges Folge-Vorhaben
   (planen, nicht bauen). -> Repo-Struktur graduiert zu Ticket 10.
+- [07 Broker-Realitaet](issues/07-broker-realitaet.md) -- Jeder Wertungs-Lauf preist
+  volle Broker-Realitaet ein (im Zweifel teurer): (1) Ausfuehrungsmodell "jeder Tick
+  auf realen Ticks" Pflicht, schnellere Modelle nur fuers Vorab-Sieben; (2) realer
+  variabler Spread + Stress-Zweitlauf mit ~1,5x fixem Spread; (3) Kommission &
+  Slippage explizit, konservativ, pro Instrument in der .ini; (4) neue Kosten-Ertrags-
+  Schranke: Kosten <= ~1/3 des Brutto-Edges/Trade, sonst raus (Stufe 2 der Abbruch-
+  Treppe). Bausteine 1-3 -> .ini-Vorlage (08); Baustein 4 -> Abbruch-Treppe (05).
+- [09 Hypothesen-Pipeline](issues/09-hypothesen-pipeline.md) -- Disziplinierter
+  Ideen-Prozess: (1) Eingangstor "oekonomischer Mechanismus zuerst" (kein
+  Mechanismus -> kein Backtest; Data-Mining nur als Kandidaten-Notiz); (2) 4-Feld-
+  Format (Mechanismus, Instrument+Richtung, vorhergesagtes Muster, Falsifikation),
+  vor dem Lauf fix + danach unveraenderlich, Key in backtests.csv -> hypothesen.md;
+  (3) Priorisierung nach staerkster Mechanismus x billigste Widerlegung, NICHT nach
+  Gewinnhoehe (koppelt ans HARKing-Budget aus 05); (4) Ideen-Klasse folgt der
+  Marktstufe (jetzt nur Einzelinstrument-Mechanismen fuer Index, Querschnitt erst in
+  Phase-4b). Fuellt die `hypothese`-Spalte aus 05 mit Anti-HARKing-Gehalt.
+- [10 Repo-Struktur & Skill-Kuratierung](issues/10-repo-struktur-skills.md) -- Eine
+  Ebene Ordnung: (1) tools/pipeline/ buendelt den Loop, Alt-Helfer bleiben flach;
+  (2) backtests.csv +4 Spalten (hypothese, phase, wf_zyklus, dsr), Prosa nach neuer
+  hypothesen.md im Root; (3) XML-Roh-Reports gitignored (reports/), Heatmap-Belege
+  eines Schluessellaufs versioniert (reports/heatmaps/); (4) Skills auf Spielplan
+  kuratiert (Kern: wayfinder/grilling/domain-modeling/research/handoff; raus:
+  setup-matt-pocock-skills, grill-me/-with-docs, Altlast AI_STUDIO_PROMPT.md).
+  Synchron-Halten-Regeln bleiben; KONTEXT-Glossar + hypothesen.md folgen im Umbau.
+  Ausfuehrung = Folge-Vorhaben (planen, nicht bauen). -> Karte komplett.
 
 ## Not yet specified
 
 <!-- in-scope Nebel, noch nicht scharf genug fuer ein Ticket -->
 
-- Handoff-Fluss verfeinern (Claude Code <-> Claude Code; Gemini/GLM ausgeschlossen).
-- Kapital-/Risiko-Sizing ueber die Eisernen Regeln hinaus.
+- (leer) -- alle grundsaetzlichen Entscheidungen sind getroffen. Verbleibende
+  Detailfragen (Handoff-Fluss-Feinschliff Claude Code <-> Claude Code; Kapital-/
+  Risiko-Sizing ueber die Eisernen Regeln hinaus) werden im Folge-Vorhaben beim
+  Verdichten zur spec.md geklaert, nicht mehr als eigene Karten-Tickets.
 
 ## Out of scope
 
