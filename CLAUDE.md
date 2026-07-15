@@ -15,7 +15,9 @@ noch dort.
 - `experts/*.mq5` — EAs, vom Nutzer im MetaEditor kompiliert.
 - `scripts/*.mq5` — Hilfsskripte (z. B. Cointegration-Checks, Symbol-Finder).
 - `tools/` — Python-Werkzeuge: `validate_backtests.py`, `pool_backtests.py`,
-  `fetch_forex.py` / `analyze_forex.py` (freier Datenkanal), Checklisten.
+  `fetch_forex.py` (Twelve Data, Forex) / `fetch_yahoo.py` (Yahoo, tiefe
+  Aktien-Historie, kein Key) / `analyze_forex.py` (Mean-Reversion-Vorfilter),
+  `ask_gemini.py` (Gemini-CLI-Sub-Agent), Checklisten.
 - `tools/pipeline/` — automatisierte IS+OOS-Korb-Backtests (README dort).
 - `docs/agents/*.md` — Skill-/Agent-Konfiguration (Issue-Tracker, Domain-Docs).
 - `backtests.csv` — eine Zeile pro Backtest-Lauf; Header definiert die Spalten.
