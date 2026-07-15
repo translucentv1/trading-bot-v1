@@ -164,3 +164,4 @@ id;datum;ea_version;zeitraum;symbol;exec_tf;bias_tf;richtung;strategie;net_profi
 163;2026-07-13;stock_mr_v1;2024-01_2026-07;AUS200;D1;-;long;stock-mr-rsi2;-392.63;0.51;-0.99;5.18;14;42.86;68.64;-100.56;2;1.01;-1.25;;;;;Backtest 17 - AUS200 Index-CFD (kein Edge)
 164;2026-07-15;ema_mtf_v3;2022.01.01_2023.12.31;AUS200;H1;H4;long;ema-cross;-1266.31;0.73;-2.72;18.01;84;33.33;122.72;-83.97;8;0.84;-1.42;H-2026-07-AUS200-trend;sieben;;;Baseline Fenster A Trend-Persistenz
 165;2026-07-15;ema_mtf_v3;2024.01.01_2026.07.01;AUS200;H1;H4;long;ema-cross;258.86;1.04;0.29;10.77;114;40.35;144.47;-93.92;10;0.94;0.21;H-2026-07-AUS200-trend;sieben;;;Baseline Fenster B Trend-Persistenz
+166;2026-07-15;stock_mr_v1;2024.01.01_2026.07.01;AUS200;D1;;long;stock-mr;-401.52;0.25;-0.19;4.02;8;25.00;65.81;-88.86;4;0.89;-2.12;H-2026-07-AUS200-mr;sieben;;;Baseline Fenster B Oversold-Bounce Index

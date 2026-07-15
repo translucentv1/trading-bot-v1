@@ -38,8 +38,38 @@ in der Spalte `hypothese` von `backtests.csv`.
 
 ## Aktive Hypothesen
 
+### H-2026-07-AUS200-mr  --  Oversold-Bounce (Mean-Reversion) auf dem Index
+- Status: verworfen (15.07.2026, Baseline-Tor: zu wenige Signale ohne Korb-Pooling)
+- Mechanismus: Kurzfristige Ueberverkauft-Rueckkehr. Nach scharfen Abverkaeufen
+  kaufen systematische Rebalancer und Dip-Kaeufer den Index zurueck; die kurzfristige
+  Ueberreaktion der Panikverkaeufer revertiert. Wer verliert: wer in die Schwaeche
+  hinein verkauft (Stop-Kaskaden, Momentum-Aussteiger). Es ist DERSELBE Mechanismus,
+  der auf Nasdaq-Einzelaktien den bisher einzigen z>2-Befund lieferte (Backtest 18,
+  stock_mr RSI(2), z=2,46) -- Hypothese: er traegt auch auf dem Index AUS200.
+- Instrument + Richtung: AUS200, D1, Long-only Oversold-Bounce (`stock_mr_v1`:
+  RSI(2) tief, SMA(200)-Trendfilter, ATR-Stop). Trendfilter = nur Dips im
+  Aufwaertstrend kaufen (kein fallendes Messer).
+- Vorhergesagtes Muster: Da regime-abhaengig (Bull), Erwartung wie bei den Aktien:
+  Fenster B (Bull) klar positiv (PF>1, z deutlich > 0), Fenster A (Bear 2022)
+  neutral bis leicht negativ. Fuers Erfolgs-Tor (05) muss der gepoolte/robuste Edge
+  ueber Walk-Forward halten; ein Bull-only-Edge ist als "Buy-the-Dip im Aufwaerts-
+  trend" defensibel, aber muss ehrlich als regime-bedingt gekennzeichnet werden.
+- Falsifikation: PF<1 auch in Fenster B (Bull); oder z in B nahe 0 (Rauschen);
+  oder der Edge verschwindet, sobald der Trendfilter greift. Dann traegt der
+  Aktien-Mechanismus NICHT auf den Index -> verwerfen.
+- backtests.csv-ids: 166 (Fenster B); Fenster A = 0 Trades (Trendfilter blockte alle
+  Longs im Baerenjahr 2022 -> keine CSV-Zeile, mechanismus-konsistent).
+- **Baseline-Ergebnis (15.07.2026): verworfen.** Fenster B PF 0,25, z -2,12, nur
+  8 Trades. Falsifikation erfuellt (PF<1 im Bull). **Strukturelle Kern-Einsicht:**
+  der Aktien-MR-Edge (z=2,46, Backtest 18) entstand durch POOLING von ~500 Trades
+  ueber einen 8-10-Titel-Korb. Ein EINZELNER Index liefert nur eine Handvoll
+  Oversold-Signale (hier 8) -- kein Pooling, keine Querschnitts-Diversifikation,
+  kein Edge. Der Mechanismus braucht den Aktien-KORB (Stufe 2), nicht den Index.
+  -> AUS200 ist als Stufe-1-Sandkasten strukturell schwach fuer die einzige
+  bewaehrte Edge-Quelle des Projekts.
+
 ### H-2026-07-AUS200-trend  --  Trend-Persistenz im Aktienindex
-- Status: in-Pruefung
+- Status: verworfen (15.07.2026, Baseline-Tor: EMA-Trend ohne Edge auf AUS200)
 - Mechanismus: Aktienindizes zeigen Trend-Persistenz, weil Information langsam
   diffundiert und eine dauerhafte Long-Risikopraemie besteht. Trendfolger gewinnen
   das Geld, das Gegentrend-/Mean-Reversion-Haendler und zu frueh aussteigende Anleger
