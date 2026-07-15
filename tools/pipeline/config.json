@@ -21,7 +21,17 @@
 
   "_kosten": "Broker-Realitaet pro Instrument (Ticket 07). Werte aus dem Broker ablesen; solange unbekannt konservativ hoch. Kommission pro Lot pro Seite.",
   "kosten_pro_instrument": {
-    "AUS200": { "kommission_pro_lot_seite": 0.0, "slippage_points": 2 }
+    "AUS200": { "kommission_pro_lot_seite": 0.0, "slippage_points": 2 },
+    "AAPL":   { "kommission_pro_lot_seite": 0.0, "slippage_points": 2, "_spread_pts": 2, "_tick_value": 0.01, "_contract_size": 1.0 },
+    "AMD":    { "kommission_pro_lot_seite": 0.0, "slippage_points": 2, "_spread_pts": 2, "_tick_value": 0.01, "_contract_size": 1.0 },
+    "AMZN":   { "kommission_pro_lot_seite": 0.0, "slippage_points": 2, "_spread_pts": 2, "_tick_value": 0.01, "_contract_size": 1.0 },
+    "AVGO":   { "kommission_pro_lot_seite": 0.0, "slippage_points": 2, "_spread_pts": 2, "_tick_value": 0.01, "_contract_size": 1.0 },
+    "ADBE":   { "kommission_pro_lot_seite": 0.0, "slippage_points": 2, "_spread_pts": 2, "_tick_value": 0.01, "_contract_size": 1.0 },
+    "ABNB":   { "kommission_pro_lot_seite": 0.0, "slippage_points": 2, "_spread_pts": 2, "_tick_value": 0.01, "_contract_size": 1.0 },
+    "AXP":    { "kommission_pro_lot_seite": 0.0, "slippage_points": 2, "_spread_pts": 2, "_tick_value": 0.01, "_contract_size": 1.0 },
+    "ABT":    { "kommission_pro_lot_seite": 0.0, "slippage_points": 2, "_spread_pts": 2, "_tick_value": 0.01, "_contract_size": 1.0 },
+    "AIG":    { "kommission_pro_lot_seite": 0.0, "slippage_points": 2, "_spread_pts": 2, "_tick_value": 0.01, "_contract_size": 1.0 },
+    "AEP":    { "kommission_pro_lot_seite": 0.0, "slippage_points": 2, "_spread_pts": 2, "_tick_value": 0.01, "_contract_size": 1.0 }
   },
 
   "_retry": "Robustheit gegen Demo-Server-Aussetzer (Ticket 08): begrenzter Retry, dann lautes Stoppen statt Muell schreiben.",

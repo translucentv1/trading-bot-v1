@@ -95,6 +95,44 @@ in der Spalte `hypothese` von `backtests.csv`.
   schon z~0 zeigt). Empfehlung: EMA-Trend auf AUS200 verwerfen; naechste Hypothese
   mit anderem Mechanismus/Instrument. Endgueltiges Verwerfen nach Nutzer-Entscheid.
 
+### H-STOCK-MR-BASELINE  --  Mean-Reversion RSI(2) auf US-Aktien-Korb (Baseline)
+- Status: **verworfen** (15.07.2026, OOS-Kollaps: PF<1, WFE=-0,12)
+- Mechanismus: Identisch mit dem einzigen z>2-Befund des Projekts (Backtest 18,
+  z=2,46). Kurzfristige Ueberverkauft-Rueckkehr in starken Aufwaertstrends:
+  Nach scharfen Abverkaeufen kaufen systematische Rebalancer und Dip-Kaeufer
+  Einzelaktien zurueck; die kurzfristige Ueberreaktion der Panikverkaeufer
+  (Stop-Kaskaden, Momentum-Aussteiger) revertiert innerhalb weniger Tage.
+  Der Edge entsteht durch POOLING ueber einen diversifizierten Korb (10 Titel),
+  was die Signaldichte auf ~80-100 Trades/2 Jahre hebt -- auf einem einzelnen
+  Index (AUS200) war das Signal zu duenn (nur 8 Trades, verworfen).
+- Instrument + Richtung: US-Aktien-Korb (AAPL, AMD, AMZN, AVGO, ADBE, ABNB,
+  AXP, ABT, AIG, AEP), D1, Long-only. EA: `stock_mr_v1` mit Default-Parametern
+  (RSI(2) Entry<10, Exit>80, SMA(200)-Trendfilter, 3xATR-Stop, MaxHold=5).
+- Vorhergesagtes Muster: Gepoolter PF>1 und z>0 im IS (2023-2024); der Edge
+  muss im OOS (2025) halten (WFE>0,5). Weil die Default-Parameter NICHT
+  optimiert sind, ist dies ein reiner Mechanismus-Test -- haelt der Roheffekt
+  auf einem neuen Korb unter dem neuen Protokoll? PF>1,4 waere Verdacht.
+- Falsifikation: Gepoolter z<=0 im IS (kein Roheffekt); oder OOS-Kollaps
+  (PF<1, WFE<=0,5); oder der Edge konzentriert sich auf <3 Symbole (kein
+  echter Querschnitts-Effekt, sondern Einzeltitel-Glueck).
+- backtests.csv-ids: 167-176 (IS), 177-185 (OOS)
+- **IS-Ergebnis (15.07.2026):** 87 Trades gepoolt, 63,2% Wins, Netto +556 USD,
+  PF 1,38, z=1,44. Positiv, aber nicht hochsignifikant. 6 von 10 Symbolen
+  profitabel (breit gestreut, kein Einzeltitel-Glueck).
+- **OOS-Ergebnis (15.07.2026):** 37 Trades gepoolt, 51,4% Wins, Netto -49 USD,
+  PF 0,94, z=-0,17. **Vollstaendiger Kollaps.** WFE = z(OOS)/z(IS) = -0,12.
+  Falsifikation greift doppelt: PF<1 UND WFE weit unter 0,5.
+  Nur 3 von 9 aktiven Symbolen profitabel (AMD, AXP, ABT) -- der IS-Edge war
+  breiter gestreut, was auf Regime-Abhaengigkeit hindeutet, nicht auf einen
+  robusten Querschnitts-Mechanismus.
+- **Strukturelle Erkenntnis:** Der alte z=2,46-Befund (Backtest 18) wurde auf
+  einem ANDEREN Zeitraum und mit ANDERER Methodik (kein sauberes WF-Protokoll)
+  erzielt. Unter dem neuen, strengen Protokoll (fixe IS/OOS-Trennung, ehrliches
+  Pooling, Default-Parameter) traegt der RSI(2)-Oversold-Bounce-Mechanismus
+  NICHT robust. Die Baseline-Ergebnisse im IS (z=1,44) waren moeglicherweise
+  durch das Bullen-Regime 2023-2024 beguestigt. Optimierung an diesen
+  Parametern ist laut Abbruch-Treppe (Stufe 2) NICHT gerechtfertigt.
+
 ## Kandidaten-Notizen (Mechanismus fehlt noch)
 
 <!-- Data-Mining-/Screening-Treffer ohne Mechanismus. Kein Testbudget, bis ein
